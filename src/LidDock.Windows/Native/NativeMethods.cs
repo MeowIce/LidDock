@@ -102,4 +102,51 @@ public static class nativeMethods
 
     [DllImport("kernel32.dll", EntryPoint = "GetCurrentProcess")]
     public static extern IntPtr getCurrentProcess();
+
+    [DllImport("psapi.dll", EntryPoint = "EmptyWorkingSet")]
+    public static extern bool emptyWorkingSet(
+        IntPtr hProcess);
+
+    [DllImport("user32.dll", EntryPoint = "GetMessageW")]
+    public static extern int getMessage(
+        out nativeMsg lpMsg,
+        IntPtr hWnd,
+        uint wMsgFilterMin,
+        uint wMsgFilterMax);
+
+    [DllImport("user32.dll", EntryPoint = "TranslateMessage")]
+    public static extern bool translateMessage(
+        ref nativeMsg lpMsg);
+
+    [DllImport("user32.dll", EntryPoint = "DispatchMessageW")]
+    public static extern IntPtr dispatchMessage(
+        ref nativeMsg lpMsg);
+
+    [DllImport("user32.dll", EntryPoint = "PostQuitMessage")]
+    public static extern void postQuitMessage(
+        int nExitCode);
+
+    [DllImport("user32.dll", EntryPoint = "SetForegroundWindow")]
+    public static extern bool setForegroundWindow(
+        IntPtr hWnd);
+
+    [DllImport("user32.dll", EntryPoint = "PostMessageW")]
+    public static extern bool postMessage(
+        IntPtr hWnd,
+        uint msg,
+        IntPtr wParam,
+        IntPtr lParam);
+}
+
+[StructLayout(LayoutKind.Sequential)]
+public struct nativeMsg
+{
+    public IntPtr hwnd;
+    public uint message;
+    public IntPtr wParam;
+    public IntPtr lParam;
+    public uint time;
+    public int ptX;
+    public int ptY;
+    public uint lPrivate;
 }

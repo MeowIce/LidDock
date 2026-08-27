@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Platforms>x64</Platforms>
+    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+    <ApplicationManifest>..\LidDock.App\app.manifest</ApplicationManifest>
+    <PublishAot>true</PublishAot>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <OptimizationPreference>Size</OptimizationPreference>
+    <ServerGarbageCollection>false</ServerGarbageCollection>
+    <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
+    <EventSourceSupport>false</EventSourceSupport>
+    <StackTraceSupport>false</StackTraceSupport>
+    <AssemblyName>LidDock</AssemblyName>
+    <UseSystemResourceKeys>true</UseSystemResourceKeys>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\LidDock.UI.exe" LogicalName="LidDock.UI.exe" Condition="Exists('Resources\LidDock.UI.exe')" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LidDock.Core\LidDock.Core.csproj" />
+    <ProjectReference Include="..\LidDock.Windows\LidDock.Windows.csproj" />
+    <ProjectReference Include="..\LidDock.Diagnostics\LidDock.Diagnostics.csproj" />
+  </ItemGroup>
+
+</Project>

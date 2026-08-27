@@ -54,6 +54,8 @@ public class diagnosticsViewModel : baseViewModel
 
     public string formattedPowerSource => displayFormatters.formatPowerSource(currentPowerInfo);
 
+    public byte batteryPercent => currentPowerInfo.batteryPercent;
+
     public string displaysSummary
     {
         get => displaysSummaryVal;
@@ -94,6 +96,7 @@ public class diagnosticsViewModel : baseViewModel
         lidState = lidWatcher.queryLidState();
         currentPowerInfo = powerWatcher.queryPowerStatus();
         onPropertyChanged(nameof(formattedPowerSource));
+        onPropertyChanged(nameof(batteryPercent));
 
         var displays = displayWatcher.queryConnectedDisplays();
         displaysList.Clear();
@@ -175,6 +178,16 @@ public class diagnosticsViewModel : baseViewModel
         {
             currentPowerInfo = power;
             onPropertyChanged(nameof(formattedPowerSource));
+            onPropertyChanged(nameof(batteryPercent));
+        });
+    }
+
+    public void updateLidState(lidState state)
+    {
+        Application.Current?.Dispatcher.InvokeAsync(() =>
+        {
+            lidState = state;
+            lidWatcher.notifyLidStateChanged(state == lidState.open);
         });
     }
 

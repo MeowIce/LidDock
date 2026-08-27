@@ -28,6 +28,7 @@ public partial class SettingsWindow : Window
 
     private void onCloseClicked(object sender, RoutedEventArgs e)
     {
+        (DataContext as settingsViewModel)?.save();
         Close();
     }
 

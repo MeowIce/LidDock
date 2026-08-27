@@ -33,8 +33,8 @@ public static class displayFormatters
         return power.powerSource switch
         {
             powerSourceType.acPower => $"AC Connected{chargingText}",
-            powerSourceType.battery => $"Battery ({power.batteryPercent}%){chargingText}",
-            _ => $"Unknown ({power.batteryPercent}%)"
+            powerSourceType.battery => $"Battery{chargingText}",
+            _ => "Unknown"
         };
     }
 

@@ -14,6 +14,7 @@ public class powerSchemeManager : iPowerSchemeManager
     private Guid currentActiveScheme;
     private bool isBackupTaken;
     private readonly object syncLock = new object();
+    public bool restoreOnDispose { get; set; } = false;
 
     private void refreshActiveScheme()
     {
@@ -229,6 +230,9 @@ public class powerSchemeManager : iPowerSchemeManager
 
     public void dispose()
     {
-        restoreOriginalSettings();
+        if (restoreOnDispose)
+        {
+            restoreOriginalSettings();
+        }
     }
 }

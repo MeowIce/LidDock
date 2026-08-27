@@ -1,82 +1,185 @@
 using System;
 using System.Runtime.InteropServices;
-using System.Windows.Interop;
 using LidDock.Windows.Native;
 
 namespace LidDock.Windows.Watchers;
 
 public class nativeMessageWindow : IDisposable
 {
-    private HwndSource? hwndSource;
-    private IntPtr lidNotificationHandle;
-    private IntPtr powerNotificationHandle;
-    private uint taskbarCreatedMessage;
+    [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+    private delegate IntPtr wndProcDelegate(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
 
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    private struct wndClassEx
+    {
+        public uint cbSize;
+        public uint style;
+        public wndProcDelegate lpfnWndProc;
+        public int cbClsExtra;
+        public int cbWndExtra;
+        public IntPtr hInstance;
+        public IntPtr hIcon;
+        public IntPtr hCursor;
+        public IntPtr hbrBackground;
+        [MarshalAs(UnmanagedType.LPWStr)]
+        public string? lpszMenuName;
+        [MarshalAs(UnmanagedType.LPWStr)]
+        public string lpszClassName;
+        public IntPtr hIconSm;
+    }
+
+    [DllImport("user32.dll", EntryPoint = "RegisterClassExW", CharSet = CharSet.Unicode, SetLastError = true)]
+    private static extern ushort registerClassEx(ref wndClassEx lpwcx);
+
+    [DllImport("user32.dll", EntryPoint = "UnregisterClassW", CharSet = CharSet.Unicode, SetLastError = true)]
+    private static extern bool unregisterClass(string lpClassName, IntPtr hInstance);
+
+    [DllImport("user32.dll", EntryPoint = "CreateWindowExW", CharSet = CharSet.Unicode, SetLastError = true)]
+    private static extern IntPtr createWindowEx(
+        uint dwExStyle,
+        string lpClassName,
+        string lpWindowName,
+        uint dwStyle,
+        int x,
+        int y,
+        int nWidth,
+        int nHeight,
+        IntPtr hWndParent,
+        IntPtr hMenu,
+        IntPtr hInstance,
+        IntPtr lpParam);
+
+    [DllImport("user32.dll", EntryPoint = "DestroyWindow", SetLastError = true)]
+    private static extern bool destroyWindow(IntPtr hWnd);
+
+    [DllImport("user32.dll", EntryPoint = "DefWindowProcW")]
+    private static extern IntPtr defWindowProc(IntPtr hWnd, uint uMsg, IntPtr wParam, IntPtr lParam);
+
+    [DllImport("kernel32.dll", EntryPoint = "GetModuleHandleW", CharSet = CharSet.Unicode)]
+    private static extern IntPtr getModuleHandle(string? lpModuleName);
+
+    private const string windowClassName = "LidDockNativeMessageListenerClass";
+    private readonly IntPtr hwndMessageParent = new IntPtr(-3);
+
+    private IntPtr windowHandle = IntPtr.Zero;
+    private IntPtr moduleHandle = IntPtr.Zero;
+    private static wndProcDelegate? cachedWndProc;
+    private IntPtr lidNotificationHandle = IntPtr.Zero;
+    private IntPtr powerNotificationHandle = IntPtr.Zero;
+    private uint taskbarCreatedMessage;
+    private uint settingsChangedMessage;
+
+    public IntPtr handle => windowHandle;
     public event Action? onDisplayChangedMessage;
     public event Action<bool>? onLidStateChangedMessage;
     public event Action? onPowerSourceChangedMessage;
     public event Action? onTaskbarCreatedMessage;
+    public event Action? onSettingsChangedMessage;
+    public event Action<int, IntPtr, IntPtr>? onGenericMessage;
 
     public void initialize()
     {
-        var parameters = new HwndSourceParameters("LidDockNativeListener")
+        moduleHandle = getModuleHandle(null);
+        cachedWndProc = wndProc;
+
+        var wcx = new wndClassEx
         {
-            WindowStyle = 0,
-            ExtendedWindowStyle = 0,
-            ParentWindow = new IntPtr(-3)
+            cbSize = (uint)Marshal.SizeOf<wndClassEx>(),
+            style = 0,
+            lpfnWndProc = cachedWndProc,
+            cbClsExtra = 0,
+            cbWndExtra = 0,
+            hInstance = moduleHandle,
+            hIcon = IntPtr.Zero,
+            hCursor = IntPtr.Zero,
+            hbrBackground = IntPtr.Zero,
+            lpszMenuName = null,
+            lpszClassName = windowClassName,
+            hIconSm = IntPtr.Zero
         };
 
-        hwndSource = new HwndSource(parameters);
-        hwndSource.AddHook(wndProc);
+        registerClassEx(ref wcx);
 
-        var lidGuid = nativeConstants.guidLidSwitchStateChange;
-        lidNotificationHandle = nativeMethods.registerPowerSettingNotification(
-            hwndSource.Handle,
-            ref lidGuid,
-            nativeConstants.deviceNotifyWindowHandle);
+        windowHandle = createWindowEx(
+            0,
+            windowClassName,
+            "LidDockNativeListener",
+            0,
+            0,
+            0,
+            0,
+            0,
+            hwndMessageParent,
+            IntPtr.Zero,
+            moduleHandle,
+            IntPtr.Zero);
 
-        var powerGuid = nativeConstants.guidAcdcPowerSource;
-        powerNotificationHandle = nativeMethods.registerPowerSettingNotification(
-            hwndSource.Handle,
-            ref powerGuid,
-            nativeConstants.deviceNotifyWindowHandle);
+        if (windowHandle != IntPtr.Zero)
+        {
+            var lidGuid = nativeConstants.guidLidSwitchStateChange;
+            lidNotificationHandle = nativeMethods.registerPowerSettingNotification(
+                windowHandle,
+                ref lidGuid,
+                nativeConstants.deviceNotifyWindowHandle);
 
-        taskbarCreatedMessage = nativeMethods.registerWindowMessage("TaskbarCreated");
+            var powerGuid = nativeConstants.guidAcdcPowerSource;
+            powerNotificationHandle = nativeMethods.registerPowerSettingNotification(
+                windowHandle,
+                ref powerGuid,
+                nativeConstants.deviceNotifyWindowHandle);
+
+            taskbarCreatedMessage = nativeMethods.registerWindowMessage("TaskbarCreated");
+            settingsChangedMessage = nativeMethods.registerWindowMessage("LidDock_SettingsChanged_Event");
+        }
     }
 
-    private IntPtr wndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+    private IntPtr wndProc(IntPtr hwnd, uint msg, IntPtr wParam, IntPtr lParam)
     {
-        if (msg == nativeConstants.wmDisplayChange)
+        try
         {
-            onDisplayChangedMessage?.Invoke();
-            handled = true;
-            return IntPtr.Zero;
-        }
+            onGenericMessage?.Invoke((int)msg, wParam, lParam);
 
-        if (taskbarCreatedMessage != 0 && (uint)msg == taskbarCreatedMessage)
-        {
-            onTaskbarCreatedMessage?.Invoke();
-            handled = true;
-            return IntPtr.Zero;
-        }
-
-        if (msg == nativeConstants.wmPowerBroadcast && wParam.ToInt32() == nativeConstants.pbtPowerSettingChange)
-        {
-            var setting = Marshal.PtrToStructure<powerBroadcastSetting>(lParam);
-            if (setting.powerSetting == nativeConstants.guidLidSwitchStateChange)
+            if (settingsChangedMessage != 0 && msg == settingsChangedMessage)
             {
-                var isLidOpen = setting.data != 0;
-                onLidStateChangedMessage?.Invoke(isLidOpen);
-                handled = true;
+                onSettingsChangedMessage?.Invoke();
+                return IntPtr.Zero;
             }
-            else if (setting.powerSetting == nativeConstants.guidAcdcPowerSource)
+
+            if (msg == nativeConstants.wmDisplayChange)
             {
-                onPowerSourceChangedMessage?.Invoke();
-                handled = true;
+                onDisplayChangedMessage?.Invoke();
+                return IntPtr.Zero;
+            }
+
+            if (taskbarCreatedMessage != 0 && msg == taskbarCreatedMessage)
+            {
+                onTaskbarCreatedMessage?.Invoke();
+                return IntPtr.Zero;
+            }
+
+            if (msg == nativeConstants.wmPowerBroadcast && wParam.ToInt64() == nativeConstants.pbtPowerSettingChange && lParam != IntPtr.Zero)
+            {
+                var setting = Marshal.PtrToStructure<powerBroadcastSetting>(lParam);
+                if (setting.powerSetting == nativeConstants.guidLidSwitchStateChange)
+                {
+                    var isLidOpen = (setting.dataLength == 1)
+                        ? Marshal.ReadByte(lParam, 20) != 0
+                        : Marshal.ReadInt32(lParam, 20) != 0;
+                    onLidStateChangedMessage?.Invoke(isLidOpen);
+                    return IntPtr.Zero;
+                }
+                else if (setting.powerSetting == nativeConstants.guidAcdcPowerSource)
+                {
+                    onPowerSourceChangedMessage?.Invoke();
+                    return IntPtr.Zero;
+                }
             }
         }
+        catch
+        {
+        }
 
-        return IntPtr.Zero;
+        return defWindowProc(hwnd, msg, wParam, lParam);
     }
 
     void IDisposable.Dispose() => dispose();
@@ -95,11 +198,16 @@ public class nativeMessageWindow : IDisposable
             powerNotificationHandle = IntPtr.Zero;
         }
 
-        if (hwndSource != null)
+        if (windowHandle != IntPtr.Zero)
         {
-            hwndSource.RemoveHook(wndProc);
-            hwndSource.Dispose();
-            hwndSource = null;
+            destroyWindow(windowHandle);
+            windowHandle = IntPtr.Zero;
+        }
+
+        if (moduleHandle != IntPtr.Zero)
+        {
+            unregisterClass(windowClassName, moduleHandle);
+            moduleHandle = IntPtr.Zero;
         }
     }
 }
