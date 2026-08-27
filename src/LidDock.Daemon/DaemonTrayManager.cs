@@ -197,7 +197,7 @@ public class daemonTrayManager : IDisposable
                 stateMachine,
                 onExitRequested);
         }
-        else if (eventType == wmLbuttonUp || eventType == wmLbuttonDblClk)
+        else if (eventType == wmLbuttonDblClk)
         {
             nativeTrayMenu.launchUi(string.Empty);
         }

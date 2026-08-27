@@ -17,6 +17,7 @@ public class trayIconManager : IDisposable
 
     public const int wmTrayCallback = 0x8000 + 101;
     private const int wmLbuttonUp = 0x0202;
+    private const int wmLbuttonDblClk = 0x0203;
     private const int wmRbuttonUp = 0x0205;
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
@@ -184,7 +185,7 @@ public class trayIconManager : IDisposable
                 contextMenu.IsOpen = true;
             }
         }
-        else if (eventType == wmLbuttonUp)
+        else if (eventType == wmLbuttonDblClk)
         {
             onOpenDiagnosticsRequested?.Invoke();
         }

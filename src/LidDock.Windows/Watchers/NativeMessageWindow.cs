@@ -59,6 +59,7 @@ public class nativeMessageWindow : IDisposable
     private static extern IntPtr getModuleHandle(string? lpModuleName);
 
     private const string windowClassName = "LidDockNativeMessageListenerClass";
+    private const uint csDblClks = 0x0008;
     private readonly IntPtr hwndMessageParent = new IntPtr(-3);
 
     private IntPtr windowHandle = IntPtr.Zero;
@@ -85,7 +86,7 @@ public class nativeMessageWindow : IDisposable
         var wcx = new wndClassEx
         {
             cbSize = (uint)Marshal.SizeOf<wndClassEx>(),
-            style = 0,
+            style = csDblClks,
             lpfnWndProc = cachedWndProc,
             cbClsExtra = 0,
             cbWndExtra = 0,
