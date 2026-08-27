@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>LidDock.App</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LidDock.Core\LidDock.Core.csproj" />
+    <ProjectReference Include="..\LidDock.Windows\LidDock.Windows.csproj" />
+    <ProjectReference Include="..\LidDock.Diagnostics\LidDock.Diagnostics.csproj" />
+  </ItemGroup>
+
+</Project>

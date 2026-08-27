@@ -1,0 +1,17 @@
+[Bb]in/
+[Oo]bj/
+publish/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+.vs/
+.vscode/
+.idea/
+*.log
+LidDock_Diagnostics_*.txt
+*.tmp
+*.temp
+TestResults/
+powershell.cmd
+AGENTS.md
