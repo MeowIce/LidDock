@@ -37,6 +37,14 @@ public partial class App : Application
         lidWatcher = new lidWatcher();
         powerWatcher = new powerWatcher();
 
+        displayWatcher.onDisplaysChanged += d => stateMachine.updateDisplays(d);
+        powerWatcher.onPowerStatusChanged += p => stateMachine.updatePowerInfo(p);
+        lidWatcher.onLidStateChanged += l => stateMachine.updateLidState(l);
+
+        displayWatcher.notifyDisplayConfigurationChanged();
+        powerWatcher.notifyPowerStatusChanged();
+        stateMachine.updateLidState(lidWatcher.queryLidState());
+
         settingsVm = new settingsViewModel(appSettings, stateMachine);
 
         if (e.Args.Contains("--diagnostics"))

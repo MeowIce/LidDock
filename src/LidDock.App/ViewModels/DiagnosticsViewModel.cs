@@ -188,6 +188,59 @@ public class diagnosticsViewModel : baseViewModel
         {
             lidState = state;
             lidWatcher.notifyLidStateChanged(state == lidState.open);
+            stateMachine.updateLidState(state);
+            clamshellState = stateMachine.getCurrentState();
+        });
+    }
+
+    public void onDisplayTopologyChanged()
+    {
+        displayWatcher.notifyDisplayConfigurationChanged();
+    }
+
+    public void onPowerStatusChanged()
+    {
+        powerWatcher.notifyPowerStatusChanged();
+        pollDynamicMetrics();
+    }
+
+    public void onSettingsChanged()
+    {
+        Application.Current?.Dispatcher.InvokeAsync(() =>
+        {
+            var acAction = powerSchemeManager.getCurrentAcLidAction();
+            powerPlanSummary = acAction == 0 ? "Do Nothing (Clamshell Active)" : "Sleep (Windows Default)";
+            clamshellState = stateMachine.getCurrentState();
+        });
+    }
+
+    public void pollDynamicMetrics()
+    {
+        Application.Current?.Dispatcher.InvokeAsync(() =>
+        {
+            var power = powerWatcher.queryPowerStatus();
+            if (power.batteryPercent != currentPowerInfo.batteryPercent ||
+                power.powerSource != currentPowerInfo.powerSource ||
+                power.isCharging != currentPowerInfo.isCharging)
+            {
+                currentPowerInfo = power;
+                onPropertyChanged(nameof(formattedPowerSource));
+                onPropertyChanged(nameof(batteryPercent));
+                stateMachine.updatePowerInfo(power);
+            }
+
+            var acAction = powerSchemeManager.getCurrentAcLidAction();
+            var expectedPlanSummary = acAction == 0 ? "Do Nothing (Clamshell Active)" : "Sleep (Windows Default)";
+            if (powerPlanSummary != expectedPlanSummary)
+            {
+                powerPlanSummary = expectedPlanSummary;
+            }
+
+            var state = stateMachine.getCurrentState();
+            if (clamshellState != state)
+            {
+                clamshellState = state;
+            }
         });
     }
 

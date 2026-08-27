@@ -11,6 +11,7 @@ public static class nativeConstants
     public const int wmDisplayChange = 0x007E;
     public const int wmPowerBroadcast = 0x0218;
     public const int pbtPowerSettingChange = 0x8013;
+    public const int pbtApmPowerStatusChange = 0x000A;
     public const int deviceNotifyWindowHandle = 0x00000000;
     public const int hwndBroadcast = 0xffff;
 
@@ -18,6 +19,7 @@ public static class nativeConstants
     public static readonly Guid guidLidCloseAction = new Guid("5ca83367-6e45-459f-a27b-476b1d01c936");
     public static readonly Guid guidLidSwitchStateChange = new Guid("ba3e0f4d-b817-4094-a2d1-d56379e6a0f3");
     public static readonly Guid guidAcdcPowerSource = new Guid("5d3e9a59-e9d5-4b00-a6bd-ff34ff516548");
+    public static readonly Guid guidBatteryPercentageRemaining = new Guid("a7ad8041-b45a-4cae-87a3-eecbb468a9e1");
 }
 
 public enum displayConfigModeInfoType : uint

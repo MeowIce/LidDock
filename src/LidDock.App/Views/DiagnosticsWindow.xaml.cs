@@ -2,6 +2,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
+using System.Windows.Threading;
 using LidDock.App.Helpers;
 using LidDock.App.ViewModels;
 using LidDock.Core.Models;
@@ -13,6 +14,10 @@ public partial class DiagnosticsWindow : Window
 {
     private readonly diagnosticsViewModel viewModel;
     private IntPtr lidNotificationHandle = IntPtr.Zero;
+    private IntPtr powerNotificationHandle = IntPtr.Zero;
+    private IntPtr batteryNotificationHandle = IntPtr.Zero;
+    private uint settingsChangedMessage;
+    private DispatcherTimer? dynamicMetricsTimer;
 
     public DiagnosticsWindow(diagnosticsViewModel viewModel)
     {
@@ -31,25 +36,75 @@ public partial class DiagnosticsWindow : Window
         if (source != null)
         {
             source.AddHook(wndProc);
+
             var lidGuid = nativeConstants.guidLidSwitchStateChange;
             lidNotificationHandle = nativeMethods.registerPowerSettingNotification(
                 helper.Handle,
                 ref lidGuid,
                 nativeConstants.deviceNotifyWindowHandle);
+
+            var powerGuid = nativeConstants.guidAcdcPowerSource;
+            powerNotificationHandle = nativeMethods.registerPowerSettingNotification(
+                helper.Handle,
+                ref powerGuid,
+                nativeConstants.deviceNotifyWindowHandle);
+
+            var batteryGuid = nativeConstants.guidBatteryPercentageRemaining;
+            batteryNotificationHandle = nativeMethods.registerPowerSettingNotification(
+                helper.Handle,
+                ref batteryGuid,
+                nativeConstants.deviceNotifyWindowHandle);
         }
+
+        settingsChangedMessage = nativeMethods.registerWindowMessage("LidDock_SettingsChanged_Event");
+
+        dynamicMetricsTimer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromSeconds(1)
+        };
+        dynamicMetricsTimer.Tick += (s, e) => viewModel.pollDynamicMetrics();
+        dynamicMetricsTimer.Start();
     }
 
     private IntPtr wndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
     {
-        if (msg == nativeConstants.wmPowerBroadcast && wParam.ToInt64() == nativeConstants.pbtPowerSettingChange && lParam != IntPtr.Zero)
+        if (msg == nativeConstants.wmDisplayChange)
         {
-            var setting = Marshal.PtrToStructure<powerBroadcastSetting>(lParam);
-            if (setting.powerSetting == nativeConstants.guidLidSwitchStateChange)
+            viewModel.onDisplayTopologyChanged();
+            return IntPtr.Zero;
+        }
+
+        if (settingsChangedMessage != 0 && (uint)msg == settingsChangedMessage)
+        {
+            viewModel.onSettingsChanged();
+            return IntPtr.Zero;
+        }
+
+        if (msg == nativeConstants.wmPowerBroadcast)
+        {
+            var wParamVal = wParam.ToInt64();
+            if (wParamVal == nativeConstants.pbtApmPowerStatusChange)
             {
-                var isLidOpen = (setting.dataLength == 1)
-                    ? Marshal.ReadByte(lParam, 20) != 0
-                    : Marshal.ReadInt32(lParam, 20) != 0;
-                viewModel.updateLidState(isLidOpen ? lidState.open : lidState.closed);
+                viewModel.onPowerStatusChanged();
+                return IntPtr.Zero;
+            }
+
+            if (wParamVal == nativeConstants.pbtPowerSettingChange && lParam != IntPtr.Zero)
+            {
+                var setting = Marshal.PtrToStructure<powerBroadcastSetting>(lParam);
+                if (setting.powerSetting == nativeConstants.guidLidSwitchStateChange)
+                {
+                    var isLidOpen = (setting.dataLength == 1)
+                        ? Marshal.ReadByte(lParam, 20) != 0
+                        : Marshal.ReadInt32(lParam, 20) != 0;
+                    viewModel.updateLidState(isLidOpen ? lidState.open : lidState.closed);
+                }
+                else if (setting.powerSetting == nativeConstants.guidAcdcPowerSource ||
+                         setting.powerSetting == nativeConstants.guidBatteryPercentageRemaining)
+                {
+                    viewModel.onPowerStatusChanged();
+                }
+                return IntPtr.Zero;
             }
         }
         return IntPtr.Zero;
@@ -73,10 +128,24 @@ public partial class DiagnosticsWindow : Window
 
     protected override void OnClosed(EventArgs e)
     {
+        dynamicMetricsTimer?.Stop();
+
         if (lidNotificationHandle != IntPtr.Zero)
         {
             nativeMethods.unregisterPowerSettingNotification(lidNotificationHandle);
             lidNotificationHandle = IntPtr.Zero;
+        }
+
+        if (powerNotificationHandle != IntPtr.Zero)
+        {
+            nativeMethods.unregisterPowerSettingNotification(powerNotificationHandle);
+            powerNotificationHandle = IntPtr.Zero;
+        }
+
+        if (batteryNotificationHandle != IntPtr.Zero)
+        {
+            nativeMethods.unregisterPowerSettingNotification(batteryNotificationHandle);
+            batteryNotificationHandle = IntPtr.Zero;
         }
 
         viewModel.unsubscribe();
