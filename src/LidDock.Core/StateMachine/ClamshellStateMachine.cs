@@ -109,15 +109,18 @@ public class clamshellStateMachine : iClamshellStateMachine
         {
             cancelGracePeriod();
 
+            var allowBattery = settings.activeProfile == operationalProfileType.alwaysClamshell ||
+                (!settings.requireAcPower && (currentPowerInfo.powerSource != powerSourceType.battery || currentPowerInfo.batteryPercent >= settings.minimumBatteryThreshold));
+
             if (isLidClosed)
             {
                 transitionTo(clamshellState.clamshellActive);
-                powerManager.applyClamshellAction(true, currentPowerInfo.powerSource == powerSourceType.battery);
+                powerManager.applyClamshellAction(true, allowBattery);
             }
             else
             {
                 transitionTo(clamshellState.dockedLidOpen);
-                powerManager.applyClamshellAction(true, currentPowerInfo.powerSource == powerSourceType.battery);
+                powerManager.applyClamshellAction(true, allowBattery);
             }
         }
         else

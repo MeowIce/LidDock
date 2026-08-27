@@ -60,6 +60,7 @@ public partial class App : Application
     {
         diagnosticsLogger.instance.logInfo("Initializing LidDock Core Services");
 
+        appSettings = settingsManager.loadSettings();
         powerManager = new powerSchemeManager();
         powerManager.backupOriginalSettings();
 
@@ -246,6 +247,7 @@ public partial class App : Application
         {
             appSettings.enableClamshell = enableClamshellMenuItem.IsChecked;
             stateMachine?.updateSettings(appSettings);
+            settingsManager.saveSettings(appSettings);
         };
         menu.Items.Add(enableClamshellMenuItem);
 
@@ -294,6 +296,7 @@ public partial class App : Application
         appSettings.activeProfile = profile;
         updateProfileCheckmarks();
         stateMachine?.updateSettings(appSettings);
+        settingsManager.saveSettings(appSettings);
     }
 
     private void updateProfileCheckmarks()
@@ -362,6 +365,7 @@ public partial class App : Application
     {
         diagnosticsLogger.instance.logInfo("LidDock Exiting. Restoring original power settings.");
 
+        settingsManager.saveSettings(appSettings);
         trayManager?.dispose();
         nativeWindow?.dispose();
         stateMachine?.dispose();

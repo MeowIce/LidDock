@@ -38,6 +38,7 @@ public class settingsViewModel : baseViewModel
             {
                 settings.startWithWindows = value;
                 onPropertyChanged();
+                notifySettingsChanged();
             }
         }
     }
@@ -51,6 +52,7 @@ public class settingsViewModel : baseViewModel
             {
                 settings.startMinimized = value;
                 onPropertyChanged();
+                notifySettingsChanged();
             }
         }
     }
@@ -195,8 +197,14 @@ public class settingsViewModel : baseViewModel
         }
     }
 
+    public void save()
+    {
+        notifySettingsChanged();
+    }
+
     private void notifySettingsChanged()
     {
         stateMachine.updateSettings(settings);
+        settingsManager.saveSettings(settings);
     }
 }

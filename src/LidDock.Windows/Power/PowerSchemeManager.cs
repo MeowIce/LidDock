@@ -15,6 +15,16 @@ public class powerSchemeManager : iPowerSchemeManager
     private bool isBackupTaken;
     private readonly object syncLock = new object();
 
+    private void refreshActiveScheme()
+    {
+        var result = nativeMethods.powerGetActiveScheme(IntPtr.Zero, out var schemePtr);
+        if (result == nativeConstants.errorSuccess && schemePtr != IntPtr.Zero)
+        {
+            currentActiveScheme = Marshal.PtrToStructure<Guid>(schemePtr);
+            nativeMethods.localFree(schemePtr);
+        }
+    }
+
     public void backupOriginalSettings()
     {
         lock (syncLock)
@@ -25,15 +35,7 @@ public class powerSchemeManager : iPowerSchemeManager
             }
 
             loadFromRegistryBackup();
-
-            var result = nativeMethods.powerGetActiveScheme(IntPtr.Zero, out var schemePtr);
-            if (result != nativeConstants.errorSuccess || schemePtr == IntPtr.Zero)
-            {
-                return;
-            }
-
-            currentActiveScheme = Marshal.PtrToStructure<Guid>(schemePtr);
-            nativeMethods.localFree(schemePtr);
+            refreshActiveScheme();
 
             var subgroup = nativeConstants.guidSystemButtonSubgroup;
             var setting = nativeConstants.guidLidCloseAction;
@@ -63,6 +65,7 @@ public class powerSchemeManager : iPowerSchemeManager
     {
         lock (syncLock)
         {
+            refreshActiveScheme();
             if (!isBackupTaken)
             {
                 backupOriginalSettings();
@@ -114,6 +117,7 @@ public class powerSchemeManager : iPowerSchemeManager
                 loadFromRegistryBackup();
             }
 
+            refreshActiveScheme();
             var subgroup = nativeConstants.guidSystemButtonSubgroup;
             var setting = nativeConstants.guidLidCloseAction;
 
@@ -153,6 +157,7 @@ public class powerSchemeManager : iPowerSchemeManager
 
     public uint? getCurrentAcLidAction()
     {
+        refreshActiveScheme();
         var subgroup = nativeConstants.guidSystemButtonSubgroup;
         var setting = nativeConstants.guidLidCloseAction;
         if (nativeMethods.powerReadAcValueIndex(IntPtr.Zero, ref currentActiveScheme, ref subgroup, ref setting, out var acVal) == nativeConstants.errorSuccess)

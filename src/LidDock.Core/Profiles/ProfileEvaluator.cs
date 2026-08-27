@@ -1,6 +1,6 @@
-using LidDock.Core.Models;
-
 namespace LidDock.Core.Profiles;
+
+using LidDock.Core.Models;
 
 public static class profileEvaluator
 {
