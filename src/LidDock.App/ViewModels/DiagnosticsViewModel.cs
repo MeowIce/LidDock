@@ -177,4 +177,15 @@ public class diagnosticsViewModel : baseViewModel
             onPropertyChanged(nameof(formattedPowerSource));
         });
     }
+
+    public void unsubscribe()
+    {
+        diagnosticsLogger.instance.onNewLogEntry -= handleNewLogEntry;
+        stateMachine.onStateChanged -= handleStateChanged;
+        displayWatcher.onDisplaysChanged -= handleDisplaysChanged;
+        lidWatcher.onLidStateChanged -= handleLidChanged;
+        powerWatcher.onPowerStatusChanged -= handlePowerChanged;
+        logEntries.Clear();
+        displaysList.Clear();
+    }
 }

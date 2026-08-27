@@ -93,4 +93,13 @@ public static class nativeMethods
     [DllImport("kernel32.dll", EntryPoint = "LocalFree")]
     public static extern IntPtr localFree(
         IntPtr hMem);
+
+    [DllImport("kernel32.dll", EntryPoint = "SetProcessWorkingSetSize")]
+    public static extern bool setProcessWorkingSetSize(
+        IntPtr process,
+        IntPtr minimumWorkingSetSize,
+        IntPtr maximumWorkingSetSize);
+
+    [DllImport("kernel32.dll", EntryPoint = "GetCurrentProcess")]
+    public static extern IntPtr getCurrentProcess();
 }

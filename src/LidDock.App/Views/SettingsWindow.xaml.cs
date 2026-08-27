@@ -30,4 +30,10 @@ public partial class SettingsWindow : Window
     {
         Close();
     }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        base.OnClosed(e);
+        memoryOptimizer.trimWorkingSet();
+    }
 }

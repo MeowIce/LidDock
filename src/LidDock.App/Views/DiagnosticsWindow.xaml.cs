@@ -37,4 +37,11 @@ public partial class DiagnosticsWindow : Window
     {
         Close();
     }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        viewModel.unsubscribe();
+        base.OnClosed(e);
+        memoryOptimizer.trimWorkingSet();
+    }
 }

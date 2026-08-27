@@ -4,6 +4,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
+using LidDock.App.Helpers;
 using LidDock.App.Tray;
 using LidDock.App.ViewModels;
 using LidDock.App.Views;
@@ -72,7 +73,6 @@ public partial class App : Application
         trayManager = new trayIconManager();
 
         settingsVm = new settingsViewModel(appSettings, stateMachine);
-        diagnosticsVm = new diagnosticsViewModel(stateMachine, displayWatcher, lidWatcher, powerWatcher, powerManager);
 
         nativeWindow.initialize();
 
@@ -330,6 +330,11 @@ public partial class App : Application
         {
             settingsWindowInstance = new SettingsWindow(settingsVm);
             settingsWindowInstance.onOpenDiagnosticsRequested += openDiagnostics;
+            settingsWindowInstance.Closed += (s, e) =>
+            {
+                settingsWindowInstance = null;
+                memoryOptimizer.trimWorkingSet();
+            };
             settingsWindowInstance.Show();
         }
         else
@@ -340,14 +345,21 @@ public partial class App : Application
 
     private void openDiagnostics()
     {
-        if (diagnosticsVm == null)
+        if (stateMachine == null || displayWatcher == null || lidWatcher == null || powerWatcher == null || powerManager == null)
         {
             return;
         }
 
         if (diagnosticsWindowInstance == null || !diagnosticsWindowInstance.IsLoaded)
         {
+            diagnosticsVm = new diagnosticsViewModel(stateMachine, displayWatcher, lidWatcher, powerWatcher, powerManager);
             diagnosticsWindowInstance = new DiagnosticsWindow(diagnosticsVm);
+            diagnosticsWindowInstance.Closed += (s, e) =>
+            {
+                diagnosticsWindowInstance = null;
+                diagnosticsVm = null;
+                memoryOptimizer.trimWorkingSet();
+            };
             diagnosticsWindowInstance.Show();
         }
         else
