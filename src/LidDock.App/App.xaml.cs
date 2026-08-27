@@ -89,6 +89,11 @@ public partial class App : Application
         powerWatcher.notifyPowerStatusChanged();
 
         diagnosticsLogger.instance.logInfo("LidDock Ready and Monitoring");
+
+        if (!appSettings.startMinimized)
+        {
+            openSettings();
+        }
     }
 
     private IntPtr trayMessageHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
@@ -321,6 +326,7 @@ public partial class App : Application
         if (settingsWindowInstance == null || !settingsWindowInstance.IsLoaded)
         {
             settingsWindowInstance = new SettingsWindow(settingsVm);
+            settingsWindowInstance.onOpenDiagnosticsRequested += openDiagnostics;
             settingsWindowInstance.Show();
         }
         else

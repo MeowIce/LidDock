@@ -6,15 +6,23 @@
         Background="{StaticResource WindowBackgroundBrush}"
         Foreground="{StaticResource TextPrimaryBrush}"
         ResizeMode="NoResize">
-    <Grid Margin="20">
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="48"
+                      ResizeBorderThickness="6"
+                      GlassFrameThickness="-1"
+                      CornerRadius="8"
+                      UseAeroCaptionButtons="True"/>
+    </WindowChrome.WindowChrome>
+
+    <Grid Margin="20,12,20,16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <StackPanel Margin="0,0,0,16">
-            <TextBlock Text="LidDock Settings" FontSize="22" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+        <StackPanel Margin="0,4,140,16">
+            <TextBlock Text="LidDock Settings" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
             <TextBlock Text="Manage Clamshell mode, display triggers, safety timers and power behavior."
                        FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
         </StackPanel>
@@ -152,7 +160,8 @@
         </TabControl>
 
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
-            <Button Content="Save &amp; Close" Width="120" Click="onCloseClicked" Style="{StaticResource FluentPrimaryButton}"/>
+            <Button Content="Diagnostics" MinWidth="130" Margin="0,0,12,0" Click="onDiagnosticsClicked" Style="{StaticResource FluentSecondaryButton}"/>
+            <Button Content="Save &amp; Close" MinWidth="130" Click="onCloseClicked" Style="{StaticResource FluentPrimaryButton}"/>
         </StackPanel>
     </Grid>
 </Window>

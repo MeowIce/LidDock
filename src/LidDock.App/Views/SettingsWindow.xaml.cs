@@ -19,6 +19,13 @@ public partial class SettingsWindow : Window
         windowBackdropHelper.applyBackdrop(this, true, true);
     }
 
+    public event Action? onOpenDiagnosticsRequested;
+
+    private void onDiagnosticsClicked(object sender, RoutedEventArgs e)
+    {
+        onOpenDiagnosticsRequested?.Invoke();
+    }
+
     private void onCloseClicked(object sender, RoutedEventArgs e)
     {
         Close();

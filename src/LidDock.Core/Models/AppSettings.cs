@@ -11,7 +11,7 @@ public enum operationalProfileType
 public class appSettings
 {
     public bool startWithWindows { get; set; } = true;
-    public bool startMinimized { get; set; } = true;
+    public bool startMinimized { get; set; } = false;
     public bool enableClamshell { get; set; } = true;
     public operationalProfileType activeProfile { get; set; } = operationalProfileType.smartDocked;
     public int disconnectDelaySeconds { get; set; } = 5;

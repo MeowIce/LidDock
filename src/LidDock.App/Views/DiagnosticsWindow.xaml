@@ -5,7 +5,15 @@
         WindowStartupLocation="CenterScreen"
         Background="{StaticResource WindowBackgroundBrush}"
         Foreground="{StaticResource TextPrimaryBrush}">
-    <Grid Margin="20">
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="48"
+                      ResizeBorderThickness="6"
+                      GlassFrameThickness="-1"
+                      CornerRadius="8"
+                      UseAeroCaptionButtons="True"/>
+    </WindowChrome.WindowChrome>
+
+    <Grid Margin="20,12,20,16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -14,8 +22,8 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <StackPanel Margin="0,0,0,16">
-            <TextBlock Text="Hardware Telemetry &amp; Diagnostics" FontSize="22" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+        <StackPanel Margin="0,4,140,16">
+            <TextBlock Text="Hardware Telemetry &amp; Diagnostics" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
             <TextBlock Text="Real-time system sensor observation, display topology and event trace logs."
                        FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
         </StackPanel>
@@ -90,9 +98,9 @@
         </Border>
 
         <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button Content="Refresh Sensors" Width="130" Margin="0,0,10,0" Click="onRefreshClicked" Style="{StaticResource FluentSecondaryButton}"/>
-            <Button Content="Export Snapshot" Width="130" Margin="0,0,10,0" Click="onExportClicked" Style="{StaticResource FluentSecondaryButton}"/>
-            <Button Content="Close" Width="100" Click="onCloseClicked" Style="{StaticResource FluentPrimaryButton}"/>
+            <Button Content="Refresh Sensors" MinWidth="150" Margin="0,0,12,0" Click="onRefreshClicked" Style="{StaticResource FluentSecondaryButton}"/>
+            <Button Content="Export Snapshot" MinWidth="150" Margin="0,0,12,0" Click="onExportClicked" Style="{StaticResource FluentSecondaryButton}"/>
+            <Button Content="Close" MinWidth="100" Click="onCloseClicked" Style="{StaticResource FluentPrimaryButton}"/>
         </StackPanel>
     </Grid>
 </Window>
