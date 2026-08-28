@@ -2,9 +2,9 @@
 
 Intelligent macOS-style Clamshell Mode for Windows 11 laptops.
 
-Still opening Control Panel -> Hardware and Sound -> Power Options -> "Choose what closing the lid does" twice every single day like it is 2006? Still baking your laptop in your backpack because you forgot to revert "Do Nothing" back to "Sleep" before unplugging?
+Still opening `Control Panel` -> `Hardware and Sound` -> `Power Options` -> `Choose what closing the lid does` twice every single day like it is 2006 ? Still baking your laptop because you forgot to revert "Do Nothing" back to "Sleep" before unplugging ? Hell nah
 
-LidDock solves this forever. Set it and forget it.
+LidDock solves this forever. Just set it and forget it. It will do its job.
 
 <img width="768" height="682" alt="{B180C15C-AC30-4674-B2F1-CCC87FE37F4D}" src="https://github.com/user-attachments/assets/0a05387a-2531-42a2-8b32-9c01c230185b" />
 
@@ -22,7 +22,7 @@ If an abrupt disconnect occurs while the lid remains closed (for example, kickin
 ## Features
 
 - Zero Polling Event-Driven Architecture: Uses native Win32 Connecting and Configuring Displays (CCD) APIs (`QueryDisplayConfig`) and Power Setting Notifications (`GUID_LIDSWITCH_STATE_CHANGE`). Zero CPU consumption when idle.
-- Extreme Efficiency: Native AOT single-file binary consuming approximately 350 KB Working Set memory in physical RAM.
+- Extreme Efficiency: Consumes under 500KB (yes, Kilobyes, KB) in physical RAM.
 - Fail-Safe Grace Period: Actively triggers system suspension if a dock or display is disconnected while the lid is closed.
 - Profiles:
   - Smart Docked (Recommended): Automatic clamshell activation when docked to an external physical display, switching back to sleep when undocked.
@@ -38,7 +38,7 @@ If an abrupt disconnect occurs while the lid remains closed (for example, kickin
 ## How to Use
 
 ### 1. First-Time Setup
-- Download and run `LidDock.exe`. The Settings window opens automatically on first launch.
+- Download `LidDock.exe` from the [release page](https://github.com/MeowIce/LidDock/releases) and run it. The Settings window opens automatically on first launch.
 - Under General, toggle **Start with Windows** on so LidDock runs silently in the background on startup.
 - Choose your preferred Profile under the Profiles tab (`Smart Docked` is recommended).
 
@@ -81,7 +81,7 @@ LidDock is structured into modular layers:
 
 ## Installation
 
-1. Download the latest release from GitHub Releases.
+1. Download the latest release from [GitHub Releases](https://github.com/MeowIce/LidDock/releases).
 2. Place `LidDock.exe` in your preferred directory (or let it self-install to `%LocalAppData%\LidDock`).
 3. Run `LidDock.exe`.
 4. Open Settings from the tray icon or main window, and enable "Start with Windows".
