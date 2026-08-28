@@ -11,6 +11,9 @@ public class powerSchemeManager : iPowerSchemeManager
     private const string registryBackupKey = @"Software\LidDock\Backup";
     private uint? originalAcLidAction;
     private uint? originalDcLidAction;
+    private uint? lastAppliedAcAction;
+    private uint? lastAppliedDcAction;
+    private Guid lastAppliedScheme;
     private Guid currentActiveScheme;
     private bool isBackupTaken;
     private readonly object syncLock = new object();
@@ -72,40 +75,49 @@ public class powerSchemeManager : iPowerSchemeManager
                 backupOriginalSettings();
             }
 
+            var targetAcAction = enableClamshell ? 0u : (originalAcLidAction ?? 1u);
+            var targetDcAction = applyToBattery
+                ? (enableClamshell ? 0u : (originalDcLidAction ?? 1u))
+                : (originalDcLidAction ?? 1u);
+
+            if (isBackupTaken &&
+                currentActiveScheme == lastAppliedScheme &&
+                lastAppliedAcAction == targetAcAction &&
+                lastAppliedDcAction == targetDcAction)
+            {
+                return true;
+            }
+
             var subgroup = nativeConstants.guidSystemButtonSubgroup;
             var setting = nativeConstants.guidLidCloseAction;
-            var targetAction = enableClamshell ? 0u : (originalAcLidAction ?? 1u);
 
             var acResult = nativeMethods.powerWriteAcValueIndex(
                 IntPtr.Zero,
                 ref currentActiveScheme,
                 ref subgroup,
                 ref setting,
-                targetAction);
+                targetAcAction);
 
-            if (applyToBattery)
-            {
-                var batteryAction = enableClamshell ? 0u : (originalDcLidAction ?? 1u);
-                nativeMethods.powerWriteDcValueIndex(
-                    IntPtr.Zero,
-                    ref currentActiveScheme,
-                    ref subgroup,
-                    ref setting,
-                    batteryAction);
-            }
-            else
-            {
-                var batteryAction = originalDcLidAction ?? 1u;
-                nativeMethods.powerWriteDcValueIndex(
-                    IntPtr.Zero,
-                    ref currentActiveScheme,
-                    ref subgroup,
-                    ref setting,
-                    batteryAction);
-            }
+            var dcResult = nativeMethods.powerWriteDcValueIndex(
+                IntPtr.Zero,
+                ref currentActiveScheme,
+                ref subgroup,
+                ref setting,
+                targetDcAction);
 
             var applyResult = nativeMethods.powerSetActiveScheme(IntPtr.Zero, ref currentActiveScheme);
-            return acResult == nativeConstants.errorSuccess && applyResult == nativeConstants.errorSuccess;
+            var success = acResult == nativeConstants.errorSuccess &&
+                          dcResult == nativeConstants.errorSuccess &&
+                          applyResult == nativeConstants.errorSuccess;
+
+            if (success)
+            {
+                lastAppliedAcAction = targetAcAction;
+                lastAppliedDcAction = targetDcAction;
+                lastAppliedScheme = currentActiveScheme;
+            }
+
+            return success;
         }
     }
 
@@ -145,16 +157,15 @@ public class powerSchemeManager : iPowerSchemeManager
             nativeMethods.powerSetActiveScheme(IntPtr.Zero, ref currentActiveScheme);
             clearRegistryBackup();
             isBackupTaken = false;
+            lastAppliedAcAction = null;
+            lastAppliedDcAction = null;
+            lastAppliedScheme = Guid.Empty;
         }
     }
 
     public void triggerImmediateSleep()
     {
-        nativeMethods.postMessage(
-            (IntPtr)nativeConstants.hwndBroadcast,
-            nativeConstants.wmSysCommand,
-            (IntPtr)nativeConstants.scMonitorPower,
-            (IntPtr)nativeConstants.monitorOff);
+        nativeMethods.setSuspendState(false, false, false);
     }
 
     public uint? getOriginalAcLidAction() => originalAcLidAction;

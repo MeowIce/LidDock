@@ -39,6 +39,7 @@ public partial class App : Application
             }
 
             base.OnStartup(e);
+            System.Windows.Media.RenderOptions.ProcessRenderMode = System.Windows.Interop.RenderMode.SoftwareOnly;
 
             if (e.Args.Contains("--minimized"))
             {
@@ -51,21 +52,7 @@ public partial class App : Application
             ensureDaemonRunning();
 
             appSettings = settingsManager.loadSettings();
-            powerManager = new powerSchemeManager();
-            stateMachine = new clamshellStateMachine(powerManager);
-            displayWatcher = new displayWatcher();
-            lidWatcher = new lidWatcher();
-            powerWatcher = new powerWatcher();
-
-            displayWatcher.onDisplaysChanged += d => stateMachine.updateDisplays(d);
-            powerWatcher.onPowerStatusChanged += p => stateMachine.updatePowerInfo(p);
-            lidWatcher.onLidStateChanged += l => stateMachine.updateLidState(l);
-
-            displayWatcher.notifyDisplayConfigurationChanged();
-            powerWatcher.notifyPowerStatusChanged();
-            stateMachine.updateLidState(lidWatcher.queryLidState());
-
-            settingsVm = new settingsViewModel(appSettings, stateMachine);
+            settingsVm = new settingsViewModel(appSettings);
 
             if (e.Args.Contains("--diagnostics"))
             {
@@ -177,8 +164,30 @@ public partial class App : Application
         }
     }
 
+    private void ensureDiagnosticsComponents()
+    {
+        if (powerManager == null)
+        {
+            powerManager = new powerSchemeManager();
+            stateMachine = new clamshellStateMachine(powerManager);
+            displayWatcher = new displayWatcher();
+            lidWatcher = new lidWatcher();
+            powerWatcher = new powerWatcher();
+
+            displayWatcher.onDisplaysChanged += d => stateMachine.updateDisplays(d);
+            powerWatcher.onPowerStatusChanged += p => stateMachine.updatePowerInfo(p);
+            lidWatcher.onLidStateChanged += l => stateMachine.updateLidState(l);
+
+            displayWatcher.notifyDisplayConfigurationChanged();
+            powerWatcher.notifyPowerStatusChanged();
+            stateMachine.updateLidState(lidWatcher.queryLidState());
+        }
+    }
+
     private void openDiagnostics()
     {
+        ensureDiagnosticsComponents();
+
         if (stateMachine == null || displayWatcher == null || lidWatcher == null || powerWatcher == null || powerManager == null)
         {
             return;

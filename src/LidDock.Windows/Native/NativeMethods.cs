@@ -142,21 +142,10 @@ public static class nativeMethods
         IntPtr wParam,
         IntPtr lParam);
 
-    [DllImport("kernel32.dll", EntryPoint = "CreateProcessW", SetLastError = true, CharSet = CharSet.Unicode)]
-    public static extern bool createProcess(
-        string? lpApplicationName,
-        [In, Out] System.Text.StringBuilder? lpCommandLine,
-        IntPtr lpProcessAttributes,
-        IntPtr lpThreadAttributes,
-        bool bInheritHandles,
-        uint dwCreationFlags,
-        IntPtr lpEnvironment,
-        string? lpCurrentDirectory,
-        ref startupInfo lpStartupInfo,
-        out processInformation lpProcessInformation);
-
-    [DllImport("kernel32.dll", EntryPoint = "CloseHandle", SetLastError = true)]
-    public static extern bool closeHandle(IntPtr hObject);
+    [DllImport("user32.dll", EntryPoint = "FindWindowW", CharSet = CharSet.Unicode)]
+    public static extern IntPtr findWindow(
+        string? lpClassName,
+        string? lpWindowName);
 }
 
 [StructLayout(LayoutKind.Sequential)]
@@ -170,36 +159,4 @@ public struct nativeMsg
     public int ptX;
     public int ptY;
     public uint lPrivate;
-}
-
-[StructLayout(LayoutKind.Sequential)]
-public struct startupInfo
-{
-    public int cb;
-    public IntPtr lpReserved;
-    public IntPtr lpDesktop;
-    public IntPtr lpTitle;
-    public int dwX;
-    public int dwY;
-    public int dwXSize;
-    public int dwYSize;
-    public int dwXCountChars;
-    public int dwYCountChars;
-    public int dwFillAttribute;
-    public int dwFlags;
-    public short wShowWindow;
-    public short cbReserved2;
-    public IntPtr lpReserved2;
-    public IntPtr hStdInput;
-    public IntPtr hStdOutput;
-    public IntPtr hStdError;
-}
-
-[StructLayout(LayoutKind.Sequential)]
-public struct processInformation
-{
-    public IntPtr hProcess;
-    public IntPtr hThread;
-    public int dwProcessId;
-    public int dwThreadId;
 }

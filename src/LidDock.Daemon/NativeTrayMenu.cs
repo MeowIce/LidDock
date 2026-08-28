@@ -24,7 +24,6 @@ public static class nativeTrayMenu
     private const int cmdProfileSmartDocked = 1002;
     private const int cmdProfileAcOnly = 1003;
     private const int cmdProfileAlwaysClamshell = 1004;
-    private const int cmdProfileCustom = 1005;
     private const int cmdOpenSettings = 1006;
     private const int cmdOpenDiagnostics = 1007;
     private const int cmdExit = 1008;
@@ -253,17 +252,12 @@ public static class nativeTrayMenu
     {
         try
         {
-            var processName = Path.GetFileNameWithoutExtension(exePath);
-            var existingProcesses = Process.GetProcessesByName(processName);
-            if (existingProcesses.Length > 0)
+            var existingWindow = nativeMethods.findWindow(null, "LidDock Settings");
+            if (existingWindow != IntPtr.Zero)
             {
-                var target = existingProcesses.FirstOrDefault(p => p.MainWindowHandle != IntPtr.Zero);
-                if (target != null)
-                {
-                    nativeMethods.showWindow(target.MainWindowHandle, 9);
-                    nativeMethods.setForegroundWindow(target.MainWindowHandle);
-                    return;
-                }
+                nativeMethods.showWindow(existingWindow, 9);
+                nativeMethods.setForegroundWindow(existingWindow);
+                return;
             }
 
             var startInfo = new ProcessStartInfo

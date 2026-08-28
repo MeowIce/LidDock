@@ -25,6 +25,16 @@ public partial class DiagnosticsWindow : Window
         this.viewModel = viewModel;
         DataContext = viewModel;
         SourceInitialized += onSourceInitialized;
+        ContentRendered += onContentRendered;
+    }
+
+    private void onContentRendered(object? sender, EventArgs e)
+    {
+        ContentRendered -= onContentRendered;
+        Task.Delay(800).ContinueWith(_ =>
+        {
+            Dispatcher.InvokeAsync(memoryOptimizer.trimWorkingSet);
+        });
     }
 
     private void onSourceInitialized(object? sender, EventArgs e)

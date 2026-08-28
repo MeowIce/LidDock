@@ -9,6 +9,14 @@
     <UseWPF>true</UseWPF>
     <RootNamespace>LidDock.App</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ServerGarbageCollection>false</ServerGarbageCollection>
+    <GarbageCollectionAdaptationMode>0</GarbageCollectionAdaptationMode>
+    <EventSourceSupport>false</EventSourceSupport>
+    <StackTraceSupport>false</StackTraceSupport>
+    <UseSystemResourceKeys>true</UseSystemResourceKeys>
+    <EnableUnsafeBinaryFormatterSerialization>false</EnableUnsafeBinaryFormatterSerialization>
+    <StartupHookSupport>false</StartupHookSupport>
+    <TieredCompilation>false</TieredCompilation>
   </PropertyGroup>
 
   <ItemGroup>

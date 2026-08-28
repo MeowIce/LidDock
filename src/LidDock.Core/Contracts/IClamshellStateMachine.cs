@@ -13,5 +13,4 @@ public interface iClamshellStateMachine : IDisposable
     void updateDisplays(IReadOnlyList<physicalDisplayInfo> displays);
     void updatePowerInfo(systemPowerInfo powerInfo);
     void updateSettings(appSettings settings);
-    void forceReevaluate();
 }

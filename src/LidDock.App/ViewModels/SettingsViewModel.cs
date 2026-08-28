@@ -9,10 +9,10 @@ namespace LidDock.App.ViewModels;
 public class settingsViewModel : baseViewModel
 {
     private readonly appSettings settings;
-    private readonly iClamshellStateMachine stateMachine;
+    private readonly iClamshellStateMachine? stateMachine;
     private readonly iUpdateChecker updateCheckerInstance;
 
-    public settingsViewModel(appSettings settings, iClamshellStateMachine stateMachine, iUpdateChecker? updateChecker = null)
+    public settingsViewModel(appSettings settings, iClamshellStateMachine? stateMachine = null, iUpdateChecker? updateChecker = null)
     {
         this.settings = settings;
         this.stateMachine = stateMachine;
@@ -304,7 +304,7 @@ public class settingsViewModel : baseViewModel
 
     private void notifySettingsChanged()
     {
-        stateMachine.updateSettings(settings);
+        stateMachine?.updateSettings(settings);
         settingsManager.saveSettings(settings);
     }
 }

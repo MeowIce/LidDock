@@ -26,13 +26,11 @@ public static class settingsManager
 
     private static uint settingsMessageId;
     private const int hwndBroadcast = 0xffff;
-    public static event Action? onSettingsChanged;
 
     private static void broadcastSettingsChanged()
     {
         try
         {
-            onSettingsChanged?.Invoke();
             if (settingsMessageId == 0)
             {
                 settingsMessageId = registerWindowMessage("LidDock_SettingsChanged_Event");

@@ -14,8 +14,10 @@ public class diagnosticsLogger
     public static diagnosticsLogger instance => instanceValue;
 
     private readonly object syncLock = new object();
-    private readonly LinkedList<logEntry> entries = new LinkedList<logEntry>();
-    private const int maxEntries = 500;
+    private const int maxEntries = 128;
+    private readonly logEntry[] ringBuffer = new logEntry[maxEntries];
+    private int writeIndex = 0;
+    private int count = 0;
 
     public event Action<logEntry>? onNewLogEntry;
 
@@ -39,10 +41,11 @@ public class diagnosticsLogger
         var entry = new logEntry(DateTime.Now, level, message);
         lock (syncLock)
         {
-            entries.AddLast(entry);
-            if (entries.Count > maxEntries)
+            ringBuffer[writeIndex] = entry;
+            writeIndex = (writeIndex + 1) % maxEntries;
+            if (count < maxEntries)
             {
-                entries.RemoveFirst();
+                count++;
             }
         }
         onNewLogEntry?.Invoke(entry);
@@ -52,7 +55,14 @@ public class diagnosticsLogger
     {
         lock (syncLock)
         {
-            return new List<logEntry>(entries);
+            var result = new List<logEntry>(count);
+            var startIndex = count < maxEntries ? 0 : writeIndex;
+            for (var i = 0; i < count; i++)
+            {
+                var idx = (startIndex + i) % maxEntries;
+                result.Add(ringBuffer[idx]);
+            }
+            return result;
         }
     }
 }

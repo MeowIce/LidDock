@@ -65,7 +65,6 @@ public class displayWatcher : iDisplayWatcher
                                  target.outputTechnology == displayTechnology.udiEmbedded;
 
                 var isVirtual = target.outputTechnology == displayTechnology.indirectVirtual ||
-                                target.outputTechnology == displayTechnology.miracast ||
                                 pathStr.Contains("ROOT#RDP", StringComparison.OrdinalIgnoreCase) ||
                                 pathStr.Contains("IddCx", StringComparison.OrdinalIgnoreCase);
 

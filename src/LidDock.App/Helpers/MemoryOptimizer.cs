@@ -9,11 +9,12 @@ public static class memoryOptimizer
     {
         try
         {
-            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
+            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true, true);
             GC.WaitForPendingFinalizers();
             var handle = nativeMethods.getCurrentProcess();
             if (handle != IntPtr.Zero)
             {
+                nativeMethods.emptyWorkingSet(handle);
                 nativeMethods.setProcessWorkingSetSize(handle, (IntPtr)(-1), (IntPtr)(-1));
             }
         }

@@ -17,6 +17,9 @@
     <StackTraceSupport>false</StackTraceSupport>
     <AssemblyName>LidDock</AssemblyName>
     <UseSystemResourceKeys>true</UseSystemResourceKeys>
+    <GarbageCollectionAdaptationMode>0</GarbageCollectionAdaptationMode>
+    <AutoreleasePoolSupport>false</AutoreleasePoolSupport>
+    <HttpActivityPropagationSupport>false</HttpActivityPropagationSupport>
   </PropertyGroup>
 
   <ItemGroup>

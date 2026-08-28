@@ -72,14 +72,6 @@ public class clamshellStateMachine : iClamshellStateMachine
         }
     }
 
-    public void forceReevaluate()
-    {
-        lock (syncLock)
-        {
-            evaluateState();
-        }
-    }
-
     private bool hasEligibleExternalDisplay()
     {
         return currentDisplays.Any(d =>
@@ -185,19 +177,24 @@ public class clamshellStateMachine : iClamshellStateMachine
     {
         cancelGracePeriod();
         transitionTo(clamshellState.disconnectPending);
-        gracePeriodCts = new CancellationTokenSource();
-        var token = gracePeriodCts.Token;
+        var cts = new CancellationTokenSource();
+        gracePeriodCts = cts;
         var delayMs = Math.Max(1, settings.disconnectDelaySeconds) * 1000;
 
-        Task.Delay(delayMs, token).ContinueWith(task =>
+        Task.Delay(delayMs, cts.Token).ContinueWith(task =>
         {
-            if (task.IsCanceled)
+            if (task.IsCanceled || !task.IsCompletedSuccessfully)
             {
                 return;
             }
 
             lock (syncLock)
             {
+                if (gracePeriodCts != cts || cts.IsCancellationRequested)
+                {
+                    return;
+                }
+
                 var hasExternal = hasEligibleExternalDisplay();
                 var isLidClosed = currentLidState == lidState.closed;
                 var isClamshellPermitted = profileEvaluator.shouldAllowClamshell(settings, currentPowerInfo, hasExternal);
@@ -225,8 +222,14 @@ public class clamshellStateMachine : iClamshellStateMachine
     {
         if (gracePeriodCts != null)
         {
-            gracePeriodCts.Cancel();
-            gracePeriodCts.Dispose();
+            try
+            {
+                gracePeriodCts.Cancel();
+                gracePeriodCts.Dispose();
+            }
+            catch
+            {
+            }
             gracePeriodCts = null;
         }
     }

@@ -14,11 +14,30 @@ public partial class SettingsWindow : Window
         InitializeComponent();
         DataContext = viewModel;
         SourceInitialized += onSourceInitialized;
+        ContentRendered += onContentRendered;
+        StateChanged += onStateChanged;
     }
 
     private void onSourceInitialized(object? sender, EventArgs e)
     {
         windowBackdropHelper.applyBackdrop(this, true, true);
+    }
+
+    private void onContentRendered(object? sender, EventArgs e)
+    {
+        ContentRendered -= onContentRendered;
+        Task.Delay(800).ContinueWith(_ =>
+        {
+            Dispatcher.InvokeAsync(memoryOptimizer.trimWorkingSet);
+        });
+    }
+
+    private void onStateChanged(object? sender, EventArgs e)
+    {
+        if (WindowState == WindowState.Minimized)
+        {
+            memoryOptimizer.trimWorkingSet();
+        }
     }
 
     public event Action? onOpenDiagnosticsRequested;

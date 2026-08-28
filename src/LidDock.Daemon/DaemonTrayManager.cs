@@ -109,11 +109,12 @@ public class daemonTrayManager : IDisposable
     private string lastMonitor = "None";
     private lidState lastLid = lidState.open;
     private systemPowerInfo lastPower = new systemPowerInfo(powerSourceType.unknown, 100, false);
+    private readonly Dictionary<clamshellState, IntPtr> iconCache = new Dictionary<clamshellState, IntPtr>();
 
     public void initialize(IntPtr hWnd)
     {
         windowHandle = hWnd;
-        currentIconHandle = generateStateIcon(clamshellState.normalMode);
+        currentIconHandle = getOrCreateStateIcon(clamshellState.normalMode);
 
         var data = new notifyIconData
         {
@@ -135,6 +136,7 @@ public class daemonTrayManager : IDisposable
         lidState lid,
         systemPowerInfo power)
     {
+        var stateChanged = lastState != state;
         lastState = state;
         lastMonitor = externalMonitorName;
         lastLid = lid;
@@ -145,8 +147,7 @@ public class daemonTrayManager : IDisposable
             return;
         }
 
-        var oldIcon = currentIconHandle;
-        currentIconHandle = generateStateIcon(state);
+        currentIconHandle = getOrCreateStateIcon(state);
 
         var stateStr = displayFormatters.formatClamshellState(state);
         var lidStr = displayFormatters.formatLidState(lid);
@@ -157,22 +158,23 @@ public class daemonTrayManager : IDisposable
             tip = tip.Substring(0, 127);
         }
 
+        var flags = nifTip;
+        if (stateChanged)
+        {
+            flags |= nifIcon;
+        }
+
         var data = new notifyIconData
         {
             cbSize = (uint)Marshal.SizeOf<notifyIconData>(),
             hWnd = windowHandle,
             uID = 1,
-            uFlags = nifIcon | nifTip,
+            uFlags = flags,
             hIcon = currentIconHandle,
             szTip = tip
         };
 
         shellNotifyIcon(nimModify, ref data);
-
-        if (oldIcon != IntPtr.Zero)
-        {
-            destroyIcon(oldIcon);
-        }
     }
 
     public void handleWindowMessage(
@@ -200,12 +202,16 @@ public class daemonTrayManager : IDisposable
                 lastPower,
                 stateMachine,
                 onExitRequested);
+            onInteractionCompleted?.Invoke();
         }
         else if (eventType == wmLbuttonDblClk)
         {
             nativeTrayMenu.launchUi(string.Empty);
+            onInteractionCompleted?.Invoke();
         }
     }
+
+    public event Action? onInteractionCompleted;
 
     public void showToastNotification(string title, string message, bool isWarning = true)
     {
@@ -302,6 +308,18 @@ public class daemonTrayManager : IDisposable
         return hIcon;
     }
 
+    private IntPtr getOrCreateStateIcon(clamshellState state)
+    {
+        if (iconCache.TryGetValue(state, out var cached) && cached != IntPtr.Zero)
+        {
+            return cached;
+        }
+
+        var newIcon = generateStateIcon(state);
+        iconCache[state] = newIcon;
+        return newIcon;
+    }
+
     void IDisposable.Dispose() => dispose();
 
     public void dispose()
@@ -318,10 +336,14 @@ public class daemonTrayManager : IDisposable
             isIconAdded = false;
         }
 
-        if (currentIconHandle != IntPtr.Zero)
+        foreach (var handle in iconCache.Values)
         {
-            destroyIcon(currentIconHandle);
-            currentIconHandle = IntPtr.Zero;
+            if (handle != IntPtr.Zero)
+            {
+                destroyIcon(handle);
+            }
         }
+        iconCache.Clear();
+        currentIconHandle = IntPtr.Zero;
     }
 }

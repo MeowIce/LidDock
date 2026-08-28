@@ -27,6 +27,7 @@ internal static class Program
     private static daemonTrayManager? trayManager;
     private static appSettings appSettings = new appSettings();
     private static FileSystemWatcher? settingsWatcher;
+    private static CancellationTokenSource? workingSetTrimCts;
     private static readonly object syncRoot = new object();
 
     [STAThread]
@@ -74,6 +75,8 @@ internal static class Program
         {
             trayManager?.handleWindowMessage(msg, wParam, lParam, appSettings, stateMachine, exitDaemon);
         };
+
+        trayManager.onInteractionCompleted += () => scheduleWorkingSetTrim(1500);
 
         hookEvents();
         startSettingsWatcher();
@@ -198,6 +201,7 @@ internal static class Program
             var power = powerWatcher.queryPowerStatus();
 
             trayManager.updateStatus(state, monitorName, lid, power);
+            scheduleWorkingSetTrim(3000);
         }
     }
 
@@ -248,7 +252,21 @@ internal static class Program
 
     private static void scheduleWorkingSetTrim(int delayMs)
     {
-        Task.Delay(delayMs).ContinueWith(_ => trimWorkingSet());
+        lock (syncRoot)
+        {
+            workingSetTrimCts?.Cancel();
+            workingSetTrimCts?.Dispose();
+            var cts = new CancellationTokenSource();
+            workingSetTrimCts = cts;
+
+            Task.Delay(delayMs, cts.Token).ContinueWith(t =>
+            {
+                if (!t.IsCanceled)
+                {
+                    trimWorkingSet();
+                }
+            }, TaskScheduler.Default);
+        }
     }
 
     private static void trimWorkingSet()
@@ -317,6 +335,8 @@ internal static class Program
     private static void cleanup()
     {
         settingsWatcher?.Dispose();
+        workingSetTrimCts?.Cancel();
+        workingSetTrimCts?.Dispose();
         trayManager?.dispose();
         nativeWindow?.dispose();
         stateMachine?.dispose();
