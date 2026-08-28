@@ -156,8 +156,143 @@
     <Style x:Key="FluentRadioButton" TargetType="{x:Type RadioButton}">
         <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
         <Setter Property="FontSize" Value="14"/>
-        <Setter Property="Margin" Value="0,0,0,10"/>
         <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type RadioButton}">
+                    <Grid Background="Transparent">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Grid Width="20" Height="20" VerticalAlignment="Top" Margin="0,2,12,0">
+                            <Ellipse Name="outerCircle"
+                                     Width="20" Height="20"
+                                     Stroke="{StaticResource ControlBorderBrush}"
+                                     StrokeThickness="1.5"
+                                     Fill="#1AFFFFFF"/>
+                            <Ellipse Name="innerDot"
+                                     Width="10" Height="10"
+                                     Fill="#FFFFFF"
+                                     Opacity="0"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center"/>
+                        </Grid>
+
+                        <ContentPresenter Grid.Column="1"
+                                          RecognizesAccessKey="True"
+                                          VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="outerCircle" Property="Stroke" Value="#B3FFFFFF"/>
+                            <Setter TargetName="outerCircle" Property="Fill" Value="#33FFFFFF"/>
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="outerCircle" Property="Fill" Value="{StaticResource AccentBrush}"/>
+                            <Setter TargetName="outerCircle" Property="Stroke" Value="{StaticResource AccentBrush}"/>
+                            <Setter TargetName="innerDot" Property="Opacity" Value="1"/>
+                        </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsChecked" Value="True"/>
+                                <Condition Property="IsMouseOver" Value="True"/>
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="outerCircle" Property="Fill" Value="{StaticResource AccentHoverBrush}"/>
+                            <Setter TargetName="outerCircle" Property="Stroke" Value="{StaticResource AccentHoverBrush}"/>
+                        </MultiTrigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="outerCircle" Property="Opacity" Value="0.8"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="outerCircle" Property="Opacity" Value="0.38"/>
+                            <Setter Property="Opacity" Value="0.38"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="FluentRadioCard" TargetType="{x:Type RadioButton}">
+        <Setter Property="Background" Value="{StaticResource CardBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource CardBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Margin" Value="0,0,0,12"/>
+        <Setter Property="Padding" Value="16"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type RadioButton}">
+                    <Border Name="cardBorder"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="8"
+                            Padding="{TemplateBinding Padding}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid Width="20" Height="20" VerticalAlignment="Top" Margin="0,2,14,0">
+                                <Ellipse Name="outerCircle"
+                                         Width="20" Height="20"
+                                         Stroke="{StaticResource ControlBorderBrush}"
+                                         StrokeThickness="1.5"
+                                         Fill="#1AFFFFFF"/>
+                                <Ellipse Name="innerDot"
+                                         Width="10" Height="10"
+                                         Fill="#FFFFFF"
+                                         Opacity="0"
+                                         HorizontalAlignment="Center"
+                                         VerticalAlignment="Center"/>
+                            </Grid>
+
+                            <ContentPresenter Grid.Column="1"
+                                              RecognizesAccessKey="True"
+                                              VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="cardBorder" Property="Background" Value="{StaticResource SurfaceHoverBrush}"/>
+                            <Setter TargetName="cardBorder" Property="BorderBrush" Value="{StaticResource ControlBorderBrush}"/>
+                            <Setter TargetName="outerCircle" Property="Stroke" Value="#B3FFFFFF"/>
+                            <Setter TargetName="outerCircle" Property="Fill" Value="#33FFFFFF"/>
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="cardBorder" Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                            <Setter TargetName="outerCircle" Property="Fill" Value="{StaticResource AccentBrush}"/>
+                            <Setter TargetName="outerCircle" Property="Stroke" Value="{StaticResource AccentBrush}"/>
+                            <Setter TargetName="innerDot" Property="Opacity" Value="1"/>
+                        </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsChecked" Value="True"/>
+                                <Condition Property="IsMouseOver" Value="True"/>
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="cardBorder" Property="Background" Value="{StaticResource SurfaceHoverBrush}"/>
+                            <Setter TargetName="outerCircle" Property="Fill" Value="{StaticResource AccentHoverBrush}"/>
+                            <Setter TargetName="outerCircle" Property="Stroke" Value="{StaticResource AccentHoverBrush}"/>
+                        </MultiTrigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="cardBorder" Property="Opacity" Value="0.85"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="cardBorder" Property="Opacity" Value="0.4"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <Style x:Key="FluentTabItem" TargetType="{x:Type TabItem}">
@@ -384,5 +519,124 @@
             </Trigger>
         </Style.Triggers>
     </Style>
+
+    <Style x:Key="FluentSliderTrackDecreaseButton" TargetType="{x:Type RepeatButton}">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="IsTabStop" Value="False"/>
+        <Setter Property="Focusable" Value="False"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type RepeatButton}">
+                    <Border Name="trackFill"
+                            Height="4"
+                            CornerRadius="2"
+                            Background="{StaticResource AccentBrush}"
+                            VerticalAlignment="Center"/>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="trackFill" Property="Background" Value="{StaticResource AccentHoverBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="FluentSliderTrackIncreaseButton" TargetType="{x:Type RepeatButton}">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="IsTabStop" Value="False"/>
+        <Setter Property="Focusable" Value="False"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type RepeatButton}">
+                    <Border Name="trackEmpty"
+                            Height="4"
+                            CornerRadius="2"
+                            Background="#33FFFFFF"
+                            VerticalAlignment="Center"/>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="trackEmpty" Property="Background" Value="#4DFFFFFF"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="FluentSliderThumb" TargetType="{x:Type Thumb}">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Focusable" Value="False"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Thumb}">
+                    <Grid Width="22" Height="22" Background="Transparent">
+                        <Ellipse Name="thumbOuter"
+                                 Width="18" Height="18"
+                                 Fill="{StaticResource AccentBrush}"
+                                 Stroke="#FFFFFF"
+                                 StrokeThickness="2.5"
+                                 HorizontalAlignment="Center"
+                                 VerticalAlignment="Center">
+                            <Ellipse.Effect>
+                                <DropShadowEffect BlurRadius="4" ShadowDepth="1" Direction="270" Opacity="0.25"/>
+                            </Ellipse.Effect>
+                        </Ellipse>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="thumbOuter" Property="Width" Value="20"/>
+                            <Setter TargetName="thumbOuter" Property="Height" Value="20"/>
+                            <Setter TargetName="thumbOuter" Property="Fill" Value="{StaticResource AccentHoverBrush}"/>
+                            <Setter TargetName="thumbOuter" Property="StrokeThickness" Value="3"/>
+                        </Trigger>
+                        <Trigger Property="IsDragging" Value="True">
+                            <Setter TargetName="thumbOuter" Property="Width" Value="16"/>
+                            <Setter TargetName="thumbOuter" Property="Height" Value="16"/>
+                            <Setter TargetName="thumbOuter" Property="Fill" Value="{StaticResource AccentHoverBrush}"/>
+                            <Setter TargetName="thumbOuter" Property="StrokeThickness" Value="2"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="FluentSlider" TargetType="{x:Type Slider}">
+        <Setter Property="Focusable" Value="True"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="IsMoveToPointEnabled" Value="True"/>
+        <Setter Property="MinHeight" Value="28"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Slider}">
+                    <Grid VerticalAlignment="Center">
+                        <Track Name="PART_Track" VerticalAlignment="Center">
+                            <Track.DecreaseRepeatButton>
+                                <RepeatButton Style="{StaticResource FluentSliderTrackDecreaseButton}"
+                                              Command="{x:Static Slider.DecreaseLarge}"/>
+                            </Track.DecreaseRepeatButton>
+                            <Track.IncreaseRepeatButton>
+                                <RepeatButton Style="{StaticResource FluentSliderTrackIncreaseButton}"
+                                              Command="{x:Static Slider.IncreaseLarge}"/>
+                            </Track.IncreaseRepeatButton>
+                            <Track.Thumb>
+                                <Thumb Style="{StaticResource FluentSliderThumb}"/>
+                            </Track.Thumb>
+                        </Track>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.38"/>
+                            <Setter Property="Cursor" Value="Arrow"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type Slider}" BasedOn="{StaticResource FluentSlider}"/>
 
 </ResourceDictionary>

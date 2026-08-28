@@ -1,11 +1,12 @@
 <Window x:Class="LidDock.App.Views.SettingsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="LidDock Settings" Height="520" Width="640"
+        Title="LidDock Settings" Height="640" Width="720"
+        MinHeight="580" MinWidth="680"
         WindowStartupLocation="CenterScreen"
         Background="{StaticResource WindowBackgroundBrush}"
         Foreground="{StaticResource TextPrimaryBrush}"
-        ResizeMode="NoResize">
+        ResizeMode="CanResize">
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="48"
                       ResizeBorderThickness="6"
@@ -58,41 +59,53 @@
             <TabItem Header="Profiles">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,12,0,0">
                     <StackPanel>
-                        <Border Style="{StaticResource FluentCard}">
+                        <RadioButton GroupName="Profiles"
+                                     IsChecked="{Binding isProfileSmartDocked}"
+                                     Style="{StaticResource FluentRadioCard}">
                             <StackPanel>
-                                <RadioButton GroupName="Profiles"
-                                             Content="Smart Docked (Recommended)"
-                                             IsChecked="{Binding isProfileSmartDocked}"
-                                             FontWeight="SemiBold"
-                                             Style="{StaticResource FluentRadioButton}"/>
+                                <TextBlock Text="Smart Docked (Recommended)"
+                                           FontWeight="SemiBold"
+                                           FontSize="14"
+                                           Foreground="{StaticResource TextPrimaryBrush}"/>
                                 <TextBlock Text="Clamshell mode activates automatically when docked and switches back to normal sleep when undocked."
-                                           FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="24,0,0,0" TextWrapping="Wrap"/>
+                                           FontSize="12"
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           Margin="0,4,0,0"
+                                           TextWrapping="Wrap"/>
                             </StackPanel>
-                        </Border>
+                        </RadioButton>
 
-                        <Border Style="{StaticResource FluentCard}">
+                        <RadioButton GroupName="Profiles"
+                                     IsChecked="{Binding isProfileAcOnly}"
+                                     Style="{StaticResource FluentRadioCard}">
                             <StackPanel>
-                                <RadioButton GroupName="Profiles"
-                                             Content="AC Power Only"
-                                             IsChecked="{Binding isProfileAcOnly}"
-                                             FontWeight="SemiBold"
-                                             Style="{StaticResource FluentRadioButton}"/>
+                                <TextBlock Text="AC Power Only"
+                                           FontWeight="SemiBold"
+                                           FontSize="14"
+                                           Foreground="{StaticResource TextPrimaryBrush}"/>
                                 <TextBlock Text="Clamshell mode is strictly restricted to wall power connection to preserve battery health."
-                                           FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="24,0,0,0" TextWrapping="Wrap"/>
+                                           FontSize="12"
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           Margin="0,4,0,0"
+                                           TextWrapping="Wrap"/>
                             </StackPanel>
-                        </Border>
+                        </RadioButton>
 
-                        <Border Style="{StaticResource FluentCard}">
+                        <RadioButton GroupName="Profiles"
+                                     IsChecked="{Binding isProfileAlwaysClamshell}"
+                                     Style="{StaticResource FluentRadioCard}">
                             <StackPanel>
-                                <RadioButton GroupName="Profiles"
-                                             Content="Always Clamshell"
-                                             IsChecked="{Binding isProfileAlwaysClamshell}"
-                                             FontWeight="SemiBold"
-                                             Style="{StaticResource FluentRadioButton}"/>
+                                <TextBlock Text="Always Clamshell"
+                                           FontWeight="SemiBold"
+                                           FontSize="14"
+                                           Foreground="{StaticResource TextPrimaryBrush}"/>
                                 <TextBlock Text="Clamshell mode remains active whenever an external monitor is attached, even on battery."
-                                           FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="24,0,0,0" TextWrapping="Wrap"/>
+                                           FontSize="12"
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           Margin="0,4,0,0"
+                                           TextWrapping="Wrap"/>
                             </StackPanel>
-                        </Border>
+                        </RadioButton>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
