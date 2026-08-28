@@ -6,6 +6,8 @@ Still opening Control Panel -> Hardware and Sound -> Power Options -> "Choose wh
 
 LidDock solves this forever. Set it and forget it.
 
+<img width="768" height="682" alt="{B180C15C-AC30-4674-B2F1-CCC87FE37F4D}" src="https://github.com/user-attachments/assets/0a05387a-2531-42a2-8b32-9c01c230185b" />
+
 ---
 
 ## What It Does
@@ -13,7 +15,7 @@ LidDock solves this forever. Set it and forget it.
 When an external monitor is plugged in, closing your laptop lid keeps your machine awake (Do Nothing).
 When you unplug the monitor, your laptop automatically reverts to sleeping when closed (Sleep).
 
-If an abrupt disconnect occurs while the lid remains closed (for example, kicking out your USB-C dock cable), LidDock activates a configurable Safety Grace Period (5 to 10 seconds). If no monitor reconnects within that window, it actively initiates system sleep via native Win32 `SetSuspendState` to eliminate overheating and battery drain.
+If an abrupt disconnect occurs while the lid remains closed (for example, kicking out your USB-C dock cable), LidDock activates a configurable Safety Grace Period (3 to 30 seconds). If no monitor reconnects within that window, it actively initiates system sleep via native Win32 `SetSuspendState` to eliminate overheating and battery drain.
 
 ---
 
