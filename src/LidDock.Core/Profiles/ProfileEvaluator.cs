@@ -17,7 +17,6 @@ public static class profileEvaluator
         switch (settings.activeProfile)
         {
             case operationalProfileType.smartDocked:
-            case operationalProfileType.custom:
                 if (powerInfo.powerSource == powerSourceType.battery && powerInfo.batteryPercent < settings.minimumBatteryThreshold)
                 {
                     return false;

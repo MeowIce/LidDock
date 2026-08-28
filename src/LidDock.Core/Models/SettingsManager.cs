@@ -69,10 +69,6 @@ public static class settingsManager
                     var settings = JsonSerializer.Deserialize(json, appSettingsJsonContext.Default.appSettings);
                     if (settings != null)
                     {
-                        if (settings.activeProfile == operationalProfileType.custom)
-                        {
-                            settings.activeProfile = operationalProfileType.smartDocked;
-                        }
                         return settings;
                     }
                 }

@@ -4,8 +4,7 @@ public enum operationalProfileType
 {
     smartDocked,
     acOnly,
-    alwaysClamshell,
-    custom
+    alwaysClamshell
 }
 
 public class appSettings
