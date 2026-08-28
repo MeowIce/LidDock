@@ -15,6 +15,10 @@ public class settingsViewModel : baseViewModel
         this.stateMachine = stateMachine;
     }
 
+    public string appVersion => "1.0.0";
+    public string author => "MeowIce";
+    public string githubUrl => "https://github.com/MeowIce/LidDock";
+
     public bool enableClamshell
     {
         get => settings.enableClamshell;

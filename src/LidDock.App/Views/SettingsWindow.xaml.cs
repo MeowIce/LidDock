@@ -1,5 +1,7 @@
 using System;
+using System.Diagnostics;
 using System.Windows;
+using System.Windows.Navigation;
 using LidDock.App.Helpers;
 using LidDock.App.ViewModels;
 
@@ -30,6 +32,18 @@ public partial class SettingsWindow : Window
     {
         (DataContext as settingsViewModel)?.save();
         Close();
+    }
+
+    private void onHyperlinkRequestNavigate(object sender, RequestNavigateEventArgs e)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
+            e.Handled = true;
+        }
+        catch
+        {
+        }
     }
 
     protected override void OnClosed(EventArgs e)

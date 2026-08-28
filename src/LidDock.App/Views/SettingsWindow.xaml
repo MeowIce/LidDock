@@ -157,6 +157,48 @@
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
+
+            <TabItem Header="About">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,12,0,0">
+                    <StackPanel>
+                        <Border Style="{StaticResource FluentCard}">
+                            <StackPanel>
+                                <TextBlock Text="LidDock" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource AccentBrush}"/>
+                                <TextBlock Text="Smart Clamshell Mode for Windows 11" FontSize="13" FontWeight="Medium" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,4,0,0"/>
+                                <TextBlock Text="Brings seamless macOS-style Clamshell Mode experience to Windows laptops."
+                                           FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,8,0,0" TextWrapping="Wrap" LineHeight="18"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource FluentCard}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="140"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Version" FontWeight="Medium" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,6"/>
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding appVersion}" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,6"/>
+
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Author" FontWeight="Medium" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,6"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding author}" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,6"/>
+
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="GitHub Repository" FontWeight="Medium" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,6"/>
+                                <TextBlock Grid.Row="2" Grid.Column="1" Margin="0,6">
+                                    <Hyperlink NavigateUri="{Binding githubUrl}" RequestNavigate="onHyperlinkRequestNavigate" Foreground="{StaticResource AccentBrush}">
+                                        <TextBlock Text="{Binding githubUrl}"/>
+                                    </Hyperlink>
+                                </TextBlock>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
         </TabControl>
 
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
