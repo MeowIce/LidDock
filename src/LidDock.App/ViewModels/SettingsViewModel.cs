@@ -112,10 +112,18 @@ public class settingsViewModel : baseViewModel
             {
                 settings.sleepOnDisconnectWithLidClosed = value;
                 onPropertyChanged();
+                onPropertyChanged(nameof(isDisconnectDelayEnabled));
+                onPropertyChanged(nameof(disconnectDelayNote));
                 notifySettingsChanged();
             }
         }
     }
+
+    public bool isDisconnectDelayEnabled => settings.sleepOnDisconnectWithLidClosed;
+
+    public string disconnectDelayNote => settings.sleepOnDisconnectWithLidClosed
+        ? "Grace delay before putting laptop to sleep when external display or charger (in AC Only mode) disconnects with lid closed."
+        : "Not applicable: Sleep on disconnect is turned off.";
 
     public bool requireAcPower
     {
@@ -145,6 +153,15 @@ public class settingsViewModel : baseViewModel
         }
     }
 
+    public bool isBatteryThresholdEnabled => settings.activeProfile == operationalProfileType.smartDocked;
+
+    public string batteryThresholdNote => settings.activeProfile switch
+    {
+        operationalProfileType.acOnly => "Not applicable: AC Power Only profile strictly requires AC wall power and never operates on battery.",
+        operationalProfileType.alwaysClamshell => "Not applicable: Always Clamshell profile keeps clamshell active regardless of battery level.",
+        _ => "Clamshell mode will disengage when battery drops below this threshold while undocked from AC power."
+    };
+
     public bool isProfileSmartDocked
     {
         get => settings.activeProfile == operationalProfileType.smartDocked;
@@ -154,6 +171,10 @@ public class settingsViewModel : baseViewModel
             {
                 settings.activeProfile = operationalProfileType.smartDocked;
                 onPropertyChanged();
+                onPropertyChanged(nameof(isProfileAcOnly));
+                onPropertyChanged(nameof(isProfileAlwaysClamshell));
+                onPropertyChanged(nameof(isBatteryThresholdEnabled));
+                onPropertyChanged(nameof(batteryThresholdNote));
                 notifySettingsChanged();
             }
         }
@@ -168,6 +189,10 @@ public class settingsViewModel : baseViewModel
             {
                 settings.activeProfile = operationalProfileType.acOnly;
                 onPropertyChanged();
+                onPropertyChanged(nameof(isProfileSmartDocked));
+                onPropertyChanged(nameof(isProfileAlwaysClamshell));
+                onPropertyChanged(nameof(isBatteryThresholdEnabled));
+                onPropertyChanged(nameof(batteryThresholdNote));
                 notifySettingsChanged();
             }
         }
@@ -182,20 +207,10 @@ public class settingsViewModel : baseViewModel
             {
                 settings.activeProfile = operationalProfileType.alwaysClamshell;
                 onPropertyChanged();
-                notifySettingsChanged();
-            }
-        }
-    }
-
-    public bool isProfileCustom
-    {
-        get => settings.activeProfile == operationalProfileType.custom;
-        set
-        {
-            if (value)
-            {
-                settings.activeProfile = operationalProfileType.custom;
-                onPropertyChanged();
+                onPropertyChanged(nameof(isProfileSmartDocked));
+                onPropertyChanged(nameof(isProfileAcOnly));
+                onPropertyChanged(nameof(isBatteryThresholdEnabled));
+                onPropertyChanged(nameof(batteryThresholdNote));
                 notifySettingsChanged();
             }
         }

@@ -150,7 +150,11 @@ public class powerSchemeManager : iPowerSchemeManager
 
     public void triggerImmediateSleep()
     {
-        nativeMethods.setSuspendState(false, false, false);
+        nativeMethods.postMessage(
+            (IntPtr)nativeConstants.hwndBroadcast,
+            nativeConstants.wmSysCommand,
+            (IntPtr)nativeConstants.scMonitorPower,
+            (IntPtr)nativeConstants.monitorOff);
     }
 
     public uint? getOriginalAcLidAction() => originalAcLidAction;

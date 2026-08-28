@@ -138,4 +138,46 @@ public class stateMachineTests
         Assert.Equal(clamshellState.normalMode, machine.getCurrentState());
         Assert.False(fakePower.isClamshellActive);
     }
+
+    [Fact]
+    public async Task shouldDisengageWhenAcPowerLostInAcOnlyProfile()
+    {
+        var fakePower = new fakePowerSchemeManager();
+        using var machine = new clamshellStateMachine(fakePower);
+
+        var settings = new appSettings
+        {
+            activeProfile = operationalProfileType.acOnly,
+            disconnectDelaySeconds = 1,
+            sleepOnDisconnectWithLidClosed = true
+        };
+        machine.updateSettings(settings);
+
+        var externalDisplay = new physicalDisplayInfo("Dell Monitor", displayTechnology.displayPortExternal, false, false, "path1");
+        machine.updateDisplays(new List<physicalDisplayInfo> { externalDisplay });
+        machine.updatePowerInfo(new systemPowerInfo(powerSourceType.acPower, 100, false));
+        machine.updateLidState(lidState.closed);
+
+        Assert.Equal(clamshellState.clamshellActive, machine.getCurrentState());
+
+        string? notificationTitle = null;
+        string? notificationMessage = null;
+        machine.onNotificationRequested += (title, msg) =>
+        {
+            notificationTitle = title;
+            notificationMessage = msg;
+        };
+
+        machine.updatePowerInfo(new systemPowerInfo(powerSourceType.battery, 95, false));
+        Assert.Equal(clamshellState.disconnectPending, machine.getCurrentState());
+        Assert.NotNull(notificationTitle);
+        Assert.Contains("AC Power", notificationTitle);
+        Assert.NotNull(notificationMessage);
+
+        await Task.Delay(1300);
+
+        Assert.Equal(clamshellState.enteringSleep, machine.getCurrentState());
+        Assert.False(fakePower.isClamshellActive);
+        Assert.True(fakePower.isSleepTriggered);
+    }
 }

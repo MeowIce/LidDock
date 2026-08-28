@@ -143,6 +143,12 @@ internal static class Program
         {
             updateTrayDisplay();
         };
+
+        stateMachine.onNotificationRequested += (title, message) =>
+        {
+            diagnosticsLogger.instance.logWarning($"{title}: {message}");
+            trayManager?.showToastNotification(title, message, true);
+        };
     }
 
     private static void updateTrayDisplay()

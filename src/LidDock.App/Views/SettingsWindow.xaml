@@ -89,14 +89,6 @@
                                            FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="24,0,0,0" TextWrapping="Wrap"/>
                             </StackPanel>
                         </Border>
-
-                        <Border Style="{StaticResource FluentCard}">
-                            <RadioButton GroupName="Profiles"
-                                         Content="Custom Profile"
-                                         IsChecked="{Binding isProfileCustom}"
-                                         FontWeight="SemiBold"
-                                         Style="{StaticResource FluentRadioButton}"/>
-                        </Border>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
@@ -122,12 +114,12 @@
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,12,0,0">
                     <StackPanel>
                         <Border Style="{StaticResource FluentCard}">
-                            <CheckBox Content="Sleep laptop if external display disconnects while lid is closed"
+                            <CheckBox Content="Sleep laptop if display or charger disconnects while lid is closed"
                                       IsChecked="{Binding sleepOnDisconnectWithLidClosed}"
                                       Style="{StaticResource FluentToggleSwitch}"/>
                         </Border>
 
-                        <Border Style="{StaticResource FluentCard}">
+                        <Border Style="{StaticResource FluentCard}" IsEnabled="{Binding isDisconnectDelayEnabled}">
                             <StackPanel>
                                 <DockPanel Margin="0,0,0,8">
                                     <TextBlock Text="Disconnect Grace Delay" FontWeight="Medium" Foreground="{StaticResource TextPrimaryBrush}"/>
@@ -138,10 +130,12 @@
                                 <Slider Minimum="3" Maximum="30" SmallChange="1" LargeChange="5"
                                         Value="{Binding disconnectDelaySeconds}"
                                         Foreground="{StaticResource AccentBrush}"/>
+                                <TextBlock Text="{Binding disconnectDelayNote}"
+                                           FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,8,0,0" TextWrapping="Wrap"/>
                             </StackPanel>
                         </Border>
 
-                        <Border Style="{StaticResource FluentCard}">
+                        <Border Style="{StaticResource FluentCard}" IsEnabled="{Binding isBatteryThresholdEnabled}">
                             <StackPanel>
                                 <DockPanel Margin="0,0,0,8">
                                     <TextBlock Text="Minimum Battery Threshold for Clamshell" FontWeight="Medium" Foreground="{StaticResource TextPrimaryBrush}"/>
@@ -152,6 +146,8 @@
                                 <Slider Minimum="5" Maximum="50" SmallChange="1" LargeChange="5"
                                         Value="{Binding minimumBatteryThreshold}"
                                         Foreground="{StaticResource AccentBrush}"/>
+                                <TextBlock Text="{Binding batteryThresholdNote}"
+                                           FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,8,0,0" TextWrapping="Wrap"/>
                             </StackPanel>
                         </Border>
                     </StackPanel>

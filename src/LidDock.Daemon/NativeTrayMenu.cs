@@ -99,12 +99,10 @@ public static class nativeTrayMenu
             var smartFlags = mfString | (settings.activeProfile == operationalProfileType.smartDocked ? mfChecked : 0);
             var acFlags = mfString | (settings.activeProfile == operationalProfileType.acOnly ? mfChecked : 0);
             var alwaysFlags = mfString | (settings.activeProfile == operationalProfileType.alwaysClamshell ? mfChecked : 0);
-            var customFlags = mfString | (settings.activeProfile == operationalProfileType.custom ? mfChecked : 0);
 
             appendMenu(hProfileSub, smartFlags, (IntPtr)cmdProfileSmartDocked, "Smart Docked (Recommended)");
             appendMenu(hProfileSub, acFlags, (IntPtr)cmdProfileAcOnly, "AC Power Only");
             appendMenu(hProfileSub, alwaysFlags, (IntPtr)cmdProfileAlwaysClamshell, "Always Clamshell");
-            appendMenu(hProfileSub, customFlags, (IntPtr)cmdProfileCustom, "Custom Profile");
 
             appendMenu(hMenu, mfPopup, hProfileSub, "Profiles");
             appendMenu(hMenu, mfSeparator, IntPtr.Zero, string.Empty);
@@ -154,12 +152,6 @@ public static class nativeTrayMenu
 
             case cmdProfileAlwaysClamshell:
                 settings.activeProfile = operationalProfileType.alwaysClamshell;
-                stateMachine.updateSettings(settings);
-                settingsManager.saveSettings(settings);
-                break;
-
-            case cmdProfileCustom:
-                settings.activeProfile = operationalProfileType.custom;
                 stateMachine.updateSettings(settings);
                 settingsManager.saveSettings(settings);
                 break;

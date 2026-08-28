@@ -16,9 +16,13 @@ public class daemonTrayManager : IDisposable
     private const int nimModify = 0x00000001;
     private const int nimDelete = 0x00000002;
 
-    private const int nifMessage = 0x00000001;
-    private const int nifIcon = 0x00000002;
-    private const int nifTip = 0x00000004;
+    private const uint nifMessage = 0x00000001;
+    private const uint nifIcon = 0x00000002;
+    private const uint nifTip = 0x00000004;
+    private const uint nifInfo = 0x00000010;
+    private const uint niifInfo = 0x00000001;
+    private const uint niifWarning = 0x00000002;
+    private const uint niifLargeIcon = 0x00000020;
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     private struct notifyIconData
@@ -201,6 +205,30 @@ public class daemonTrayManager : IDisposable
         {
             nativeTrayMenu.launchUi(string.Empty);
         }
+    }
+
+    public void showToastNotification(string title, string message, bool isWarning = true)
+    {
+        if (!isIconAdded || windowHandle == IntPtr.Zero)
+        {
+            return;
+        }
+
+        var safeTitle = title.Length > 63 ? title.Substring(0, 63) : title;
+        var safeMessage = message.Length > 255 ? message.Substring(0, 255) : message;
+
+        var data = new notifyIconData
+        {
+            cbSize = (uint)Marshal.SizeOf<notifyIconData>(),
+            hWnd = windowHandle,
+            uID = 1,
+            uFlags = nifInfo,
+            szInfoTitle = safeTitle,
+            szInfo = safeMessage,
+            dwInfoFlags = isWarning ? (niifWarning | niifLargeIcon) : (niifInfo | niifLargeIcon)
+        };
+
+        shellNotifyIcon(nimModify, ref data);
     }
 
     public void recreateIcon()

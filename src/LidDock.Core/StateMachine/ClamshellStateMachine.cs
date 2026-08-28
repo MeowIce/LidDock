@@ -21,6 +21,7 @@ public class clamshellStateMachine : iClamshellStateMachine
     private appSettings settings = new appSettings();
 
     public event Action<clamshellState>? onStateChanged;
+    public event Action<string, string>? onNotificationRequested;
 
     public clamshellStateMachine(iPowerSchemeManager powerManager)
     {
@@ -107,10 +108,23 @@ public class clamshellStateMachine : iClamshellStateMachine
 
         if (hasExternal && isClamshellPermitted)
         {
+            if (currentState == clamshellState.disconnectPending &&
+                settings.activeProfile == operationalProfileType.acOnly)
+            {
+                onNotificationRequested?.Invoke(
+                    "LidDock - AC Power Restored",
+                    "AC power reconnected. Clamshell mode resumed.");
+            }
+
             cancelGracePeriod();
 
-            var allowBattery = settings.activeProfile == operationalProfileType.alwaysClamshell ||
-                (!settings.requireAcPower && (currentPowerInfo.powerSource != powerSourceType.battery || currentPowerInfo.batteryPercent >= settings.minimumBatteryThreshold));
+            var allowBattery = settings.activeProfile switch
+            {
+                operationalProfileType.alwaysClamshell => true,
+                operationalProfileType.smartDocked => currentPowerInfo.batteryPercent >= settings.minimumBatteryThreshold,
+                operationalProfileType.acOnly => false,
+                _ => false
+            };
 
             if (isLidClosed)
             {
@@ -135,14 +149,27 @@ public class clamshellStateMachine : iClamshellStateMachine
             {
                 if (currentState == clamshellState.clamshellActive)
                 {
+                    if (settings.activeProfile == operationalProfileType.acOnly &&
+                        currentPowerInfo.powerSource != powerSourceType.acPower)
+                    {
+                        var delay = Math.Max(1, settings.disconnectDelaySeconds);
+                        var delayText = settings.sleepOnDisconnectWithLidClosed
+                            ? $"Laptop will sleep in {delay}s to prevent overheating."
+                            : "Laptop is entering sleep mode.";
+                        onNotificationRequested?.Invoke(
+                            "LidDock - AC Power Disconnected",
+                            $"AC power disconnected in Clamshell mode (AC Only). {delayText}");
+                    }
+
                     if (settings.sleepOnDisconnectWithLidClosed)
                     {
                         startGracePeriod();
                     }
                     else
                     {
-                        transitionTo(clamshellState.normalMode);
+                        transitionTo(clamshellState.enteringSleep);
                         powerManager.restoreOriginalSettings();
+                        powerManager.triggerImmediateSleep();
                     }
                 }
                 else if (currentState != clamshellState.disconnectPending && currentState != clamshellState.enteringSleep)
@@ -173,12 +200,22 @@ public class clamshellStateMachine : iClamshellStateMachine
             {
                 var hasExternal = hasEligibleExternalDisplay();
                 var isLidClosed = currentLidState == lidState.closed;
+                var isClamshellPermitted = profileEvaluator.shouldAllowClamshell(settings, currentPowerInfo, hasExternal);
 
-                if (!hasExternal && isLidClosed)
+                if (!isClamshellPermitted && isLidClosed)
                 {
                     transitionTo(clamshellState.enteringSleep);
                     powerManager.restoreOriginalSettings();
                     powerManager.triggerImmediateSleep();
+                }
+                else if (!isClamshellPermitted && !isLidClosed)
+                {
+                    transitionTo(clamshellState.normalMode);
+                    powerManager.restoreOriginalSettings();
+                }
+                else if (isClamshellPermitted)
+                {
+                    transitionTo(isLidClosed ? clamshellState.clamshellActive : clamshellState.dockedLidOpen);
                 }
             }
         }, TaskScheduler.Default);

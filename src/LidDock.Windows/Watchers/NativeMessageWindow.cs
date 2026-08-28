@@ -67,6 +67,7 @@ public class nativeMessageWindow : IDisposable
     private static wndProcDelegate? cachedWndProc;
     private IntPtr lidNotificationHandle = IntPtr.Zero;
     private IntPtr powerNotificationHandle = IntPtr.Zero;
+    private IntPtr batteryNotificationHandle = IntPtr.Zero;
     private uint taskbarCreatedMessage;
     private uint settingsChangedMessage;
 
@@ -129,6 +130,12 @@ public class nativeMessageWindow : IDisposable
                 ref powerGuid,
                 nativeConstants.deviceNotifyWindowHandle);
 
+            var batteryGuid = nativeConstants.guidBatteryPercentageRemaining;
+            batteryNotificationHandle = nativeMethods.registerPowerSettingNotification(
+                windowHandle,
+                ref batteryGuid,
+                nativeConstants.deviceNotifyWindowHandle);
+
             taskbarCreatedMessage = nativeMethods.registerWindowMessage("TaskbarCreated");
             settingsChangedMessage = nativeMethods.registerWindowMessage("LidDock_SettingsChanged_Event");
         }
@@ -158,21 +165,32 @@ public class nativeMessageWindow : IDisposable
                 return IntPtr.Zero;
             }
 
-            if (msg == nativeConstants.wmPowerBroadcast && wParam.ToInt64() == nativeConstants.pbtPowerSettingChange && lParam != IntPtr.Zero)
+            if (msg == nativeConstants.wmPowerBroadcast)
             {
-                var setting = Marshal.PtrToStructure<powerBroadcastSetting>(lParam);
-                if (setting.powerSetting == nativeConstants.guidLidSwitchStateChange)
-                {
-                    var isLidOpen = (setting.dataLength == 1)
-                        ? Marshal.ReadByte(lParam, 20) != 0
-                        : Marshal.ReadInt32(lParam, 20) != 0;
-                    onLidStateChangedMessage?.Invoke(isLidOpen);
-                    return IntPtr.Zero;
-                }
-                else if (setting.powerSetting == nativeConstants.guidAcdcPowerSource)
+                var wParamVal = wParam.ToInt64();
+                if (wParamVal == nativeConstants.pbtApmPowerStatusChange)
                 {
                     onPowerSourceChangedMessage?.Invoke();
                     return IntPtr.Zero;
+                }
+
+                if (wParamVal == nativeConstants.pbtPowerSettingChange && lParam != IntPtr.Zero)
+                {
+                    var setting = Marshal.PtrToStructure<powerBroadcastSetting>(lParam);
+                    if (setting.powerSetting == nativeConstants.guidLidSwitchStateChange)
+                    {
+                        var isLidOpen = (setting.dataLength == 1)
+                            ? Marshal.ReadByte(lParam, 20) != 0
+                            : Marshal.ReadInt32(lParam, 20) != 0;
+                        onLidStateChangedMessage?.Invoke(isLidOpen);
+                        return IntPtr.Zero;
+                    }
+                    else if (setting.powerSetting == nativeConstants.guidAcdcPowerSource ||
+                             setting.powerSetting == nativeConstants.guidBatteryPercentageRemaining)
+                    {
+                        onPowerSourceChangedMessage?.Invoke();
+                        return IntPtr.Zero;
+                    }
                 }
             }
         }
@@ -197,6 +215,12 @@ public class nativeMessageWindow : IDisposable
         {
             nativeMethods.unregisterPowerSettingNotification(powerNotificationHandle);
             powerNotificationHandle = IntPtr.Zero;
+        }
+
+        if (batteryNotificationHandle != IntPtr.Zero)
+        {
+            nativeMethods.unregisterPowerSettingNotification(batteryNotificationHandle);
+            batteryNotificationHandle = IntPtr.Zero;
         }
 
         if (windowHandle != IntPtr.Zero)
