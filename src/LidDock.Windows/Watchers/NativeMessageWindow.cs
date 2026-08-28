@@ -102,16 +102,19 @@ public class nativeMessageWindow : IDisposable
 
         registerClassEx(ref wcx);
 
+        const uint wsExToolWindow = 0x00000080;
+        const uint wsPopup = 0x80000000;
+
         windowHandle = createWindowEx(
-            0,
+            wsExToolWindow,
             windowClassName,
             "LidDockNativeListener",
+            wsPopup,
             0,
             0,
             0,
             0,
-            0,
-            hwndMessageParent,
+            IntPtr.Zero,
             IntPtr.Zero,
             moduleHandle,
             IntPtr.Zero);

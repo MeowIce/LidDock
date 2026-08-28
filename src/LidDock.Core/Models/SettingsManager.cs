@@ -137,6 +137,15 @@ public static class settingsManager
             var permanentPath = getPermanentDaemonPath();
             if (!string.Equals(currentPath, permanentPath, StringComparison.OrdinalIgnoreCase))
             {
+                if (File.Exists(permanentPath))
+                {
+                    var srcInfo = new FileInfo(currentPath);
+                    var dstInfo = new FileInfo(permanentPath);
+                    if (srcInfo.Length == dstInfo.Length)
+                    {
+                        return;
+                    }
+                }
                 File.Copy(currentPath, permanentPath, true);
             }
         }

@@ -72,7 +72,7 @@ public struct displayConfigPathTargetInfo
     public uint scaling;
     public displayConfigRational refreshRate;
     public uint scanLineOrdering;
-    public bool targetAvailable;
+    public int targetAvailable;
     public uint statusFlags;
 }
 
@@ -84,14 +84,12 @@ public struct displayConfigPathInfo
     public uint flags;
 }
 
-[StructLayout(LayoutKind.Sequential)]
+[StructLayout(LayoutKind.Explicit, Size = 64)]
 public struct displayConfigModeInfo
 {
-    public displayConfigModeInfoType infoType;
-    public uint id;
-    public luid adapterId;
-    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 64)]
-    public byte[] modeInfoData;
+    [FieldOffset(0)] public displayConfigModeInfoType infoType;
+    [FieldOffset(4)] public uint id;
+    [FieldOffset(8)] public luid adapterId;
 }
 
 [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]

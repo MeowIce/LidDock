@@ -34,7 +34,7 @@
 
         <TabControl Grid.Row="1" Style="{StaticResource FluentTabControl}">
             <TabItem Header="General">
-                <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,12,0,0">
+                <ScrollViewer Style="{StaticResource FluentTabScrollViewer}">
                     <StackPanel>
                         <Border Style="{StaticResource FluentCard}">
                             <CheckBox Content="Enable Smart Clamshell Mode"
@@ -57,7 +57,7 @@
             </TabItem>
 
             <TabItem Header="Profiles">
-                <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,12,0,0">
+                <ScrollViewer Style="{StaticResource FluentTabScrollViewer}">
                     <StackPanel>
                         <RadioButton GroupName="Profiles"
                                      IsChecked="{Binding isProfileSmartDocked}"
@@ -111,7 +111,7 @@
             </TabItem>
 
             <TabItem Header="Display Detection">
-                <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,12,0,0">
+                <ScrollViewer Style="{StaticResource FluentTabScrollViewer}">
                     <StackPanel>
                         <Border Style="{StaticResource FluentCard}">
                             <CheckBox Content="Ignore Virtual Displays (RDP, Parsec, Virtual Drivers)"
@@ -128,7 +128,7 @@
             </TabItem>
 
             <TabItem Header="Safety &amp; Delay">
-                <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,12,0,0">
+                <ScrollViewer Style="{StaticResource FluentTabScrollViewer}">
                     <StackPanel>
                         <Border Style="{StaticResource FluentCard}">
                             <CheckBox Content="Sleep laptop if display or charger disconnects while lid is closed"
@@ -172,7 +172,7 @@
             </TabItem>
 
             <TabItem Header="About">
-                <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,12,0,0">
+                <ScrollViewer Style="{StaticResource FluentTabScrollViewer}">
                     <StackPanel>
                         <Border Style="{StaticResource FluentCard}">
                             <StackPanel>

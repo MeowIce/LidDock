@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 using LidDock.App.ViewModels;
 using LidDock.App.Views;
@@ -14,6 +15,7 @@ namespace LidDock.App;
 
 public partial class App : Application
 {
+    private static Mutex? singleInstanceMutex;
     private powerSchemeManager? powerManager;
     private clamshellStateMachine? stateMachine;
     private displayWatcher? displayWatcher;
@@ -26,41 +28,56 @@ public partial class App : Application
 
     protected override void OnStartup(StartupEventArgs e)
     {
-        base.OnStartup(e);
-
-        if (e.Args.Contains("--minimized"))
+        try
         {
+            singleInstanceMutex = new Mutex(true, "LidDock_UI_Mutex", out var createdNew);
+            if (!createdNew)
+            {
+                Shutdown();
+                Environment.Exit(0);
+                return;
+            }
+
+            base.OnStartup(e);
+
+            if (e.Args.Contains("--minimized"))
+            {
+                ensureDaemonRunning();
+                Shutdown();
+                Environment.Exit(0);
+                return;
+            }
+
             ensureDaemonRunning();
-            Shutdown();
-            return;
+
+            appSettings = settingsManager.loadSettings();
+            powerManager = new powerSchemeManager();
+            stateMachine = new clamshellStateMachine(powerManager);
+            displayWatcher = new displayWatcher();
+            lidWatcher = new lidWatcher();
+            powerWatcher = new powerWatcher();
+
+            displayWatcher.onDisplaysChanged += d => stateMachine.updateDisplays(d);
+            powerWatcher.onPowerStatusChanged += p => stateMachine.updatePowerInfo(p);
+            lidWatcher.onLidStateChanged += l => stateMachine.updateLidState(l);
+
+            displayWatcher.notifyDisplayConfigurationChanged();
+            powerWatcher.notifyPowerStatusChanged();
+            stateMachine.updateLidState(lidWatcher.queryLidState());
+
+            settingsVm = new settingsViewModel(appSettings, stateMachine);
+
+            if (e.Args.Contains("--diagnostics"))
+            {
+                openDiagnostics();
+            }
+            else
+            {
+                openSettings();
+            }
         }
-
-        ensureDaemonRunning();
-
-        appSettings = settingsManager.loadSettings();
-        powerManager = new powerSchemeManager();
-        stateMachine = new clamshellStateMachine(powerManager);
-        displayWatcher = new displayWatcher();
-        lidWatcher = new lidWatcher();
-        powerWatcher = new powerWatcher();
-
-        displayWatcher.onDisplaysChanged += d => stateMachine.updateDisplays(d);
-        powerWatcher.onPowerStatusChanged += p => stateMachine.updatePowerInfo(p);
-        lidWatcher.onLidStateChanged += l => stateMachine.updateLidState(l);
-
-        displayWatcher.notifyDisplayConfigurationChanged();
-        powerWatcher.notifyPowerStatusChanged();
-        stateMachine.updateLidState(lidWatcher.queryLidState());
-
-        settingsVm = new settingsViewModel(appSettings, stateMachine);
-
-        if (e.Args.Contains("--diagnostics"))
+        catch
         {
-            openDiagnostics();
-        }
-        else
-        {
-            openSettings();
         }
     }
 
@@ -68,7 +85,10 @@ public partial class App : Application
     {
         try
         {
-            if (Process.GetProcessesByName("LidDock").Length == 0 && Process.GetProcessesByName("LidDock.Daemon").Length == 0)
+            var liddockCount = Process.GetProcessesByName("LidDock").Length;
+            var daemonCount = Process.GetProcessesByName("LidDock.Daemon").Length;
+
+            if (liddockCount == 0 && daemonCount == 0)
             {
                 var permanentPath = settingsManager.getPermanentDaemonPath();
                 if (File.Exists(permanentPath))
@@ -77,7 +97,8 @@ public partial class App : Application
                     {
                         FileName = permanentPath,
                         Arguments = "--minimized",
-                        UseShellExecute = true
+                        UseShellExecute = false,
+                        CreateNoWindow = true
                     });
                     return;
                 }
@@ -90,7 +111,8 @@ public partial class App : Application
                     {
                         FileName = savedPath,
                         Arguments = "--minimized",
-                        UseShellExecute = true
+                        UseShellExecute = false,
+                        CreateNoWindow = true
                     });
                     return;
                 }
@@ -108,7 +130,8 @@ public partial class App : Application
                     {
                         FileName = daemonPath,
                         Arguments = "--minimized",
-                        UseShellExecute = true
+                        UseShellExecute = false,
+                        CreateNoWindow = true
                     });
                 }
             }
@@ -125,25 +148,32 @@ public partial class App : Application
             return;
         }
 
-        if (settingsWindowInstance == null || !settingsWindowInstance.IsLoaded)
+        try
         {
-            settingsWindowInstance = new SettingsWindow(settingsVm);
-            MainWindow = settingsWindowInstance;
-            settingsWindowInstance.onOpenDiagnosticsRequested += openDiagnostics;
-            settingsWindowInstance.Closed += (s, e) =>
+            if (settingsWindowInstance == null || !settingsWindowInstance.IsLoaded)
             {
-                settingsWindowInstance = null;
-                if (diagnosticsWindowInstance == null)
+                settingsWindowInstance = new SettingsWindow(settingsVm);
+                MainWindow = settingsWindowInstance;
+                settingsWindowInstance.onOpenDiagnosticsRequested += openDiagnostics;
+                settingsWindowInstance.Closed += (s, e) =>
                 {
-                    Shutdown();
-                }
-            };
-            settingsWindowInstance.Show();
-            settingsWindowInstance.Activate();
+                    settingsWindowInstance = null;
+                    if (diagnosticsWindowInstance == null)
+                    {
+                        Shutdown();
+                        Environment.Exit(0);
+                    }
+                };
+                settingsWindowInstance.Show();
+                settingsWindowInstance.Activate();
+            }
+            else
+            {
+                settingsWindowInstance.Activate();
+            }
         }
-        else
+        catch
         {
-            settingsWindowInstance.Activate();
         }
     }
 
@@ -169,6 +199,7 @@ public partial class App : Application
                 if (settingsWindowInstance == null)
                 {
                     Shutdown();
+                    Environment.Exit(0);
                 }
             };
             diagnosticsWindowInstance.Show();

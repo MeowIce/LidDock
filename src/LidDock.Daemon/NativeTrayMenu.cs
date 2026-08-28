@@ -209,8 +209,8 @@ public static class nativeTrayMenu
         try
         {
             var assembly = typeof(nativeTrayMenu).Assembly;
-            var resourceName = assembly.GetManifestResourceNames()
-                .FirstOrDefault(n => n.EndsWith("LidDock.UI.exe", StringComparison.OrdinalIgnoreCase));
+            var resourceNames = assembly.GetManifestResourceNames();
+            var resourceName = resourceNames.FirstOrDefault(n => n.EndsWith("LidDock.UI.exe", StringComparison.OrdinalIgnoreCase));
             if (resourceName == null)
             {
                 return;
@@ -224,10 +224,15 @@ public static class nativeTrayMenu
 
             if (File.Exists(targetExePath))
             {
-                var fileInfo = new FileInfo(targetExePath);
-                if (fileInfo.Length == resourceStream.Length)
+                var daemonPath = Environment.ProcessPath;
+                if (!string.IsNullOrEmpty(daemonPath) && File.Exists(daemonPath))
                 {
-                    return;
+                    var daemonInfo = new FileInfo(daemonPath);
+                    var uiInfo = new FileInfo(targetExePath);
+                    if (uiInfo.LastWriteTimeUtc >= daemonInfo.LastWriteTimeUtc && uiInfo.Length == resourceStream.Length)
+                    {
+                        return;
+                    }
                 }
             }
 
@@ -255,6 +260,7 @@ public static class nativeTrayMenu
                 var target = existingProcesses.FirstOrDefault(p => p.MainWindowHandle != IntPtr.Zero);
                 if (target != null)
                 {
+                    nativeMethods.showWindow(target.MainWindowHandle, 9);
                     nativeMethods.setForegroundWindow(target.MainWindowHandle);
                     return;
                 }
@@ -264,7 +270,8 @@ public static class nativeTrayMenu
             {
                 FileName = exePath,
                 Arguments = argument,
-                UseShellExecute = true
+                UseShellExecute = false,
+                CreateNoWindow = false
             };
             Process.Start(startInfo);
         }

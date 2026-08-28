@@ -35,7 +35,10 @@ internal static class Program
         singleInstanceMutex = new Mutex(true, "LidDock_Daemon_Mutex", out var createdNew);
         if (!createdNew)
         {
-            nativeTrayMenu.launchUi(string.Empty);
+            if (!args.Contains("--minimized"))
+            {
+                nativeTrayMenu.launchUi(string.Empty);
+            }
             return;
         }
 
@@ -80,10 +83,19 @@ internal static class Program
         stateMachine.updateLidState(lidWatcher.queryLidState());
         updateTrayDisplay();
 
-        var isMinimized = args.Contains("--minimized") || appSettings.startMinimized;
+        var isMinimized = args.Contains("--minimized");
         if (!isMinimized)
         {
-            nativeTrayMenu.launchUi(string.Empty);
+            Task.Run(() =>
+            {
+                try
+                {
+                    nativeTrayMenu.launchUi(string.Empty);
+                }
+                catch
+                {
+                }
+            });
         }
 
         scheduleWorkingSetTrim(2000);
