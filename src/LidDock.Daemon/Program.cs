@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LidDock.Core.Models;
+using LidDock.Core.Services;
 using LidDock.Core.StateMachine;
 using LidDock.Diagnostics;
 using LidDock.Windows.Native;
@@ -39,6 +40,18 @@ internal static class Program
         }
 
         appSettings = settingsManager.loadSettings();
+
+        try
+        {
+            settingsManager.ensurePermanentInstallation();
+            var permanentPath = settingsManager.getPermanentDaemonPath();
+            using var liddockKey = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(@"Software\LidDock");
+            liddockKey?.SetValue("DaemonPath", permanentPath);
+            settingsManager.updateAutoStartRegistry(appSettings.startWithWindows);
+        }
+        catch
+        {
+        }
 
         powerManager = new powerSchemeManager();
         powerManager.backupOriginalSettings();
@@ -74,6 +87,11 @@ internal static class Program
         }
 
         scheduleWorkingSetTrim(2000);
+
+        if (appSettings.autoCheckForUpdates)
+        {
+            scheduleBackgroundUpdateCheck();
+        }
 
         int ret;
         while ((ret = nativeMethods.getMessage(out var msg, IntPtr.Zero, 0, 0)) != 0)
@@ -242,6 +260,46 @@ internal static class Program
     private static void exitDaemon()
     {
         nativeMethods.postQuitMessage(0);
+    }
+
+    private static void scheduleBackgroundUpdateCheck()
+    {
+        Task.Run(async () =>
+        {
+            try
+            {
+                await Task.Delay(10000);
+
+                if (!appSettings.autoCheckForUpdates)
+                {
+                    return;
+                }
+
+                var now = DateTime.UtcNow;
+                if (appSettings.lastUpdateCheckUtc.HasValue && (now - appSettings.lastUpdateCheckUtc.Value).TotalHours < 24)
+                {
+                    return;
+                }
+
+                var checker = new updateChecker();
+                var currentVer = new Version(1, 0, 0);
+                var result = await checker.checkForUpdatesAsync(currentVer);
+
+                appSettings.lastUpdateCheckUtc = now;
+                settingsManager.saveSettings(appSettings);
+
+                if (result.isUpdateAvailable && result.latestVersion != null)
+                {
+                    trayManager?.showToastNotification(
+                        "LidDock Update Available",
+                        $"Version v{result.latestVersion} is available. Double-click tray icon to view.",
+                        false);
+                }
+            }
+            catch
+            {
+            }
+        });
     }
 
     private static void cleanup()

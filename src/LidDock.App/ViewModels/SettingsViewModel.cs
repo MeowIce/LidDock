@@ -1,6 +1,8 @@
 using System;
+using System.Threading.Tasks;
 using LidDock.Core.Contracts;
 using LidDock.Core.Models;
+using LidDock.Core.Services;
 
 namespace LidDock.App.ViewModels;
 
@@ -8,11 +10,13 @@ public class settingsViewModel : baseViewModel
 {
     private readonly appSettings settings;
     private readonly iClamshellStateMachine stateMachine;
+    private readonly iUpdateChecker updateCheckerInstance;
 
-    public settingsViewModel(appSettings settings, iClamshellStateMachine stateMachine)
+    public settingsViewModel(appSettings settings, iClamshellStateMachine stateMachine, iUpdateChecker? updateChecker = null)
     {
         this.settings = settings;
         this.stateMachine = stateMachine;
+        this.updateCheckerInstance = updateChecker ?? new updateChecker();
     }
 
     public string appVersion => "1.0.0";
@@ -41,7 +45,9 @@ public class settingsViewModel : baseViewModel
             if (settings.startWithWindows != value)
             {
                 settings.startWithWindows = value;
+                settings.startMinimized = value;
                 onPropertyChanged();
+                onPropertyChanged(nameof(startMinimized));
                 notifySettingsChanged();
             }
         }
@@ -213,6 +219,81 @@ public class settingsViewModel : baseViewModel
                 onPropertyChanged(nameof(batteryThresholdNote));
                 notifySettingsChanged();
             }
+        }
+    }
+
+    public bool autoCheckForUpdates
+    {
+        get => settings.autoCheckForUpdates;
+        set
+        {
+            if (settings.autoCheckForUpdates != value)
+            {
+                settings.autoCheckForUpdates = value;
+                onPropertyChanged();
+                notifySettingsChanged();
+            }
+        }
+    }
+
+    public bool isCheckingForUpdates { get; private set; }
+    public bool canCheckForUpdates => !isCheckingForUpdates;
+    public string updateStatusMessage { get; private set; } = "Check for updates from GitHub Releases.";
+    public bool isUpdateAvailable { get; private set; }
+    public string latestVersionUrl { get; private set; } = "https://github.com/MeowIce/LidDock/releases/latest";
+    public string latestVersionString { get; private set; } = string.Empty;
+
+    public async Task checkForUpdatesAsync()
+    {
+        if (isCheckingForUpdates)
+        {
+            return;
+        }
+
+        isCheckingForUpdates = true;
+        updateStatusMessage = "Checking for updates...";
+        isUpdateAvailable = false;
+        onPropertyChanged(nameof(isCheckingForUpdates));
+        onPropertyChanged(nameof(canCheckForUpdates));
+        onPropertyChanged(nameof(updateStatusMessage));
+        onPropertyChanged(nameof(isUpdateAvailable));
+
+        try
+        {
+            var currentVer = new Version(appVersion);
+            var result = await updateCheckerInstance.checkForUpdatesAsync(currentVer);
+            settings.lastUpdateCheckUtc = DateTime.UtcNow;
+            notifySettingsChanged();
+
+            if (result.isUpdateAvailable && result.latestVersion != null)
+            {
+                isUpdateAvailable = true;
+                latestVersionString = $"v{result.latestVersion}";
+                latestVersionUrl = string.IsNullOrEmpty(result.releaseUrl) ? githubUrl + "/releases/latest" : result.releaseUrl;
+                updateStatusMessage = $"New version {latestVersionString} is available!";
+            }
+            else if (!string.IsNullOrEmpty(result.errorMessage))
+            {
+                updateStatusMessage = $"Check failed: {result.errorMessage}";
+            }
+            else
+            {
+                updateStatusMessage = "You are using the latest version of LidDock.";
+            }
+        }
+        catch (Exception ex)
+        {
+            updateStatusMessage = $"Error checking updates: {ex.Message}";
+        }
+        finally
+        {
+            isCheckingForUpdates = false;
+            onPropertyChanged(nameof(isCheckingForUpdates));
+            onPropertyChanged(nameof(canCheckForUpdates));
+            onPropertyChanged(nameof(updateStatusMessage));
+            onPropertyChanged(nameof(isUpdateAvailable));
+            onPropertyChanged(nameof(latestVersionString));
+            onPropertyChanged(nameof(latestVersionUrl));
         }
     }
 

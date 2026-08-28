@@ -34,6 +34,14 @@ public partial class SettingsWindow : Window
         Close();
     }
 
+    private async void onCheckForUpdatesClicked(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is settingsViewModel vm)
+        {
+            await vm.checkForUpdatesAsync();
+        }
+    }
+
     private void onHyperlinkRequestNavigate(object sender, RequestNavigateEventArgs e)
     {
         try

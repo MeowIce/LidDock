@@ -1,5 +1,7 @@
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -9,6 +11,7 @@ namespace LidDock.Core.Models;
 
 [JsonSourceGenerationOptions(WriteIndented = true, UseStringEnumConverter = true)]
 [JsonSerializable(typeof(appSettings))]
+[JsonSerializable(typeof(gitHubReleaseInfo))]
 internal partial class appSettingsJsonContext : JsonSerializerContext
 {
 }
@@ -109,6 +112,39 @@ public static class settingsManager
         }
     }
 
+    public static string getPermanentDaemonPath()
+    {
+        return Path.Combine(settingsDirectory, "LidDock.exe");
+    }
+
+    public static void ensurePermanentInstallation()
+    {
+        try
+        {
+            var currentPath = Environment.ProcessPath;
+            if (string.IsNullOrEmpty(currentPath) ||
+                currentPath.EndsWith("LidDock.UI.exe", StringComparison.OrdinalIgnoreCase) ||
+                currentPath.EndsWith("LidDock.App.exe", StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            if (!Directory.Exists(settingsDirectory))
+            {
+                Directory.CreateDirectory(settingsDirectory);
+            }
+
+            var permanentPath = getPermanentDaemonPath();
+            if (!string.Equals(currentPath, permanentPath, StringComparison.OrdinalIgnoreCase))
+            {
+                File.Copy(currentPath, permanentPath, true);
+            }
+        }
+        catch
+        {
+        }
+    }
+
     public static void updateAutoStartRegistry(bool enable)
     {
         try
@@ -121,16 +157,12 @@ public static class settingsManager
 
             if (enable)
             {
-                var processPath = Environment.ProcessPath;
-                if (!string.IsNullOrEmpty(processPath))
+                ensurePermanentInstallation();
+                var permanentPath = getPermanentDaemonPath();
+                var targetPath = File.Exists(permanentPath) ? permanentPath : Environment.ProcessPath;
+
+                if (!string.IsNullOrEmpty(targetPath))
                 {
-                    var baseDir = Path.GetDirectoryName(processPath) ?? string.Empty;
-                    var daemonPath = Path.Combine(baseDir, "LidDock.exe");
-                    if (!File.Exists(daemonPath))
-                    {
-                        daemonPath = Path.Combine(baseDir, "LidDock.Daemon.exe");
-                    }
-                    var targetPath = File.Exists(daemonPath) ? daemonPath : processPath;
                     key.SetValue(appName, $"\"{targetPath}\" --minimized");
                 }
             }

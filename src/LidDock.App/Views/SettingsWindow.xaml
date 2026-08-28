@@ -14,6 +14,10 @@
                       UseAeroCaptionButtons="True"/>
     </WindowChrome.WindowChrome>
 
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisConverter"/>
+    </Window.Resources>
+
     <Grid Margin="20,12,20,16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -38,14 +42,14 @@
                                       FontWeight="Medium"/>
                         </Border>
                         <Border Style="{StaticResource FluentCard}">
-                            <CheckBox Content="Launch automatically when Windows starts"
-                                      IsChecked="{Binding startWithWindows}"
-                                      Style="{StaticResource FluentToggleSwitch}"/>
-                        </Border>
-                        <Border Style="{StaticResource FluentCard}">
-                            <CheckBox Content="Start minimized to the system notification area"
-                                      IsChecked="{Binding startMinimized}"
-                                      Style="{StaticResource FluentToggleSwitch}"/>
+                            <StackPanel>
+                                <CheckBox Content="Start with Windows"
+                                          IsChecked="{Binding startWithWindows}"
+                                          Style="{StaticResource FluentToggleSwitch}"
+                                          FontWeight="Medium"/>
+                                <TextBlock Text="Run LidDock automatically on system startup and minimize to the system tray."
+                                           FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,48,0" TextWrapping="Wrap"/>
+                            </StackPanel>
                         </Border>
                     </StackPanel>
                 </ScrollViewer>
@@ -191,6 +195,36 @@
                                     </Hyperlink>
                                 </TextBlock>
                             </Grid>
+                        </Border>
+
+                        <Border Style="{StaticResource FluentCard}">
+                            <StackPanel>
+                                <TextBlock Text="Software Updates" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,8"/>
+                                <DockPanel Margin="0,0,0,8">
+                                    <Button Content="Check for Updates"
+                                            Click="onCheckForUpdatesClicked"
+                                            IsEnabled="{Binding canCheckForUpdates}"
+                                            Style="{StaticResource FluentSecondaryButton}"
+                                            Padding="14,6"
+                                            DockPanel.Dock="Right"/>
+                                    <TextBlock Text="{Binding updateStatusMessage}"
+                                               FontSize="13"
+                                               Foreground="{StaticResource TextPrimaryBrush}"
+                                               VerticalAlignment="Center"
+                                               TextWrapping="Wrap"/>
+                                </DockPanel>
+                                <StackPanel Visibility="{Binding isUpdateAvailable, Converter={StaticResource BoolToVisConverter}}" Margin="0,2,0,6">
+                                    <TextBlock>
+                                        <Hyperlink NavigateUri="{Binding latestVersionUrl}" RequestNavigate="onHyperlinkRequestNavigate" Foreground="{StaticResource AccentBrush}">
+                                            <TextBlock Text="Download latest release on GitHub"/>
+                                        </Hyperlink>
+                                    </TextBlock>
+                                </StackPanel>
+                                <CheckBox Content="Automatically check for updates"
+                                          IsChecked="{Binding autoCheckForUpdates}"
+                                          Style="{StaticResource FluentToggleSwitch}"
+                                          Margin="0,6,0,0"/>
+                            </StackPanel>
                         </Border>
                     </StackPanel>
                 </ScrollViewer>

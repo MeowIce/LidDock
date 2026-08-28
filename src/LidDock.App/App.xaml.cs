@@ -28,6 +28,13 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
+        if (e.Args.Contains("--minimized"))
+        {
+            ensureDaemonRunning();
+            Shutdown();
+            return;
+        }
+
         ensureDaemonRunning();
 
         appSettings = settingsManager.loadSettings();
@@ -63,6 +70,31 @@ public partial class App : Application
         {
             if (Process.GetProcessesByName("LidDock").Length == 0 && Process.GetProcessesByName("LidDock.Daemon").Length == 0)
             {
+                var permanentPath = settingsManager.getPermanentDaemonPath();
+                if (File.Exists(permanentPath))
+                {
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = permanentPath,
+                        Arguments = "--minimized",
+                        UseShellExecute = true
+                    });
+                    return;
+                }
+
+                using var appKey = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\LidDock");
+                var savedPath = appKey?.GetValue("DaemonPath") as string;
+                if (!string.IsNullOrEmpty(savedPath) && File.Exists(savedPath))
+                {
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = savedPath,
+                        Arguments = "--minimized",
+                        UseShellExecute = true
+                    });
+                    return;
+                }
+
                 var baseDir = AppContext.BaseDirectory;
                 var daemonPath = Path.Combine(baseDir, "LidDock.exe");
                 if (!File.Exists(daemonPath))
@@ -75,6 +107,7 @@ public partial class App : Application
                     Process.Start(new ProcessStartInfo
                     {
                         FileName = daemonPath,
+                        Arguments = "--minimized",
                         UseShellExecute = true
                     });
                 }
