@@ -130,6 +130,12 @@ dotnet test
 
 ---
 
+## Credits
+- [@aprlnnf](https://t.me/aprlnnf) for the LidDock app icon.
+
+---
+
+
 ## Star History
 
 <p align="center">
