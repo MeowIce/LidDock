@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows;
+using LidDock.App.Helpers;
 using LidDock.App.ViewModels;
 using LidDock.App.Views;
 using LidDock.Core.Models;
@@ -40,6 +41,7 @@ public partial class App : Application
 
             base.OnStartup(e);
             System.Windows.Media.RenderOptions.ProcessRenderMode = System.Windows.Interop.RenderMode.SoftwareOnly;
+            accentColorHelper.applySystemAccentColor();
 
             if (e.Args.Contains("--minimized"))
             {

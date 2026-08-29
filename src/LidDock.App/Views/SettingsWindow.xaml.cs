@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Windows;
+using System.Windows.Interop;
 using System.Windows.Navigation;
 using LidDock.App.Helpers;
 using LidDock.App.ViewModels;
@@ -21,6 +22,23 @@ public partial class SettingsWindow : Window
     private void onSourceInitialized(object? sender, EventArgs e)
     {
         windowBackdropHelper.applyBackdrop(this, true, true);
+        accentColorHelper.applySystemAccentColor();
+
+        var helper = new WindowInteropHelper(this);
+        var source = HwndSource.FromHwnd(helper.Handle);
+        source?.AddHook(wndProc);
+    }
+
+    private IntPtr wndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+    {
+        const int wmSettingChange = 0x001A;
+        const int wmDwmColorizationColorChanged = 0x0320;
+
+        if (msg == wmSettingChange || msg == wmDwmColorizationColorChanged)
+        {
+            Dispatcher.InvokeAsync(accentColorHelper.applySystemAccentColor);
+        }
+        return IntPtr.Zero;
     }
 
     private void onContentRendered(object? sender, EventArgs e)

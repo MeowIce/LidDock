@@ -40,6 +40,7 @@ public partial class DiagnosticsWindow : Window
     private void onSourceInitialized(object? sender, EventArgs e)
     {
         windowBackdropHelper.applyBackdrop(this, true, true);
+        accentColorHelper.applySystemAccentColor();
 
         var helper = new WindowInteropHelper(this);
         var source = HwndSource.FromHwnd(helper.Handle);
@@ -64,13 +65,13 @@ public partial class DiagnosticsWindow : Window
                 helper.Handle,
                 ref batteryGuid,
                 nativeConstants.deviceNotifyWindowHandle);
-        }
 
-        settingsChangedMessage = nativeMethods.registerWindowMessage("LidDock_SettingsChanged_Event");
+            settingsChangedMessage = nativeMethods.registerWindowMessage("LidDock_SettingsChanged_Event");
+        }
 
         dynamicMetricsTimer = new DispatcherTimer
         {
-            Interval = TimeSpan.FromSeconds(1)
+            Interval = TimeSpan.FromSeconds(2)
         };
         dynamicMetricsTimer.Tick += (s, e) => viewModel.pollDynamicMetrics();
         dynamicMetricsTimer.Start();
@@ -78,6 +79,15 @@ public partial class DiagnosticsWindow : Window
 
     private IntPtr wndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
     {
+        const int wmSettingChange = 0x001A;
+        const int wmDwmColorizationColorChanged = 0x0320;
+
+        if (msg == wmSettingChange || msg == wmDwmColorizationColorChanged)
+        {
+            Dispatcher.InvokeAsync(accentColorHelper.applySystemAccentColor);
+            return IntPtr.Zero;
+        }
+
         if (msg == nativeConstants.wmDisplayChange)
         {
             viewModel.onDisplayTopologyChanged();

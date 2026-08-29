@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/LidDock.png" width="128" height="128" alt="LidDock Logo" />
+</p>
+
 # LidDock
 
 Intelligent macOS-style Clamshell Mode for Windows 11 laptops.

@@ -20,6 +20,7 @@
     <GarbageCollectionAdaptationMode>0</GarbageCollectionAdaptationMode>
     <AutoreleasePoolSupport>false</AutoreleasePoolSupport>
     <HttpActivityPropagationSupport>false</HttpActivityPropagationSupport>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>

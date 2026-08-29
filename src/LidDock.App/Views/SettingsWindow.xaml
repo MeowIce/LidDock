@@ -6,7 +6,8 @@
         WindowStartupLocation="CenterScreen"
         Background="{StaticResource WindowBackgroundBrush}"
         Foreground="{StaticResource TextPrimaryBrush}"
-        ResizeMode="CanResize">
+        ResizeMode="CanResize"
+        Icon="pack://application:,,,/Assets/app.ico">
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="48"
                       ResizeBorderThickness="6"
@@ -26,11 +27,14 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <StackPanel Margin="0,4,140,16">
-            <TextBlock Text="LidDock Settings" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
-            <TextBlock Text="Manage Clamshell mode, display triggers, safety timers and power behavior."
-                       FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
-        </StackPanel>
+        <DockPanel Margin="0,4,140,16">
+            <Image Source="pack://application:,,,/Assets/LidDock.png" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality"/>
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock Text="LidDock Settings" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                <TextBlock Text="Manage Clamshell mode, display triggers, safety timers and power behavior."
+                           FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,2,0,0"/>
+            </StackPanel>
+        </DockPanel>
 
         <TabControl Grid.Row="1" Style="{StaticResource FluentTabControl}">
             <TabItem Header="General">
@@ -141,12 +145,12 @@
                                 <DockPanel Margin="0,0,0,8">
                                     <TextBlock Text="Disconnect Grace Delay" FontWeight="Medium" Foreground="{StaticResource TextPrimaryBrush}"/>
                                     <TextBlock Text="{Binding disconnectDelaySeconds, StringFormat='{}{0} seconds'}"
-                                               FontWeight="SemiBold" Foreground="{StaticResource AccentBrush}"
+                                               FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}"
                                                DockPanel.Dock="Right" TextAlignment="Right"/>
                                 </DockPanel>
                                 <Slider Minimum="3" Maximum="30" SmallChange="1" LargeChange="5"
                                         Value="{Binding disconnectDelaySeconds}"
-                                        Foreground="{StaticResource AccentBrush}"/>
+                                        Foreground="{DynamicResource AccentBrush}"/>
                                 <TextBlock Text="{Binding disconnectDelayNote}"
                                            FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,8,0,0" TextWrapping="Wrap"/>
                             </StackPanel>
@@ -157,12 +161,12 @@
                                 <DockPanel Margin="0,0,0,8">
                                     <TextBlock Text="Minimum Battery Threshold for Clamshell" FontWeight="Medium" Foreground="{StaticResource TextPrimaryBrush}"/>
                                     <TextBlock Text="{Binding minimumBatteryThreshold, StringFormat='{}{0}%'}"
-                                               FontWeight="SemiBold" Foreground="{StaticResource AccentBrush}"
+                                               FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}"
                                                DockPanel.Dock="Right" TextAlignment="Right"/>
                                 </DockPanel>
                                 <Slider Minimum="5" Maximum="50" SmallChange="1" LargeChange="5"
                                         Value="{Binding minimumBatteryThreshold}"
-                                        Foreground="{StaticResource AccentBrush}"/>
+                                        Foreground="{DynamicResource AccentBrush}"/>
                                 <TextBlock Text="{Binding batteryThresholdNote}"
                                            FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,8,0,0" TextWrapping="Wrap"/>
                             </StackPanel>
@@ -175,12 +179,15 @@
                 <ScrollViewer Style="{StaticResource FluentTabScrollViewer}">
                     <StackPanel>
                         <Border Style="{StaticResource FluentCard}">
-                            <StackPanel>
-                                <TextBlock Text="LidDock" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource AccentBrush}"/>
-                                <TextBlock Text="Smart Clamshell Mode for Windows 11" FontSize="13" FontWeight="Medium" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,4,0,0"/>
-                                <TextBlock Text="Brings seamless macOS-style Clamshell Mode experience to Windows laptops."
-                                           FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,8,0,0" TextWrapping="Wrap" LineHeight="18"/>
-                            </StackPanel>
+                            <DockPanel>
+                                <Image Source="pack://application:,,,/Assets/LidDock.png" Width="56" Height="56" Margin="0,0,16,0" VerticalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="LidDock" FontSize="18" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}"/>
+                                    <TextBlock Text="Smart Clamshell Mode for Windows 11" FontSize="13" FontWeight="Medium" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,4,0,0"/>
+                                    <TextBlock Text="Brings seamless macOS-style Clamshell Mode experience to Windows laptops."
+                                               FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,6,0,0" TextWrapping="Wrap" LineHeight="18"/>
+                                </StackPanel>
+                            </DockPanel>
                         </Border>
 
                         <Border Style="{StaticResource FluentCard}">
@@ -203,7 +210,7 @@
 
                                 <TextBlock Grid.Row="2" Grid.Column="0" Text="GitHub Repository" FontWeight="Medium" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,6"/>
                                 <TextBlock Grid.Row="2" Grid.Column="1" Margin="0,6">
-                                    <Hyperlink NavigateUri="{Binding githubUrl}" RequestNavigate="onHyperlinkRequestNavigate" Foreground="{StaticResource AccentBrush}">
+                                    <Hyperlink NavigateUri="{Binding githubUrl}" RequestNavigate="onHyperlinkRequestNavigate" Foreground="{DynamicResource AccentBrush}">
                                         <TextBlock Text="{Binding githubUrl}"/>
                                     </Hyperlink>
                                 </TextBlock>
@@ -228,7 +235,7 @@
                                 </DockPanel>
                                 <StackPanel Visibility="{Binding isUpdateAvailable, Converter={StaticResource BoolToVisConverter}}" Margin="0,2,0,6">
                                     <TextBlock>
-                                        <Hyperlink NavigateUri="{Binding latestVersionUrl}" RequestNavigate="onHyperlinkRequestNavigate" Foreground="{StaticResource AccentBrush}">
+                                        <Hyperlink NavigateUri="{Binding latestVersionUrl}" RequestNavigate="onHyperlinkRequestNavigate" Foreground="{DynamicResource AccentBrush}">
                                             <TextBlock Text="Download latest release on GitHub"/>
                                         </Hyperlink>
                                     </TextBlock>

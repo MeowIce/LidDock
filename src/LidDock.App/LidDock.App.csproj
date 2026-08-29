@@ -17,7 +17,14 @@
     <EnableUnsafeBinaryFormatterSerialization>false</EnableUnsafeBinaryFormatterSerialization>
     <StartupHookSupport>false</StartupHookSupport>
     <TieredCompilation>false</TieredCompilation>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\app.ico" />
+    <Resource Include="Assets\LidDock.png" />
+    <Resource Include="Assets\LidDock.svg" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\LidDock.Core\LidDock.Core.csproj" />

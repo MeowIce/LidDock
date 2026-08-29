@@ -4,7 +4,8 @@
         Title="LidDock Diagnostics" Height="680" Width="860"
         WindowStartupLocation="CenterScreen"
         Background="{StaticResource WindowBackgroundBrush}"
-        Foreground="{StaticResource TextPrimaryBrush}">
+        Foreground="{StaticResource TextPrimaryBrush}"
+        Icon="pack://application:,,,/Assets/app.ico">
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="48"
                       ResizeBorderThickness="6"
@@ -22,17 +23,20 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <StackPanel Margin="0,4,140,16">
-            <TextBlock Text="Hardware Telemetry &amp; Diagnostics" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
-            <TextBlock Text="Real-time system sensor observation, display topology and event trace logs."
-                       FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
-        </StackPanel>
+        <DockPanel Margin="0,4,140,16">
+            <Image Source="pack://application:,,,/Assets/LidDock.png" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality"/>
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock Text="Hardware Telemetry &amp; Diagnostics" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                <TextBlock Text="Real-time system sensor observation, display topology and event trace logs."
+                           FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,2,0,0"/>
+            </StackPanel>
+        </DockPanel>
 
         <Border Grid.Row="1" Style="{StaticResource FluentCard}" Margin="0,0,0,16">
             <UniformGrid Columns="3">
                 <StackPanel Margin="8">
                     <TextBlock Text="Clamshell State" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
-                    <TextBlock Text="{Binding formattedClamshellState}" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource AccentBrush}" Margin="0,4,0,0"/>
+                    <TextBlock Text="{Binding formattedClamshellState}" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" Margin="0,4,0,0"/>
                 </StackPanel>
                 <StackPanel Margin="8">
                     <TextBlock Text="Lid Sensor Position" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>

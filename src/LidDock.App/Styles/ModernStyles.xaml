@@ -8,6 +8,7 @@
     <SolidColorBrush x:Key="CardBorderBrush" Color="#1FFFFFFF"/>
     <SolidColorBrush x:Key="AccentBrush" Color="#0078D4"/>
     <SolidColorBrush x:Key="AccentHoverBrush" Color="#1E88E5"/>
+    <SolidColorBrush x:Key="AccentSubtleBrush" Color="#260078D4"/>
     <SolidColorBrush x:Key="TextPrimaryBrush" Color="#F3F3F3"/>
     <SolidColorBrush x:Key="TextSecondaryBrush" Color="#A8A8A8"/>
     <SolidColorBrush x:Key="ControlBorderBrush" Color="#33FFFFFF"/>
@@ -42,8 +43,8 @@
                     </DockPanel>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsChecked" Value="True">
-                            <Setter TargetName="switchTrack" Property="Background" Value="{StaticResource AccentBrush}"/>
-                            <Setter TargetName="switchTrack" Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                            <Setter TargetName="switchTrack" Property="Background" Value="{DynamicResource AccentBrush}"/>
+                            <Setter TargetName="switchTrack" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                             <Trigger.EnterActions>
                                 <BeginStoryboard>
                                     <Storyboard>
@@ -72,7 +73,7 @@
                             </Trigger.ExitActions>
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="switchTrack" Property="BorderBrush" Value="{StaticResource AccentHoverBrush}"/>
+                            <Setter TargetName="switchTrack" Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -90,7 +91,7 @@
     </Style>
 
     <Style x:Key="FluentPrimaryButton" TargetType="{x:Type Button}">
-        <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
         <Setter Property="Foreground" Value="#FFFFFF"/>
         <Setter Property="FontSize" Value="14"/>
         <Setter Property="FontWeight" Value="Medium"/>
@@ -113,7 +114,7 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="btnBorder" Property="Background" Value="{StaticResource AccentHoverBrush}"/>
+                            <Setter TargetName="btnBorder" Property="Background" Value="{DynamicResource AccentHoverBrush}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="btnBorder" Property="Opacity" Value="0.85"/>
@@ -215,8 +216,8 @@
                             <Setter TargetName="outerCircle" Property="Fill" Value="#33FFFFFF"/>
                         </Trigger>
                         <Trigger Property="IsChecked" Value="True">
-                            <Setter TargetName="outerCircle" Property="Fill" Value="{StaticResource AccentBrush}"/>
-                            <Setter TargetName="outerCircle" Property="Stroke" Value="{StaticResource AccentBrush}"/>
+                            <Setter TargetName="outerCircle" Property="Fill" Value="{DynamicResource AccentBrush}"/>
+                            <Setter TargetName="outerCircle" Property="Stroke" Value="{DynamicResource AccentBrush}"/>
                             <Trigger.EnterActions>
                                 <BeginStoryboard>
                                     <Storyboard>
@@ -338,9 +339,9 @@
                             <Setter TargetName="outerCircle" Property="Fill" Value="#33FFFFFF"/>
                         </Trigger>
                         <Trigger Property="IsChecked" Value="True">
-                            <Setter TargetName="cardBorder" Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
-                            <Setter TargetName="outerCircle" Property="Fill" Value="{StaticResource AccentBrush}"/>
-                            <Setter TargetName="outerCircle" Property="Stroke" Value="{StaticResource AccentBrush}"/>
+                            <Setter TargetName="cardBorder" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                            <Setter TargetName="outerCircle" Property="Fill" Value="{DynamicResource AccentBrush}"/>
+                            <Setter TargetName="outerCircle" Property="Stroke" Value="{DynamicResource AccentBrush}"/>
                             <Trigger.EnterActions>
                                 <BeginStoryboard>
                                     <Storyboard>
@@ -427,7 +428,7 @@
                         <Border Name="selectionIndicator"
                                 Height="3"
                                 CornerRadius="1.5"
-                                Background="{StaticResource AccentBrush}"
+                                Background="{DynamicResource AccentBrush}"
                                 HorizontalAlignment="Stretch"
                                 VerticalAlignment="Bottom"
                                 Margin="10,0,10,0"
@@ -588,8 +589,8 @@
                             <Setter TargetName="ItemBorder" Property="BorderBrush" Value="#28FFFFFF"/>
                         </Trigger>
                         <Trigger Property="IsSelected" Value="True">
-                            <Setter TargetName="ItemBorder" Property="Background" Value="#260078D4"/>
-                            <Setter TargetName="ItemBorder" Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                            <Setter TargetName="ItemBorder" Property="Background" Value="{DynamicResource AccentSubtleBrush}"/>
+                            <Setter TargetName="ItemBorder" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                             <Setter Property="Foreground" Value="#FFFFFF"/>
                         </Trigger>
                         <MultiTrigger>
@@ -716,11 +717,11 @@
                     <Border Name="trackFill"
                             Height="4"
                             CornerRadius="2"
-                            Background="{StaticResource AccentBrush}"
+                            Background="{DynamicResource AccentBrush}"
                             VerticalAlignment="Center"/>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="trackFill" Property="Background" Value="{StaticResource AccentHoverBrush}"/>
+                            <Setter TargetName="trackFill" Property="Background" Value="{DynamicResource AccentHoverBrush}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -760,7 +761,7 @@
                     <Grid Width="22" Height="22" Background="Transparent">
                         <Ellipse Name="thumbOuter"
                                  Width="18" Height="18"
-                                 Fill="{StaticResource AccentBrush}"
+                                 Fill="{DynamicResource AccentBrush}"
                                  Stroke="#FFFFFF"
                                  StrokeThickness="2.5"
                                  HorizontalAlignment="Center"
