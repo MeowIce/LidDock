@@ -1,10 +1,24 @@
 <p align="center">
-  <img src="assets/LidDock.png" width="128" height="128" alt="LidDock Logo" />
+  <img src="assets/LidDock.png" width="256" height="256" alt="LidDock Logo" />
 </p>
 
-# LidDock
+<h1 align="center">LidDock</h1>
 
-Intelligent macOS-style Clamshell Mode for Windows 11 laptops.
+<p align="center">
+  <strong>Intelligent macOS-style Clamshell Mode for Windows 11 laptops.</strong>
+</p>
+
+<p align="center">
+  <a href="https://github.com/MeowIce/LidDock/releases/latest">
+    <img src="https://img.shields.io/github/v/release/MeowIce/LidDock?logo=github&amp;color=0078D4" alt="Latest Release" />
+  </a>
+  <a href="https://github.com/MeowIce/LidDock/releases">
+    <img src="https://img.shields.io/github/downloads/MeowIce/LidDock/total?logo=github&amp;color=21C9DB" alt="Total Downloads" />
+  </a>
+  <a href="https://discord.gg/wgYpZjgDvF">
+    <img src="https://img.shields.io/discord/708718758616760339?logo=discord&amp;logoColor=white&amp;label=Discord&amp;color=5865F2" alt="Discord Community" />
+  </a>
+</p>
 
 Still opening `Control Panel` -> `Hardware and Sound` -> `Power Options` -> `Choose what closing the lid does` twice every single day like it is 2006 ? Still baking your laptop because you forgot to revert "Do Nothing" back to "Sleep" before unplugging ? Hell nah
 
@@ -113,3 +127,14 @@ To run automated unit tests:
 ```cmd
 dotnet test
 ```
+
+---
+
+## Star History
+
+<p align="center">
+  <a href="https://star-history.com/#MeowIce/LidDock&amp;Date">
+    <img src="https://api.star-history.com/svg?repos=MeowIce/LidDock&amp;type=Date" alt="Star History Chart" />
+  </a>
+</p>
+
