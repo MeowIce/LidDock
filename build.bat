@@ -1,45 +1,86 @@
 @echo off
 setlocal
-set appProject=src\LidDock.App\LidDock.App.csproj
-set daemonProject=src\LidDock.Daemon\LidDock.Daemon.csproj
-set resourceDir=src\LidDock.Daemon\Resources
-set outputDir=publish
+
+echo =======================================================
+echo              LidDock Installer Builder
+echo =======================================================
+echo.
 
 taskkill /F /IM LidDock.exe >nul 2>&1
 taskkill /F /IM LidDock.Daemon.exe >nul 2>&1
 taskkill /F /IM LidDock.App.exe >nul 2>&1
 taskkill /F /IM LidDock.UI.exe >nul 2>&1
 
-if not exist "%resourceDir%" mkdir "%resourceDir%"
+set "ISCC_PATH="
 
-echo [1/2] Compiling Fluent WPF UI Payload...
-dotnet publish %appProject% -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -o "%resourceDir%"
-if %ERRORLEVEL% neq 0 (
-    echo UI Payload build failed.
-    exit /b %ERRORLEVEL%
+where iscc >nul 2>&1
+if %errorlevel% equ 0 (
+    for /f "delims=" %%i in ('where iscc') do set "ISCC_PATH=%%i"
 )
 
-if exist "%resourceDir%\LidDock.App.exe" (
-    move /Y "%resourceDir%\LidDock.App.exe" "%resourceDir%\LidDock.UI.exe" >nul
+if "%ISCC_PATH%"=="" if exist "%ProgramFiles(x86)%\Inno Setup 6\ISCC.exe" (
+    set "ISCC_PATH=%ProgramFiles(x86)%\Inno Setup 6\ISCC.exe"
 )
 
-echo [2/2] Compiling Native AOT Single-File Executable...
-dotnet publish %daemonProject% -c Release -r win-x64 -o %outputDir%
-if %ERRORLEVEL% neq 0 (
-    echo Native AOT executable build failed.
-    exit /b %ERRORLEVEL%
+if "%ISCC_PATH%"=="" if exist "%ProgramFiles%\Inno Setup 6\ISCC.exe" (
+    set "ISCC_PATH=%ProgramFiles%\Inno Setup 6\ISCC.exe"
 )
 
-echo Cleaning up intermediate build files...
-del /F /Q "%resourceDir%\*.*" >nul 2>&1
-del /F /Q "%outputDir%\LidDock.Daemon.exe" >nul 2>&1
-del /F /Q "%outputDir%\LidDock.App.exe" >nul 2>&1
-del /F /Q "%outputDir%\*.pdb" >nul 2>&1
-del /F /Q "%outputDir%\*.txt" >nul 2>&1
+if "%ISCC_PATH%"=="" if exist "%LOCALAPPDATA%\Programs\Inno Setup 6\ISCC.exe" (
+    set "ISCC_PATH=%LOCALAPPDATA%\Programs\Inno Setup 6\ISCC.exe"
+)
 
+if "%ISCC_PATH%"=="" (
+    echo Error: Inno Setup 6 compiler ISCC.exe was not found.
+    echo Please install Inno Setup 6 from https://jrsoftware.org/isinfo.php
+    exit /b 1
+)
+
+set "outputDir=publish"
+set "stagingDir=publish\staging"
+
+if exist "%stagingDir%" rd /s /q "%stagingDir%"
+if not exist "%stagingDir%" mkdir "%stagingDir%"
+
+echo [1/3] Compiling Fluent WPF UI Payload...
+dotnet publish src\LidDock.App\LidDock.App.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=false -o "%stagingDir%"
+if %errorlevel% neq 0 (
+    echo Error: UI Payload build failed.
+    rd /s /q "%stagingDir%" >nul 2>&1
+    exit /b 1
+)
+
+if exist "%stagingDir%\LidDock.App.exe" (
+    move /y "%stagingDir%\LidDock.App.exe" "%stagingDir%\LidDock.UI.exe" >nul
+)
+
+echo [2/3] Compiling Native AOT Daemon...
+dotnet publish src\LidDock.Daemon\LidDock.Daemon.csproj -c Release -r win-x64 -o "%stagingDir%\_daemon"
+if %errorlevel% neq 0 (
+    echo Error: Native AOT Daemon build failed.
+    rd /s /q "%stagingDir%" >nul 2>&1
+    exit /b 1
+)
+
+move /y "%stagingDir%\_daemon\LidDock.exe" "%stagingDir%\LidDock.exe" >nul
+rd /s /q "%stagingDir%\_daemon" >nul 2>&1
+del /f /q "%stagingDir%\*.pdb" >nul 2>&1
+
+echo [3/3] Compiling high-ratio LZMA2 setup package...
+"%ISCC_PATH%" "package\LidDock.iss"
+if %errorlevel% neq 0 (
+    echo.
+    echo Error: Inno Setup packaging failed.
+    rd /s /q "%stagingDir%" >nul 2>&1
+    exit /b 1
+)
+
+rd /s /q "%stagingDir%" >nul 2>&1
+del /f /q "%outputDir%\LidDock.exe" >nul 2>&1
+
+echo.
 echo =======================================================
 echo Build completed successfully.
-echo Single output executable located at:
-echo   %outputDir%\LidDock.exe
+echo Installer package located at:
+echo   %outputDir%\LidDock-Setup.exe
 echo =======================================================
-endlocal

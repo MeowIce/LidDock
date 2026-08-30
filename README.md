@@ -56,9 +56,9 @@ If an abrupt disconnect occurs while the lid remains closed (for example, kickin
 ## How to Use
 
 ### 1. First-Time Setup
-- Download `LidDock.exe` from the [release page](https://github.com/MeowIce/LidDock/releases) and run it. The Settings window opens automatically on first launch.
-- Under General, toggle **Start with Windows** on so LidDock runs silently in the background on startup.
-- Choose your preferred Profile under the Profiles tab (`Smart Docked` is recommended).
+- Download and run `LidDock-Setup.exe` from the [release page](https://github.com/MeowIce/LidDock/releases).
+- During setup, keep **Launch LidDock automatically on Windows startup** checked (recommended) so LidDock runs silently in the background on boot.
+- The Settings window opens automatically on first launch. Choose your preferred Profile under the Profiles tab (`Smart Docked` is recommended).
 
 ### 2. Daily Workflow
 - **Docking**: Plug in your external monitor or USB-C/Thunderbolt dock, then close your laptop lid. Your display continues running smoothly on the external monitor without sleeping.
@@ -92,21 +92,16 @@ LidDock is structured into modular layers:
 ## Requirements
 
 - Windows 11 (build 22000 or higher recommended)
-- .NET 10.0 SDK (for building from source)
-- Desktop C++ tools (for Native AOT compilation)
+- Inno Setup 6 (for packaging the installer)
+- .NET 10.0 SDK & Desktop C++ tools (for building from source)
 
 ---
 
 ## Installation
 
-### Option 1: Installer Package (Recommended)
 1. Download `LidDock-Setup.exe` from [GitHub Releases](https://github.com/MeowIce/LidDock/releases).
-2. Run `LidDock-Setup.exe` to install. It configures Start Menu shortcuts, automatic startup, and registers with Windows Settings for one-click clean uninstall.
-
-### Option 2: Portable Executable
-1. Download `LidDock.exe` from [GitHub Releases](https://github.com/MeowIce/LidDock/releases).
-2. Place `LidDock.exe` anywhere and run it.
-3. Open Settings from the system tray icon and toggle "Start with Windows" if desired.
+2. Run `LidDock-Setup.exe` to install.
+3. The installer sets up Start Menu shortcuts, desktop icons, optional Windows startup, and registers clean uninstallation support.
 
 ---
 
@@ -114,19 +109,15 @@ LidDock is structured into modular layers:
 
 LidDock guarantees zero system residue:
 
-### If installed via Setup:
-- Open **Windows Settings** -> **Apps** -> **Installed Apps**, find **LidDock**, and select **Uninstall**.
-- The uninstaller actively restores your original Windows Lid Close power scheme, removes startup registry entries, and cleans up all application caches.
-
-### If using Portable Executable:
-- Run `LidDock.exe --uninstall` from terminal or double-click `uninstall.bat`.
-- Windows power schemes are immediately reverted to original defaults and all traces are cleanly wiped.
+1. Open **Windows Settings** -> **Apps** -> **Installed Apps** (or search **Uninstall LidDock** from Start Menu).
+2. Select **Uninstall**.
+3. The uninstaller automatically restores your original Windows Lid Close power scheme, removes startup registry entries, and cleans up all application data.
 
 ---
 
 ## Building from Source
 
-Ensure .NET 10.0 SDK and MSVC C++ build tools are installed.
+Ensure .NET 10.0 SDK, Inno Setup 6, and MSVC C++ build tools are installed.
 
 Clone the repository and run the build script:
 
@@ -137,8 +128,9 @@ build.bat
 ```
 
 The build script will:
-1. Publish the Fluent UI payload (`LidDock.App`) in self-contained mode.
-2. Compile the Native AOT single-file executable (`LidDock.Daemon`) into `publish\LidDock.exe`.
+1. Publish the Fluent UI payload (`LidDock.App`) with full self-contained .NET 10 desktop runtime.
+2. Compile the lean Native AOT background daemon (`LidDock.Daemon`).
+3. Package both into the high-compression installer `publish\LidDock-Setup.exe` using Inno Setup 6 LZMA2.
 
 To run automated unit tests:
 
