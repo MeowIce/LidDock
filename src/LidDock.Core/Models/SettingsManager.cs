@@ -59,25 +59,42 @@ public static class settingsManager
     {
         lock (fileLock)
         {
+            appSettings? settings = null;
             try
             {
                 if (File.Exists(settingsFilePath))
                 {
                     var json = File.ReadAllText(settingsFilePath);
-                    var settings = JsonSerializer.Deserialize(json, appSettingsJsonContext.Default.appSettings);
-                    if (settings != null)
-                    {
-                        return settings;
-                    }
+                    settings = JsonSerializer.Deserialize(json, appSettingsJsonContext.Default.appSettings);
                 }
             }
             catch
             {
             }
 
-            var defaultSettings = new appSettings();
-            saveSettings(defaultSettings);
-            return defaultSettings;
+            var result = settings ?? new appSettings();
+
+            try
+            {
+                using var liddockKey = Registry.CurrentUser.OpenSubKey(@"Software\LidDock", true);
+                if (liddockKey?.GetValue("StartWithWindows") is int installerChoice)
+                {
+                    result.startWithWindows = installerChoice != 0;
+                    liddockKey.DeleteValue("StartWithWindows", false);
+                    saveSettings(result);
+                    return result;
+                }
+            }
+            catch
+            {
+            }
+
+            if (settings == null)
+            {
+                saveSettings(result);
+            }
+
+            return result;
         }
     }
 
@@ -176,6 +193,54 @@ public static class settingsManager
         }
         catch
         {
+        }
+    }
+
+    public static void performUninstall(bool keepSettings = false)
+    {
+        try
+        {
+            using var runKey = Registry.CurrentUser.OpenSubKey(runRegistryKey, true);
+            runKey?.DeleteValue(appName, false);
+        }
+        catch
+        {
+        }
+
+        try
+        {
+            Registry.CurrentUser.DeleteSubKeyTree(@"Software\LidDock", false);
+        }
+        catch
+        {
+        }
+
+        try
+        {
+            var localDir = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "LidDock");
+            if (Directory.Exists(localDir))
+            {
+                Directory.Delete(localDir, true);
+            }
+        }
+        catch
+        {
+        }
+
+        if (!keepSettings)
+        {
+            try
+            {
+                if (Directory.Exists(settingsDirectory))
+                {
+                    Directory.Delete(settingsDirectory, true);
+                }
+            }
+            catch
+            {
+            }
         }
     }
 

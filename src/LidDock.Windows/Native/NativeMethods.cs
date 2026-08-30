@@ -38,6 +38,13 @@ public static class nativeMethods
     public static extern uint registerWindowMessage(
         string lpString);
 
+    [DllImport("user32.dll", EntryPoint = "MessageBoxW", CharSet = CharSet.Unicode)]
+    public static extern int messageBox(
+        IntPtr hWnd,
+        string text,
+        string caption,
+        uint type);
+
     [DllImport("kernel32.dll", EntryPoint = "GetSystemPowerStatus")]
     public static extern bool getSystemPowerStatus(
         out systemPowerStatus systemPowerStatus);

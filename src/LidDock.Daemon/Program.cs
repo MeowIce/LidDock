@@ -33,6 +33,12 @@ internal static class Program
     [STAThread]
     static void Main(string[] args)
     {
+        if (args.Contains("--uninstall"))
+        {
+            performUninstall(args.Contains("--silent"), args.Contains("--keep-settings"));
+            return;
+        }
+
         singleInstanceMutex = new Mutex(true, "LidDock_Daemon_Mutex", out var createdNew);
         if (!createdNew)
         {
@@ -312,7 +318,7 @@ internal static class Program
                 }
 
                 var checker = new updateChecker();
-                var currentVer = new Version(1, 0, 0);
+                var currentVer = new Version(1, 0, 1);
                 var result = await checker.checkForUpdatesAsync(currentVer);
 
                 appSettings.lastUpdateCheckUtc = now;
@@ -346,6 +352,69 @@ internal static class Program
         {
             singleInstanceMutex.ReleaseMutex();
             singleInstanceMutex.Dispose();
+        }
+    }
+
+    private static void performUninstall(bool silent, bool keepSettings)
+    {
+        try
+        {
+            var currentId = Environment.ProcessId;
+            foreach (var p in Process.GetProcessesByName("LidDock"))
+            {
+                if (p.Id != currentId)
+                {
+                    try
+                    {
+                        p.Kill();
+                        p.WaitForExit(1500);
+                    }
+                    catch
+                    {
+                    }
+                }
+            }
+
+            foreach (var p in Process.GetProcessesByName("LidDock.UI"))
+            {
+                try
+                {
+                    p.Kill();
+                    p.WaitForExit(1500);
+                }
+                catch
+                {
+                }
+            }
+        }
+        catch
+        {
+        }
+
+        try
+        {
+            using var pm = new powerSchemeManager();
+            pm.restoreOriginalSettings();
+        }
+        catch
+        {
+        }
+
+        try
+        {
+            settingsManager.performUninstall(keepSettings);
+        }
+        catch
+        {
+        }
+
+        if (!silent)
+        {
+            nativeMethods.messageBox(
+                IntPtr.Zero,
+                "LidDock has been completely removed and Windows power settings restored.",
+                "LidDock Uninstaller",
+                0x00000040);
         }
     }
 }

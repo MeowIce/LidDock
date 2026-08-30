@@ -41,7 +41,7 @@ public class updateChecker : iUpdateChecker
                 return new appUpdateResult(false, null, string.Empty, string.Empty, "No release data found");
             }
 
-            var cleanTag = release.tagName.TrimStart('v', 'V');
+            var cleanTag = release.tagName.TrimStart('v', 'V').Split('-')[0];
             if (Version.TryParse(cleanTag, out var remoteVersion))
             {
                 var isAvailable = remoteVersion > currentVersion;

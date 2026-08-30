@@ -19,7 +19,7 @@ public class settingsViewModel : baseViewModel
         this.updateCheckerInstance = updateChecker ?? new updateChecker();
     }
 
-    public string appVersion => "1.0.0";
+    public string appVersion => "1.0.1-DEV-1";
     public string author => "MeowIce";
     public string githubUrl => "https://github.com/MeowIce/LidDock";
 
@@ -260,7 +260,8 @@ public class settingsViewModel : baseViewModel
 
         try
         {
-            var currentVer = new Version(appVersion);
+            var cleanVer = appVersion.Split('-')[0];
+            var currentVer = Version.TryParse(cleanVer, out var parsed) ? parsed : new Version(1, 0, 1);
             var result = await updateCheckerInstance.checkForUpdatesAsync(currentVer);
             settings.lastUpdateCheckUtc = DateTime.UtcNow;
             notifySettingsChanged();

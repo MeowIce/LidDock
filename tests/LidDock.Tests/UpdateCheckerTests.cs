@@ -75,4 +75,19 @@ public class updateCheckerTests
         Assert.False(result.isUpdateAvailable);
         Assert.NotNull(result.errorMessage);
     }
+
+    [Fact]
+    public async Task shouldParsePrereleaseTagCorrectly()
+    {
+        var json = "{\"tag_name\":\"v1.0.1-DEV-1\",\"html_url\":\"https://github.com/MeowIce/LidDock/releases/tag/v1.0.1-DEV-1\",\"body\":\"Release notes\",\"prerelease\":true}";
+        var handler = new fakeHttpMessageHandler(json);
+        var client = new HttpClient(handler);
+        var checker = new updateChecker(client);
+
+        var currentVersion = new Version("1.0.0");
+        var result = await checker.checkForUpdatesAsync(currentVersion);
+
+        Assert.True(result.isUpdateAvailable);
+        Assert.Equal(new Version("1.0.1"), result.latestVersion);
+    }
 }

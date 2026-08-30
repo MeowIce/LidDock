@@ -43,6 +43,14 @@ public partial class App : Application
             System.Windows.Media.RenderOptions.ProcessRenderMode = System.Windows.Interop.RenderMode.SoftwareOnly;
             accentColorHelper.applySystemAccentColor();
 
+            if (e.Args.Contains("--uninstall"))
+            {
+                settingsManager.performUninstall(e.Args.Contains("--keep-settings"));
+                Shutdown();
+                Environment.Exit(0);
+                return;
+            }
+
             if (e.Args.Contains("--minimized"))
             {
                 ensureDaemonRunning();

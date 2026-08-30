@@ -99,10 +99,28 @@ LidDock is structured into modular layers:
 
 ## Installation
 
-1. Download the latest release from [GitHub Releases](https://github.com/MeowIce/LidDock/releases).
-2. Place `LidDock.exe` in your preferred directory (or let it self-install to `%LocalAppData%\LidDock`).
-3. Run `LidDock.exe`.
-4. Open Settings from the tray icon or main window, and enable "Start with Windows".
+### Option 1: Installer Package (Recommended)
+1. Download `LidDock-Setup.exe` from [GitHub Releases](https://github.com/MeowIce/LidDock/releases).
+2. Run `LidDock-Setup.exe` to install. It configures Start Menu shortcuts, automatic startup, and registers with Windows Settings for one-click clean uninstall.
+
+### Option 2: Portable Executable
+1. Download `LidDock.exe` from [GitHub Releases](https://github.com/MeowIce/LidDock/releases).
+2. Place `LidDock.exe` anywhere and run it.
+3. Open Settings from the system tray icon and toggle "Start with Windows" if desired.
+
+---
+
+## Uninstallation
+
+LidDock guarantees zero system residue:
+
+### If installed via Setup:
+- Open **Windows Settings** -> **Apps** -> **Installed Apps**, find **LidDock**, and select **Uninstall**.
+- The uninstaller actively restores your original Windows Lid Close power scheme, removes startup registry entries, and cleans up all application caches.
+
+### If using Portable Executable:
+- Run `LidDock.exe --uninstall` from terminal or double-click `uninstall.bat`.
+- Windows power schemes are immediately reverted to original defaults and all traces are cleanly wiped.
 
 ---
 
