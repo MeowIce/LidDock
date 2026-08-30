@@ -32,7 +32,8 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "autostart"; Description: "Launch LidDock automatically on Windows startup"; GroupDescription: "Startup Options:"; Flags: checkedonce
 
 [Files]
-Source: "..\publish\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\publish\staging\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\publish\staging\LidDock.UI.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\assets\LidDock.ico"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]

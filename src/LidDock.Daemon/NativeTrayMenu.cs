@@ -174,7 +174,14 @@ public static class nativeTrayMenu
         try
         {
             var baseDir = AppContext.BaseDirectory;
-            var localUiPath = Path.Combine(baseDir, "LidDock.App.exe");
+            var localUiPath = Path.Combine(baseDir, "LidDock.UI.exe");
+            if (File.Exists(localUiPath))
+            {
+                startProcess(localUiPath, argument);
+                return;
+            }
+
+            localUiPath = Path.Combine(baseDir, "LidDock.App.exe");
             if (File.Exists(localUiPath))
             {
                 startProcess(localUiPath, argument);

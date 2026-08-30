@@ -80,12 +80,12 @@ If an abrupt disconnect occurs while the lid remains closed (for example, kickin
 
 LidDock is structured into modular layers:
 
-- [LidDock.Core](file:///C:/Users/MeowIce/Documents/LidDock/src/LidDock.Core): Domain models, profile evaluation, state machine logic.
-- [LidDock.Windows](file:///C:/Users/MeowIce/Documents/LidDock/src/LidDock.Windows): Low-level Win32 interop, CCD display queries, power scheme overrides, native message pump.
-- [LidDock.Diagnostics](file:///C:/Users/MeowIce/Documents/LidDock/src/LidDock.Diagnostics): In-memory ring buffer logger and hardware snapshot diagnostics.
-- [LidDock.Daemon](file:///C:/Users/MeowIce/Documents/LidDock/src/LidDock.Daemon): Native AOT background daemon and system tray coordination.
-- [LidDock.App](file:///C:/Users/MeowIce/Documents/LidDock/src/LidDock.App): Fluent WPF user interface for configuration and diagnostics.
-- [LidDock.Tests](file:///C:/Users/MeowIce/Documents/LidDock/tests/LidDock.Tests): Automated xUnit test suite for state machine transitions and safety triggers.
+- [LidDock.Core](src/LidDock.Core): Domain models, profile evaluation, state machine logic.
+- [LidDock.Windows](src/LidDock.Windows): Low-level Win32 interop, CCD display queries, power scheme overrides, native message pump.
+- [LidDock.Diagnostics](src/LidDock.Diagnostics): In-memory ring buffer logger and hardware snapshot diagnostics.
+- [LidDock.Daemon](src/LidDock.Daemon): Native AOT background daemon and system tray coordination.
+- [LidDock.App](src/LidDock.App): Fluent WPF user interface for configuration and diagnostics.
+- [LidDock.Tests](tests/LidDock.Tests): Automated xUnit test suite for state machine transitions and safety triggers.
 
 ---
 
