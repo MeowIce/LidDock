@@ -21,7 +21,15 @@
     <AutoreleasePoolSupport>false</AutoreleasePoolSupport>
     <HttpActivityPropagationSupport>false</HttpActivityPropagationSupport>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
+    <IlcTrimReflection>true</IlcTrimReflection>
+    <IlcFoldIdenticalMethodBodies>true</IlcFoldIdenticalMethodBodies>
   </PropertyGroup>
+
+  <ItemGroup>
+    <RuntimeHostConfigurationOption Include="System.GC.ConserveMemory" Value="9" />
+    <RuntimeHostConfigurationOption Include="System.Threading.ThreadPool.MinThreads" Value="1" />
+    <RuntimeHostConfigurationOption Include="System.Threading.ThreadPool.MaxThreads" Value="4" />
+  </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Resources\LidDock.UI.exe" LogicalName="LidDock.UI.exe" Condition="Exists('Resources\LidDock.UI.exe')" />

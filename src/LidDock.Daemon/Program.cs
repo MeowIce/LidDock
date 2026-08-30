@@ -28,6 +28,7 @@ internal static class Program
     private static appSettings appSettings = new appSettings();
     private static FileSystemWatcher? settingsWatcher;
     private static CancellationTokenSource? workingSetTrimCts;
+    private static Timer? maintenanceTimer;
     private static readonly object syncRoot = new object();
 
     [STAThread]
@@ -108,6 +109,7 @@ internal static class Program
         }
 
         scheduleWorkingSetTrim(2000);
+        maintenanceTimer = new Timer(_ => trimWorkingSet(), null, TimeSpan.FromMinutes(2), TimeSpan.FromMinutes(2));
 
         if (appSettings.autoCheckForUpdates)
         {
@@ -279,8 +281,11 @@ internal static class Program
     {
         try
         {
-            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
+            System.Runtime.GCSettings.LargeObjectHeapCompactionMode = System.Runtime.GCLargeObjectHeapCompactionMode.CompactOnce;
+            GC.Collect(2, GCCollectionMode.Aggressive, true, true);
             GC.WaitForPendingFinalizers();
+            GC.Collect(2, GCCollectionMode.Aggressive, true, true);
+
             var handle = nativeMethods.getCurrentProcess();
             if (handle != IntPtr.Zero)
             {
@@ -317,7 +322,7 @@ internal static class Program
                     return;
                 }
 
-                var checker = new updateChecker();
+                using var checker = new updateChecker();
                 var currentVer = new Version(1, 0, 1);
                 var result = await checker.checkForUpdatesAsync(currentVer);
 
@@ -335,11 +340,16 @@ internal static class Program
             catch
             {
             }
+            finally
+            {
+                scheduleWorkingSetTrim(1000);
+            }
         });
     }
 
     private static void cleanup()
     {
+        maintenanceTimer?.Dispose();
         settingsWatcher?.Dispose();
         workingSetTrimCts?.Cancel();
         workingSetTrimCts?.Dispose();
