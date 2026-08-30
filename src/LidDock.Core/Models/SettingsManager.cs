@@ -125,39 +125,20 @@ public static class settingsManager
 
     public static string getPermanentDaemonPath()
     {
-        return Path.Combine(settingsDirectory, "LidDock.exe");
+        return Environment.ProcessPath ?? Path.Combine(settingsDirectory, "LidDock.exe");
     }
 
     public static void ensurePermanentInstallation()
     {
         try
         {
+            var oldPortablePath = Path.Combine(settingsDirectory, "LidDock.exe");
             var currentPath = Environment.ProcessPath;
-            if (string.IsNullOrEmpty(currentPath) ||
-                currentPath.EndsWith("LidDock.UI.exe", StringComparison.OrdinalIgnoreCase) ||
-                currentPath.EndsWith("LidDock.App.exe", StringComparison.OrdinalIgnoreCase))
+            if (!string.IsNullOrEmpty(currentPath) &&
+                !string.Equals(currentPath, oldPortablePath, StringComparison.OrdinalIgnoreCase) &&
+                File.Exists(oldPortablePath))
             {
-                return;
-            }
-
-            if (!Directory.Exists(settingsDirectory))
-            {
-                Directory.CreateDirectory(settingsDirectory);
-            }
-
-            var permanentPath = getPermanentDaemonPath();
-            if (!string.Equals(currentPath, permanentPath, StringComparison.OrdinalIgnoreCase))
-            {
-                if (File.Exists(permanentPath))
-                {
-                    var srcInfo = new FileInfo(currentPath);
-                    var dstInfo = new FileInfo(permanentPath);
-                    if (srcInfo.Length == dstInfo.Length)
-                    {
-                        return;
-                    }
-                }
-                File.Copy(currentPath, permanentPath, true);
+                File.Delete(oldPortablePath);
             }
         }
         catch
@@ -178,9 +159,7 @@ public static class settingsManager
             if (enable)
             {
                 ensurePermanentInstallation();
-                var permanentPath = getPermanentDaemonPath();
-                var targetPath = File.Exists(permanentPath) ? permanentPath : Environment.ProcessPath;
-
+                var targetPath = Environment.ProcessPath;
                 if (!string.IsNullOrEmpty(targetPath))
                 {
                     key.SetValue(appName, $"\"{targetPath}\" --minimized");

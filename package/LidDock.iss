@@ -52,6 +52,10 @@ Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChang
 [UninstallRun]
 Filename: "{app}\{#MyAppExeName}"; Parameters: "--uninstall --silent"; Flags: runhidden; RunOnceId: "LidDockCleanUninstall"
 
+[InstallDelete]
+Type: files; Name: "{userappdata}\LidDock\LidDock.exe"
+Type: files; Name: "{localappdata}\LidDock\LidDock.UI.exe"
+
 [UninstallDelete]
 Type: filesandordirs; Name: "{localappdata}\LidDock"
 Type: filesandordirs; Name: "{userappdata}\LidDock"
