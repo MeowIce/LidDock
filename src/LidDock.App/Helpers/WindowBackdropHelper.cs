@@ -63,12 +63,13 @@ public static class windowBackdropHelper
         IntPtr hwnd,
         ref windowCompositionAttributeData data);
 
-    public static void applyBackdrop(Window window, bool useAcrylic, bool darkMode)
+    public static void applyBackdrop(Window window, bool useAcrylic, bool? darkMode = null)
     {
         var helper = new WindowInteropHelper(window);
         var handle = helper.EnsureHandle();
 
-        var darkVal = darkMode ? 1 : 0;
+        var isDark = darkMode ?? themeManager.isSystemDarkMode();
+        var darkVal = isDark ? 1 : 0;
         if (dwmSetWindowAttribute(handle, dwmwaUseImmersiveDarkMode, ref darkVal, sizeof(int)) != 0)
         {
             dwmSetWindowAttribute(handle, dwmwaUseImmersiveDarkModeBefore20H1, ref darkVal, sizeof(int));
@@ -101,6 +102,21 @@ public static class windowBackdropHelper
         else
         {
             setWindows10Blur(handle);
+        }
+    }
+
+    public static void updateWindowDarkMode(Window window, bool darkMode)
+    {
+        var helper = new WindowInteropHelper(window);
+        if (helper.Handle == IntPtr.Zero)
+        {
+            return;
+        }
+
+        var darkVal = darkMode ? 1 : 0;
+        if (dwmSetWindowAttribute(helper.Handle, dwmwaUseImmersiveDarkMode, ref darkVal, sizeof(int)) != 0)
+        {
+            dwmSetWindowAttribute(helper.Handle, dwmwaUseImmersiveDarkModeBefore20H1, ref darkVal, sizeof(int));
         }
     }
 

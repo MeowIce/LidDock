@@ -1,11 +1,11 @@
-<Window x:Class="LidDock.App.Views.SettingsWindow"
+﻿<Window x:Class="LidDock.App.Views.SettingsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="LidDock Settings" Height="640" Width="720"
         MinHeight="580" MinWidth="680"
         WindowStartupLocation="CenterScreen"
-        Background="{StaticResource WindowBackgroundBrush}"
-        Foreground="{StaticResource TextPrimaryBrush}"
+        Background="{DynamicResource WindowBackgroundBrush}"
+        Foreground="{DynamicResource TextPrimaryBrush}"
         ResizeMode="CanResize"
         Icon="pack://application:,,,/Assets/app.ico">
     <WindowChrome.WindowChrome>
@@ -30,9 +30,9 @@
         <DockPanel Margin="0,4,140,16">
             <Image Source="pack://application:,,,/Assets/LidDock.png" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality"/>
             <StackPanel VerticalAlignment="Center">
-                <TextBlock Text="LidDock Settings" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                <TextBlock Text="LidDock Settings" FontSize="20" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
                 <TextBlock Text="Manage Clamshell mode, display triggers, safety timers and power behavior."
-                           FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,2,0,0"/>
+                           FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,2,0,0"/>
             </StackPanel>
         </DockPanel>
 
@@ -53,7 +53,7 @@
                                           Style="{StaticResource FluentToggleSwitch}"
                                           FontWeight="Medium"/>
                                 <TextBlock Text="Run LidDock automatically on system startup and minimize to the system tray."
-                                           FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,48,0" TextWrapping="Wrap"/>
+                                           FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,48,0" TextWrapping="Wrap"/>
                             </StackPanel>
                         </Border>
                     </StackPanel>
@@ -70,10 +70,10 @@
                                 <TextBlock Text="Smart Docked (Recommended)"
                                            FontWeight="SemiBold"
                                            FontSize="14"
-                                           Foreground="{StaticResource TextPrimaryBrush}"/>
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
                                 <TextBlock Text="Clamshell mode activates automatically when docked and switches back to normal sleep when undocked."
                                            FontSize="12"
-                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
                                            Margin="0,4,0,0"
                                            TextWrapping="Wrap"/>
                             </StackPanel>
@@ -86,10 +86,10 @@
                                 <TextBlock Text="AC Power Only"
                                            FontWeight="SemiBold"
                                            FontSize="14"
-                                           Foreground="{StaticResource TextPrimaryBrush}"/>
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
                                 <TextBlock Text="Clamshell mode is strictly restricted to wall power connection to preserve battery health."
                                            FontSize="12"
-                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
                                            Margin="0,4,0,0"
                                            TextWrapping="Wrap"/>
                             </StackPanel>
@@ -102,10 +102,10 @@
                                 <TextBlock Text="Always Clamshell"
                                            FontWeight="SemiBold"
                                            FontSize="14"
-                                           Foreground="{StaticResource TextPrimaryBrush}"/>
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
                                 <TextBlock Text="Clamshell mode remains active whenever an external monitor is attached, even on battery."
                                            FontSize="12"
-                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
                                            Margin="0,4,0,0"
                                            TextWrapping="Wrap"/>
                             </StackPanel>
@@ -143,7 +143,7 @@
                         <Border Style="{StaticResource FluentCard}" IsEnabled="{Binding isDisconnectDelayEnabled}">
                             <StackPanel>
                                 <DockPanel Margin="0,0,0,8">
-                                    <TextBlock Text="Disconnect Grace Delay" FontWeight="Medium" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    <TextBlock Text="Disconnect Grace Delay" FontWeight="Medium" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     <TextBlock Text="{Binding disconnectDelaySeconds, StringFormat='{}{0} seconds'}"
                                                FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}"
                                                DockPanel.Dock="Right" TextAlignment="Right"/>
@@ -152,14 +152,14 @@
                                         Value="{Binding disconnectDelaySeconds}"
                                         Foreground="{DynamicResource AccentBrush}"/>
                                 <TextBlock Text="{Binding disconnectDelayNote}"
-                                           FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                                           FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,8,0,0" TextWrapping="Wrap"/>
                             </StackPanel>
                         </Border>
 
                         <Border Style="{StaticResource FluentCard}" IsEnabled="{Binding isBatteryThresholdEnabled}">
                             <StackPanel>
                                 <DockPanel Margin="0,0,0,8">
-                                    <TextBlock Text="Minimum Battery Threshold for Clamshell" FontWeight="Medium" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    <TextBlock Text="Minimum Battery Threshold for Clamshell" FontWeight="Medium" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     <TextBlock Text="{Binding minimumBatteryThreshold, StringFormat='{}{0}%'}"
                                                FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}"
                                                DockPanel.Dock="Right" TextAlignment="Right"/>
@@ -168,7 +168,7 @@
                                         Value="{Binding minimumBatteryThreshold}"
                                         Foreground="{DynamicResource AccentBrush}"/>
                                 <TextBlock Text="{Binding batteryThresholdNote}"
-                                           FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                                           FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,8,0,0" TextWrapping="Wrap"/>
                             </StackPanel>
                         </Border>
                     </StackPanel>
@@ -183,9 +183,9 @@
                                 <Image Source="pack://application:,,,/Assets/LidDock.png" Width="56" Height="56" Margin="0,0,16,0" VerticalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality"/>
                                 <StackPanel VerticalAlignment="Center">
                                     <TextBlock Text="LidDock" FontSize="18" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}"/>
-                                    <TextBlock Text="Smart Clamshell Mode for Windows 11" FontSize="13" FontWeight="Medium" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,4,0,0"/>
+                                    <TextBlock Text="Smart Clamshell Mode for Windows 11" FontSize="13" FontWeight="Medium" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,4,0,0"/>
                                     <TextBlock Text="Brings seamless macOS-style Clamshell Mode experience to Windows laptops."
-                                               FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,6,0,0" TextWrapping="Wrap" LineHeight="18"/>
+                                               FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,6,0,0" TextWrapping="Wrap" LineHeight="18"/>
                                 </StackPanel>
                             </DockPanel>
                         </Border>
@@ -202,13 +202,13 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Version" FontWeight="Medium" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,6"/>
-                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding appVersion}" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,6"/>
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Version" FontWeight="Medium" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,6"/>
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding appVersion}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,6"/>
 
-                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Author" FontWeight="Medium" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,6"/>
-                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding author}" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,6"/>
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Author" FontWeight="Medium" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,6"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding author}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,6"/>
 
-                                <TextBlock Grid.Row="2" Grid.Column="0" Text="GitHub Repository" FontWeight="Medium" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,6"/>
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="GitHub Repository" FontWeight="Medium" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,6"/>
                                 <TextBlock Grid.Row="2" Grid.Column="1" Margin="0,6">
                                     <Hyperlink NavigateUri="{Binding githubUrl}" RequestNavigate="onHyperlinkRequestNavigate" Foreground="{DynamicResource AccentBrush}">
                                         <TextBlock Text="{Binding githubUrl}"/>
@@ -219,7 +219,7 @@
 
                         <Border Style="{StaticResource FluentCard}">
                             <StackPanel>
-                                <TextBlock Text="Software Updates" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,8"/>
+                                <TextBlock Text="Software Updates" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,8"/>
                                 <DockPanel Margin="0,0,0,8">
                                     <Button Content="Check for Updates"
                                             Click="onCheckForUpdatesClicked"
@@ -229,7 +229,7 @@
                                             DockPanel.Dock="Right"/>
                                     <TextBlock Text="{Binding updateStatusMessage}"
                                                FontSize="13"
-                                               Foreground="{StaticResource TextPrimaryBrush}"
+                                               Foreground="{DynamicResource TextPrimaryBrush}"
                                                VerticalAlignment="Center"
                                                TextWrapping="Wrap"/>
                                 </DockPanel>

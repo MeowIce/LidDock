@@ -1,10 +1,10 @@
-<Window x:Class="LidDock.App.Views.DiagnosticsWindow"
+﻿<Window x:Class="LidDock.App.Views.DiagnosticsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="LidDock Diagnostics" Height="680" Width="860"
         WindowStartupLocation="CenterScreen"
-        Background="{StaticResource WindowBackgroundBrush}"
-        Foreground="{StaticResource TextPrimaryBrush}"
+        Background="{DynamicResource WindowBackgroundBrush}"
+        Foreground="{DynamicResource TextPrimaryBrush}"
         Icon="pack://application:,,,/Assets/app.ico">
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="48"
@@ -26,37 +26,37 @@
         <DockPanel Margin="0,4,140,16">
             <Image Source="pack://application:,,,/Assets/LidDock.png" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality"/>
             <StackPanel VerticalAlignment="Center">
-                <TextBlock Text="Hardware Telemetry &amp; Diagnostics" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                <TextBlock Text="Hardware Telemetry &amp; Diagnostics" FontSize="20" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
                 <TextBlock Text="Real-time system sensor observation, display topology and event trace logs."
-                           FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,2,0,0"/>
+                           FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,2,0,0"/>
             </StackPanel>
         </DockPanel>
 
         <Border Grid.Row="1" Style="{StaticResource FluentCard}" Margin="0,0,0,16">
             <UniformGrid Columns="3">
                 <StackPanel Margin="8">
-                    <TextBlock Text="Clamshell State" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                    <TextBlock Text="Clamshell State" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}"/>
                     <TextBlock Text="{Binding formattedClamshellState}" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" Margin="0,4,0,0"/>
                 </StackPanel>
                 <StackPanel Margin="8">
-                    <TextBlock Text="Lid Sensor Position" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
-                    <TextBlock Text="{Binding formattedLidState}" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,4,0,0"/>
+                    <TextBlock Text="Lid Sensor Position" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                    <TextBlock Text="{Binding formattedLidState}" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,4,0,0"/>
                 </StackPanel>
                 <StackPanel Margin="8">
-                    <TextBlock Text="Power Source" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
-                    <TextBlock Text="{Binding formattedPowerSource}" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,4,0,0"/>
+                    <TextBlock Text="Power Source" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                    <TextBlock Text="{Binding formattedPowerSource}" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,4,0,0"/>
                 </StackPanel>
                 <StackPanel Margin="8">
-                    <TextBlock Text="Battery Remaining" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
-                    <TextBlock Text="{Binding batteryPercent, StringFormat='{}{0}%'}" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,4,0,0"/>
+                    <TextBlock Text="Battery Remaining" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                    <TextBlock Text="{Binding batteryPercent, StringFormat='{}{0}%'}" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,4,0,0"/>
                 </StackPanel>
                 <StackPanel Margin="8">
-                    <TextBlock Text="Connected Displays" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
-                    <TextBlock Text="{Binding displaysSummary}" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,4,0,0"/>
+                    <TextBlock Text="Connected Displays" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                    <TextBlock Text="{Binding displaysSummary}" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,4,0,0"/>
                 </StackPanel>
                 <StackPanel Margin="8">
-                    <TextBlock Text="Windows Lid Close Action" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
-                    <TextBlock Text="{Binding powerPlanSummary}" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,4,0,0"/>
+                    <TextBlock Text="Windows Lid Close Action" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                    <TextBlock Text="{Binding powerPlanSummary}" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,4,0,0"/>
                 </StackPanel>
             </UniformGrid>
         </Border>
@@ -67,8 +67,8 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <TextBlock Text="Detected Display Topology" FontWeight="SemiBold" FontSize="13" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,8"/>
-                <ListView Grid.Row="1" ItemsSource="{Binding displaysList}" Background="Transparent" BorderThickness="0" Foreground="{StaticResource TextPrimaryBrush}">
+                <TextBlock Text="Detected Display Topology" FontWeight="SemiBold" FontSize="13" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,8"/>
+                <ListView Grid.Row="1" ItemsSource="{Binding displaysList}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource TextPrimaryBrush}">
                     <ListView.View>
                         <GridView>
                             <GridViewColumn Header="Monitor Name" DisplayMemberBinding="{Binding friendlyName}" Width="220"/>
@@ -88,8 +88,8 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <TextBlock Text="Live Event Trace Log" FontWeight="SemiBold" FontSize="13" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,8"/>
-                <ListView Grid.Row="1" ItemsSource="{Binding logEntries}" Background="Transparent" BorderThickness="0" Foreground="{StaticResource TextPrimaryBrush}">
+                <TextBlock Text="Live Event Trace Log" FontWeight="SemiBold" FontSize="13" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,8"/>
+                <ListView Grid.Row="1" ItemsSource="{Binding logEntries}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource TextPrimaryBrush}">
                     <ListView.View>
                         <GridView>
                             <GridViewColumn Header="Timestamp" DisplayMemberBinding="{Binding timestamp, StringFormat='HH:mm:ss.fff'}" Width="130"/>

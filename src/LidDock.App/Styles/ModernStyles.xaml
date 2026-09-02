@@ -12,9 +12,15 @@
     <SolidColorBrush x:Key="TextPrimaryBrush" Color="#F3F3F3"/>
     <SolidColorBrush x:Key="TextSecondaryBrush" Color="#A8A8A8"/>
     <SolidColorBrush x:Key="ControlBorderBrush" Color="#33FFFFFF"/>
+    <SolidColorBrush x:Key="SliderTrackEmptyBrush" Color="#33FFFFFF"/>
+    <SolidColorBrush x:Key="SliderTrackEmptyHoverBrush" Color="#4DFFFFFF"/>
+    <SolidColorBrush x:Key="ToggleTrackBrush" Color="#333333"/>
+    <SolidColorBrush x:Key="ToggleThumbBrush" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="RadioFillBrush" Color="#1AFFFFFF"/>
+    <SolidColorBrush x:Key="RadioHoverStrokeBrush" Color="#B3FFFFFF"/>
 
     <Style x:Key="FluentToggleSwitch" TargetType="{x:Type CheckBox}">
-        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="FontSize" Value="14"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Template">
@@ -25,14 +31,14 @@
                                 DockPanel.Dock="Right"
                                 Width="44" Height="22"
                                 CornerRadius="11"
-                                Background="#333333"
-                                BorderBrush="{StaticResource ControlBorderBrush}"
+                                Background="{DynamicResource ToggleTrackBrush}"
+                                BorderBrush="{DynamicResource ControlBorderBrush}"
                                 BorderThickness="1"
                                 Margin="16,0,0,0">
                             <Canvas Width="44" Height="22">
                                 <Ellipse Name="switchThumb"
                                          Width="14" Height="14"
-                                         Fill="#FFFFFF"
+                                         Fill="{DynamicResource ToggleThumbBrush}"
                                          Canvas.Left="4"
                                          Canvas.Top="3">
                                 </Ellipse>
@@ -45,6 +51,7 @@
                         <Trigger Property="IsChecked" Value="True">
                             <Setter TargetName="switchTrack" Property="Background" Value="{DynamicResource AccentBrush}"/>
                             <Setter TargetName="switchTrack" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                            <Setter TargetName="switchThumb" Property="Fill" Value="#FFFFFF"/>
                             <Trigger.EnterActions>
                                 <BeginStoryboard>
                                     <Storyboard>
@@ -82,8 +89,8 @@
     </Style>
 
     <Style x:Key="FluentCard" TargetType="{x:Type Border}">
-        <Setter Property="Background" Value="{StaticResource CardBrush}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource CardBorderBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource CardBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="8"/>
         <Setter Property="Padding" Value="16"/>
@@ -131,13 +138,13 @@
     </Style>
 
     <Style x:Key="FluentSecondaryButton" TargetType="{x:Type Button}">
-        <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
-        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource SurfaceBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="FontSize" Value="14"/>
         <Setter Property="Height" Value="34"/>
         <Setter Property="Padding" Value="16,6"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="BorderBrush" Value="{StaticResource ControlBorderBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ControlBorderBrush}"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -156,7 +163,7 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="btnBorder" Property="Background" Value="{StaticResource SurfaceHoverBrush}"/>
+                            <Setter TargetName="btnBorder" Property="Background" Value="{DynamicResource SurfaceHoverBrush}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="btnBorder" Property="Opacity" Value="0.85"/>
@@ -173,7 +180,7 @@
     </Style>
 
     <Style x:Key="FluentRadioButton" TargetType="{x:Type RadioButton}">
-        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="FontSize" Value="14"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Background" Value="Transparent"/>
@@ -189,9 +196,9 @@
                         <Grid Width="20" Height="20" VerticalAlignment="Top" Margin="0,2,12,0">
                             <Ellipse Name="outerCircle"
                                      Width="20" Height="20"
-                                     Stroke="{StaticResource ControlBorderBrush}"
+                                     Stroke="{DynamicResource ControlBorderBrush}"
                                      StrokeThickness="1.5"
-                                     Fill="#1AFFFFFF"/>
+                                     Fill="{DynamicResource RadioFillBrush}"/>
                             <Ellipse Name="innerDot"
                                      Width="10" Height="10"
                                      Fill="#FFFFFF"
@@ -212,8 +219,8 @@
 
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="outerCircle" Property="Stroke" Value="#B3FFFFFF"/>
-                            <Setter TargetName="outerCircle" Property="Fill" Value="#33FFFFFF"/>
+                            <Setter TargetName="outerCircle" Property="Stroke" Value="{DynamicResource RadioHoverStrokeBrush}"/>
+                            <Setter TargetName="outerCircle" Property="Fill" Value="{DynamicResource RadioFillBrush}"/>
                         </Trigger>
                         <Trigger Property="IsChecked" Value="True">
                             <Setter TargetName="outerCircle" Property="Fill" Value="{DynamicResource AccentBrush}"/>
@@ -262,8 +269,8 @@
                                 <Condition Property="IsChecked" Value="True"/>
                                 <Condition Property="IsMouseOver" Value="True"/>
                             </MultiTrigger.Conditions>
-                            <Setter TargetName="outerCircle" Property="Fill" Value="{StaticResource AccentHoverBrush}"/>
-                            <Setter TargetName="outerCircle" Property="Stroke" Value="{StaticResource AccentHoverBrush}"/>
+                            <Setter TargetName="outerCircle" Property="Fill" Value="{DynamicResource AccentHoverBrush}"/>
+                            <Setter TargetName="outerCircle" Property="Stroke" Value="{DynamicResource AccentHoverBrush}"/>
                         </MultiTrigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="outerCircle" Property="Opacity" Value="0.8"/>
@@ -279,10 +286,10 @@
     </Style>
 
     <Style x:Key="FluentRadioCard" TargetType="{x:Type RadioButton}">
-        <Setter Property="Background" Value="{StaticResource CardBrush}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource CardBorderBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource CardBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="FontSize" Value="14"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Margin" Value="0,0,0,12"/>
@@ -309,9 +316,9 @@
                             <Grid Width="20" Height="20" VerticalAlignment="Top" Margin="0,2,14,0">
                                 <Ellipse Name="outerCircle"
                                          Width="20" Height="20"
-                                         Stroke="{StaticResource ControlBorderBrush}"
+                                         Stroke="{DynamicResource ControlBorderBrush}"
                                          StrokeThickness="1.5"
-                                         Fill="#1AFFFFFF"/>
+                                         Fill="{DynamicResource RadioFillBrush}"/>
                                 <Ellipse Name="innerDot"
                                          Width="10" Height="10"
                                          Fill="#FFFFFF"
@@ -333,10 +340,10 @@
 
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="cardBorder" Property="Background" Value="{StaticResource SurfaceHoverBrush}"/>
-                            <Setter TargetName="cardBorder" Property="BorderBrush" Value="{StaticResource ControlBorderBrush}"/>
-                            <Setter TargetName="outerCircle" Property="Stroke" Value="#B3FFFFFF"/>
-                            <Setter TargetName="outerCircle" Property="Fill" Value="#33FFFFFF"/>
+                            <Setter TargetName="cardBorder" Property="Background" Value="{DynamicResource SurfaceHoverBrush}"/>
+                            <Setter TargetName="cardBorder" Property="BorderBrush" Value="{DynamicResource ControlBorderBrush}"/>
+                            <Setter TargetName="outerCircle" Property="Stroke" Value="{DynamicResource RadioHoverStrokeBrush}"/>
+                            <Setter TargetName="outerCircle" Property="Fill" Value="{DynamicResource RadioFillBrush}"/>
                         </Trigger>
                         <Trigger Property="IsChecked" Value="True">
                             <Setter TargetName="cardBorder" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
@@ -386,9 +393,9 @@
                                 <Condition Property="IsChecked" Value="True"/>
                                 <Condition Property="IsMouseOver" Value="True"/>
                             </MultiTrigger.Conditions>
-                            <Setter TargetName="cardBorder" Property="Background" Value="{StaticResource SurfaceHoverBrush}"/>
-                            <Setter TargetName="outerCircle" Property="Fill" Value="{StaticResource AccentHoverBrush}"/>
-                            <Setter TargetName="outerCircle" Property="Stroke" Value="{StaticResource AccentHoverBrush}"/>
+                            <Setter TargetName="cardBorder" Property="Background" Value="{DynamicResource SurfaceHoverBrush}"/>
+                            <Setter TargetName="outerCircle" Property="Fill" Value="{DynamicResource AccentHoverBrush}"/>
+                            <Setter TargetName="outerCircle" Property="Stroke" Value="{DynamicResource AccentHoverBrush}"/>
                         </MultiTrigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="cardBorder" Property="Opacity" Value="0.88"/>
@@ -408,7 +415,7 @@
     </Style>
 
     <Style x:Key="FluentTabItem" TargetType="{x:Type TabItem}">
-        <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
         <Setter Property="FontSize" Value="14"/>
         <Setter Property="Padding" Value="16,10"/>
         <Setter Property="Cursor" Value="Hand"/>
@@ -442,10 +449,10 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="tabHoverBorder" Property="Background" Value="#1AFFFFFF"/>
-                            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
                         </Trigger>
                         <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
                             <Setter Property="FontWeight" Value="SemiBold"/>
                             <Trigger.EnterActions>
                                 <BeginStoryboard>
@@ -522,7 +529,7 @@
     <Style x:Key="FluentGridViewColumnHeader" TargetType="{x:Type GridViewColumnHeader}">
         <Setter Property="HorizontalContentAlignment" Value="Left"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
-        <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
         <Setter Property="FontSize" Value="12"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Padding" Value="10,6"/>
@@ -532,7 +539,7 @@
                     <Grid SnapsToDevicePixels="True">
                         <Border Name="HeaderBorder"
                                 Background="Transparent"
-                                BorderBrush="{StaticResource CardBorderBrush}"
+                                BorderBrush="{DynamicResource CardBorderBrush}"
                                 BorderThickness="0,0,0,1"
                                 Padding="{TemplateBinding Padding}">
                             <ContentPresenter Name="HeaderContent"
@@ -545,13 +552,13 @@
                                HorizontalAlignment="Right"
                                Margin="0,4,0,4"
                                Width="1"
-                               Background="{StaticResource CardBorderBrush}"
+                               Background="{DynamicResource CardBorderBrush}"
                                Cursor="SizeWE"/>
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="HeaderBorder" Property="Background" Value="#1AFFFFFF"/>
-                            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="HeaderBorder" Property="Background" Value="#2AFFFFFF"/>
@@ -565,7 +572,7 @@
     <Style TargetType="{x:Type GridViewColumnHeader}" BasedOn="{StaticResource FluentGridViewColumnHeader}"/>
 
     <Style x:Key="FluentListViewItem" TargetType="{x:Type ListViewItem}">
-        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="FontSize" Value="13"/>
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -612,7 +619,7 @@
     <Style x:Key="FluentListView" TargetType="{x:Type ListView}">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="ItemContainerStyle" Value="{StaticResource FluentListViewItem}"/>
         <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
         <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
@@ -739,11 +746,11 @@
                     <Border Name="trackEmpty"
                             Height="4"
                             CornerRadius="2"
-                            Background="#33FFFFFF"
+                            Background="{DynamicResource SliderTrackEmptyBrush}"
                             VerticalAlignment="Center"/>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="trackEmpty" Property="Background" Value="#4DFFFFFF"/>
+                            <Setter TargetName="trackEmpty" Property="Background" Value="{DynamicResource SliderTrackEmptyHoverBrush}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -775,13 +782,13 @@
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="thumbOuter" Property="Width" Value="20"/>
                             <Setter TargetName="thumbOuter" Property="Height" Value="20"/>
-                            <Setter TargetName="thumbOuter" Property="Fill" Value="{StaticResource AccentHoverBrush}"/>
+                            <Setter TargetName="thumbOuter" Property="Fill" Value="{DynamicResource AccentHoverBrush}"/>
                             <Setter TargetName="thumbOuter" Property="StrokeThickness" Value="3"/>
                         </Trigger>
                         <Trigger Property="IsDragging" Value="True">
                             <Setter TargetName="thumbOuter" Property="Width" Value="16"/>
                             <Setter TargetName="thumbOuter" Property="Height" Value="16"/>
-                            <Setter TargetName="thumbOuter" Property="Fill" Value="{StaticResource AccentHoverBrush}"/>
+                            <Setter TargetName="thumbOuter" Property="Fill" Value="{DynamicResource AccentHoverBrush}"/>
                             <Setter TargetName="thumbOuter" Property="StrokeThickness" Value="2"/>
                         </Trigger>
                     </ControlTemplate.Triggers>

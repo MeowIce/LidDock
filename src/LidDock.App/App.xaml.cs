@@ -40,7 +40,7 @@ public partial class App : Application
             }
 
             base.OnStartup(e);
-            accentColorHelper.applySystemAccentColor();
+            themeManager.applySystemTheme();
 
             if (e.Args.Contains("--uninstall"))
             {

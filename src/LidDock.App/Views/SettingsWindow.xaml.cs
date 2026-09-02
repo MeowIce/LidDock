@@ -21,8 +21,8 @@ public partial class SettingsWindow : Window
 
     private void onSourceInitialized(object? sender, EventArgs e)
     {
-        windowBackdropHelper.applyBackdrop(this, true, true);
-        accentColorHelper.applySystemAccentColor();
+        windowBackdropHelper.applyBackdrop(this, true);
+        themeManager.applySystemTheme();
 
         var helper = new WindowInteropHelper(this);
         var source = HwndSource.FromHwnd(helper.Handle);
@@ -32,13 +32,14 @@ public partial class SettingsWindow : Window
     private IntPtr wndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
     {
         const int wmSettingChange = 0x001A;
+        const int wmThemeChanged = 0x031A;
         const int wmDwmColorizationColorChanged = 0x0320;
         const int wmEnterSizeMove = 0x0231;
         const int wmExitSizeMove = 0x0232;
 
-        if (msg == wmSettingChange || msg == wmDwmColorizationColorChanged)
+        if (msg == wmSettingChange || msg == wmThemeChanged || msg == wmDwmColorizationColorChanged)
         {
-            Dispatcher.InvokeAsync(accentColorHelper.applySystemAccentColor);
+            Dispatcher.InvokeAsync(() => themeManager.applySystemTheme(true));
         }
         else if (msg == wmEnterSizeMove)
         {

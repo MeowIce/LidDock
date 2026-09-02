@@ -72,15 +72,15 @@ public static class accentColorHelper
         return (fallbackBase, fallbackHover, fallbackSubtle);
     }
 
-    public static void applySystemAccentColor()
+    public static void applySystemAccentColor(bool animate = false)
     {
         var (baseColor, hoverColor, subtleColor) = getSystemAccentColors();
-        updateBrush("AccentBrush", baseColor);
-        updateBrush("AccentHoverBrush", hoverColor);
-        updateBrush("AccentSubtleBrush", subtleColor);
+        updateBrush("AccentBrush", baseColor, animate);
+        updateBrush("AccentHoverBrush", hoverColor, animate);
+        updateBrush("AccentSubtleBrush", subtleColor, animate);
     }
 
-    private static void updateBrush(string resourceKey, Color color)
+    private static void updateBrush(string resourceKey, Color targetColor, bool animate)
     {
         var app = Application.Current;
         if (app == null)
@@ -90,13 +90,39 @@ public static class accentColorHelper
 
         if (app.Resources[resourceKey] is SolidColorBrush brush && !brush.IsFrozen)
         {
-            brush.Color = color;
+            if (animate)
+            {
+                var anim = new System.Windows.Media.Animation.ColorAnimation
+                {
+                    To = targetColor,
+                    Duration = TimeSpan.FromMilliseconds(250),
+                    EasingFunction = new System.Windows.Media.Animation.QuadraticEase { EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut }
+                };
+                anim.Completed += (s, e) =>
+                {
+                    brush.BeginAnimation(SolidColorBrush.ColorProperty, null);
+                    brush.Color = targetColor;
+                };
+                brush.BeginAnimation(SolidColorBrush.ColorProperty, anim);
+            }
+            else
+            {
+                brush.BeginAnimation(SolidColorBrush.ColorProperty, null);
+                brush.Color = targetColor;
+            }
         }
         else
         {
-            var newBrush = new SolidColorBrush(color);
-            newBrush.Freeze();
+            var newBrush = new SolidColorBrush(targetColor);
             app.Resources[resourceKey] = newBrush;
+
+            if (app.Resources.MergedDictionaries != null)
+            {
+                foreach (var dict in app.Resources.MergedDictionaries)
+                {
+                    dict[resourceKey] = newBrush;
+                }
+            }
         }
     }
 
