@@ -9,6 +9,7 @@ namespace LidDock.App.Helpers;
 public static class windowBackdropHelper
 {
     private const int dwmwaUseImmersiveDarkMode = 20;
+    private const int dwmwaUseImmersiveDarkModeBefore20H1 = 19;
     private const int dwmwaWindowCornerPreference = 33;
     private const int dwmwaSystemBackdropType = 38;
 
@@ -17,7 +18,7 @@ public static class windowBackdropHelper
     private const int dwmsbtTransientWindow = 3;
 
     private const int wcaAccentPolicy = 19;
-    private const int accentEnableAcrylicBlurbehind = 4;
+    private const int accentEnableBlurbehind = 3;
 
     [StructLayout(LayoutKind.Sequential)]
     private struct margins
@@ -67,6 +68,12 @@ public static class windowBackdropHelper
         var helper = new WindowInteropHelper(window);
         var handle = helper.EnsureHandle();
 
+        var darkVal = darkMode ? 1 : 0;
+        if (dwmSetWindowAttribute(handle, dwmwaUseImmersiveDarkMode, ref darkVal, sizeof(int)) != 0)
+        {
+            dwmSetWindowAttribute(handle, dwmwaUseImmersiveDarkModeBefore20H1, ref darkVal, sizeof(int));
+        }
+
         var source = HwndSource.FromHwnd(handle);
         if (source?.CompositionTarget != null)
         {
@@ -82,28 +89,32 @@ public static class windowBackdropHelper
         };
         dwmExtendFrameIntoClientArea(handle, ref margins);
 
-        var darkVal = darkMode ? 1 : 0;
-        dwmSetWindowAttribute(handle, dwmwaUseImmersiveDarkMode, ref darkVal, sizeof(int));
-
-        var cornerVal = dwmwcpRound;
-        dwmSetWindowAttribute(handle, dwmwaWindowCornerPreference, ref cornerVal, sizeof(int));
-
-        var backdropVal = useAcrylic ? dwmsbtTransientWindow : dwmsbtMainWindow;
-        var hr = dwmSetWindowAttribute(handle, dwmwaSystemBackdropType, ref backdropVal, sizeof(int));
-
-        if (hr != 0)
+        var isWindows11OrGreater = Environment.OSVersion.Version.Build >= 22000;
+        if (isWindows11OrGreater)
         {
-            applyAcrylicFallback(handle);
+            var cornerVal = dwmwcpRound;
+            dwmSetWindowAttribute(handle, dwmwaWindowCornerPreference, ref cornerVal, sizeof(int));
+
+            var backdropVal = useAcrylic ? dwmsbtTransientWindow : dwmsbtMainWindow;
+            dwmSetWindowAttribute(handle, dwmwaSystemBackdropType, ref backdropVal, sizeof(int));
+        }
+        else
+        {
+            setWindows10Blur(handle);
         }
     }
 
-    private static void applyAcrylicFallback(IntPtr handle)
+    public static void handleSizeMove(IntPtr handle, bool isMoving)
+    {
+    }
+
+    private static void setWindows10Blur(IntPtr handle)
     {
         var policy = new accentPolicy
         {
-            accentState = accentEnableAcrylicBlurbehind,
-            accentFlags = 2,
-            gradientColor = unchecked((int)0x99202020)
+            accentState = accentEnableBlurbehind,
+            accentFlags = 0,
+            gradientColor = 0
         };
 
         var size = Marshal.SizeOf<accentPolicy>();

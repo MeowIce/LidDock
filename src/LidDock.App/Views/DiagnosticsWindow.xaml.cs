@@ -81,10 +81,24 @@ public partial class DiagnosticsWindow : Window
     {
         const int wmSettingChange = 0x001A;
         const int wmDwmColorizationColorChanged = 0x0320;
+        const int wmEnterSizeMove = 0x0231;
+        const int wmExitSizeMove = 0x0232;
 
         if (msg == wmSettingChange || msg == wmDwmColorizationColorChanged)
         {
             Dispatcher.InvokeAsync(accentColorHelper.applySystemAccentColor);
+            return IntPtr.Zero;
+        }
+
+        if (msg == wmEnterSizeMove)
+        {
+            windowBackdropHelper.handleSizeMove(hwnd, true);
+            return IntPtr.Zero;
+        }
+
+        if (msg == wmExitSizeMove)
+        {
+            windowBackdropHelper.handleSizeMove(hwnd, false);
             return IntPtr.Zero;
         }
 

@@ -33,10 +33,20 @@ public partial class SettingsWindow : Window
     {
         const int wmSettingChange = 0x001A;
         const int wmDwmColorizationColorChanged = 0x0320;
+        const int wmEnterSizeMove = 0x0231;
+        const int wmExitSizeMove = 0x0232;
 
         if (msg == wmSettingChange || msg == wmDwmColorizationColorChanged)
         {
             Dispatcher.InvokeAsync(accentColorHelper.applySystemAccentColor);
+        }
+        else if (msg == wmEnterSizeMove)
+        {
+            windowBackdropHelper.handleSizeMove(hwnd, true);
+        }
+        else if (msg == wmExitSizeMove)
+        {
+            windowBackdropHelper.handleSizeMove(hwnd, false);
         }
         return IntPtr.Zero;
     }
