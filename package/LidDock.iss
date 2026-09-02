@@ -1,5 +1,5 @@
 #define MyAppName "LidDock"
-#define MyAppVersion "1.0.1"
+#define MyAppVersion "1.0.2"
 #define MyAppPublisher "MeowIce"
 #define MyAppURL "https://github.com/MeowIce/LidDock"
 #define MyAppExeName "LidDock.exe"

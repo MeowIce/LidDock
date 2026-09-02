@@ -19,7 +19,7 @@ public class settingsViewModel : baseViewModel
         this.updateCheckerInstance = updateChecker ?? new updateChecker();
     }
 
-    public string appVersion => "1.0.1";
+    public string appVersion => "1.0.2";
     public string author => "MeowIce";
     public string githubUrl => "https://github.com/MeowIce/LidDock";
 
