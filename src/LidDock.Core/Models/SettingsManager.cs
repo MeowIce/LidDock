@@ -125,7 +125,58 @@ public static class settingsManager
 
     public static string getPermanentDaemonPath()
     {
-        return Environment.ProcessPath ?? Path.Combine(settingsDirectory, "LidDock.exe");
+        try
+        {
+            using var appKey = Registry.CurrentUser.OpenSubKey(@"Software\LidDock");
+            if (appKey?.GetValue("DaemonPath") is string savedPath && File.Exists(savedPath))
+            {
+                return savedPath;
+            }
+        }
+        catch
+        {
+        }
+
+        var currentProcessPath = Environment.ProcessPath;
+        if (!string.IsNullOrEmpty(currentProcessPath))
+        {
+            var currentDir = Path.GetDirectoryName(currentProcessPath);
+            if (!string.IsNullOrEmpty(currentDir))
+            {
+                var daemonInSameDir = Path.Combine(currentDir, "LidDock.exe");
+                if (File.Exists(daemonInSameDir))
+                {
+                    return daemonInSameDir;
+                }
+
+                var daemonInSubDir = Path.Combine(currentDir, "_daemon", "LidDock.exe");
+                if (File.Exists(daemonInSubDir))
+                {
+                    return daemonInSubDir;
+                }
+            }
+        }
+
+        var baseDir = AppContext.BaseDirectory;
+        var daemonInBaseDir = Path.Combine(baseDir, "LidDock.exe");
+        if (File.Exists(daemonInBaseDir))
+        {
+            return daemonInBaseDir;
+        }
+
+        var daemonInBaseSubDir = Path.Combine(baseDir, "_daemon", "LidDock.exe");
+        if (File.Exists(daemonInBaseSubDir))
+        {
+            return daemonInBaseSubDir;
+        }
+
+        var legacyAppDataDaemon = Path.Combine(settingsDirectory, "LidDock.exe");
+        if (File.Exists(legacyAppDataDaemon))
+        {
+            return legacyAppDataDaemon;
+        }
+
+        return Path.Combine(baseDir, "LidDock.exe");
     }
 
     public static void ensurePermanentInstallation()
@@ -133,9 +184,9 @@ public static class settingsManager
         try
         {
             var oldPortablePath = Path.Combine(settingsDirectory, "LidDock.exe");
-            var currentPath = Environment.ProcessPath;
-            if (!string.IsNullOrEmpty(currentPath) &&
-                !string.Equals(currentPath, oldPortablePath, StringComparison.OrdinalIgnoreCase) &&
+            var daemonPath = getPermanentDaemonPath();
+            if (!string.IsNullOrEmpty(daemonPath) &&
+                !string.Equals(daemonPath, oldPortablePath, StringComparison.OrdinalIgnoreCase) &&
                 File.Exists(oldPortablePath))
             {
                 File.Delete(oldPortablePath);
@@ -159,10 +210,10 @@ public static class settingsManager
             if (enable)
             {
                 ensurePermanentInstallation();
-                var targetPath = Environment.ProcessPath;
-                if (!string.IsNullOrEmpty(targetPath))
+                var daemonPath = getPermanentDaemonPath();
+                if (!string.IsNullOrEmpty(daemonPath) && File.Exists(daemonPath))
                 {
-                    key.SetValue(appName, $"\"{targetPath}\" --minimized");
+                    key.SetValue(appName, $"\"{daemonPath}\" --minimized");
                 }
             }
             else
