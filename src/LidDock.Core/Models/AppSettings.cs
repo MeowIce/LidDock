@@ -4,7 +4,8 @@ public enum operationalProfileType
 {
     smartDocked,
     acOnly,
-    alwaysClamshell
+    alwaysClamshell,
+    custom
 }
 
 public class appSettings
@@ -18,6 +19,7 @@ public class appSettings
     public bool ignoreWirelessDisplays { get; set; } = true;
     public bool sleepOnDisconnectWithLidClosed { get; set; } = true;
     public byte minimumBatteryThreshold { get; set; } = 15;
+    public bool customRequireAcPower { get; set; } = false;
     public bool autoCheckForUpdates { get; set; } = true;
     public DateTime? lastUpdateCheckUtc { get; set; } = null;
 }

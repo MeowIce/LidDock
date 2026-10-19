@@ -29,8 +29,25 @@ public static class profileEvaluator
             case operationalProfileType.alwaysClamshell:
                 return true;
 
+            case operationalProfileType.custom:
+                if (settings.customRequireAcPower)
+                {
+                    return powerInfo.powerSource == powerSourceType.acPower;
+                }
+                if (powerInfo.powerSource == powerSourceType.battery && powerInfo.batteryPercent < settings.minimumBatteryThreshold)
+                {
+                    return false;
+                }
+                return true;
+
             default:
                 return true;
         }
+    }
+
+    public static bool requiresAcPower(appSettings settings)
+    {
+        return settings.activeProfile == operationalProfileType.acOnly ||
+               (settings.activeProfile == operationalProfileType.custom && settings.customRequireAcPower);
     }
 }
