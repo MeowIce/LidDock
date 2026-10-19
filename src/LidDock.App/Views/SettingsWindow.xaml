@@ -127,7 +127,51 @@
                             </StackPanel>
                         </RadioButton>
 
-                        <Border Style="{StaticResource FluentCard}" IsEnabled="{Binding isProfileCustom}">
+                        <Border IsEnabled="{Binding isProfileCustom}"
+                                ClipToBounds="True"
+                                Margin="16,8,0,0">
+                            <Border.Style>
+                                <Style TargetType="{x:Type Border}" BasedOn="{StaticResource FluentCard}">
+                                    <Setter Property="MaxHeight" Value="0"/>
+                                    <Setter Property="Opacity" Value="0"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding isProfileCustom}" Value="True">
+                                            <DataTrigger.EnterActions>
+                                                <BeginStoryboard>
+                                                    <Storyboard>
+                                                        <DoubleAnimation Storyboard.TargetProperty="MaxHeight"
+                                                                         To="240"
+                                                                         Duration="0:0:0.25">
+                                                            <DoubleAnimation.EasingFunction>
+                                                                <CubicEase EasingMode="EaseOut"/>
+                                                            </DoubleAnimation.EasingFunction>
+                                                        </DoubleAnimation>
+                                                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                                         To="1"
+                                                                         Duration="0:0:0.25"/>
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </DataTrigger.EnterActions>
+                                            <DataTrigger.ExitActions>
+                                                <BeginStoryboard>
+                                                    <Storyboard>
+                                                        <DoubleAnimation Storyboard.TargetProperty="MaxHeight"
+                                                                         To="0"
+                                                                         Duration="0:0:0.2">
+                                                            <DoubleAnimation.EasingFunction>
+                                                                <CubicEase EasingMode="EaseIn"/>
+                                                            </DoubleAnimation.EasingFunction>
+                                                        </DoubleAnimation>
+                                                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                                         To="0"
+                                                                         Duration="0:0:0.15"/>
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </DataTrigger.ExitActions>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
                             <StackPanel>
                                 <CheckBox Content="Require AC Power"
                                           IsChecked="{Binding customRequireAcPower}"
