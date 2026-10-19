@@ -228,22 +228,24 @@
                                           Style="{StaticResource FluentToggleSwitch}"/>
                                 <TextBlock Text="{Binding displaySelectionNote}"
                                            FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,48,0" TextWrapping="Wrap"/>
-                                <StackPanel x:Name="displaySelectionPanel" Height="0" ClipToBounds="True">
-                                    <ItemsControl ItemsSource="{Binding detectedDisplays}" Margin="0,8,0,0">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <CheckBox Style="{StaticResource FluentToggleSwitch}" IsChecked="{Binding isChecked}">
-                                                    <StackPanel Margin="0,4">
-                                                        <TextBlock Text="{Binding displayName}"/>
-                                                        <TextBlock Text="{Binding subtitle}" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}"/>
-                                                    </StackPanel>
-                                                </CheckBox>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                    <TextBlock Text="No external display connected."
-                                               FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,8,0,0"
-                                               Visibility="{Binding hasNoDetectedDisplays, Converter={StaticResource BoolToVisConverter}}"/>
+                                <StackPanel x:Name="displaySelectionPanel" MaxHeight="0" ClipToBounds="True">
+                                    <StackPanel x:Name="displaySelectionContent">
+                                        <ItemsControl ItemsSource="{Binding detectedDisplays}" Margin="0,8,0,0">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox Style="{StaticResource FluentToggleSwitch}" IsChecked="{Binding isChecked}">
+                                                        <StackPanel Margin="0,4">
+                                                            <TextBlock Text="{Binding displayName}"/>
+                                                            <TextBlock Text="{Binding subtitle}" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                                        </StackPanel>
+                                                    </CheckBox>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                        <TextBlock Text="No external display connected."
+                                                   FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,8,0,0"
+                                                   Visibility="{Binding hasNoDetectedDisplays, Converter={StaticResource BoolToVisConverter}}"/>
+                                    </StackPanel>
                                 </StackPanel>
                             </StackPanel>
                         </Border>

@@ -19,7 +19,7 @@ public partial class SettingsWindow : Window
         viewModel.PropertyChanged += onViewModelPropertyChanged;
         if (viewModel.onlySelectedDisplaysTrigger)
         {
-            displaySelectionPanel.Height = double.NaN;
+            displaySelectionPanel.MaxHeight = double.PositiveInfinity;
         }
         SourceInitialized += onSourceInitialized;
         ContentRendered += onContentRendered;
@@ -113,22 +113,21 @@ public partial class SettingsWindow : Window
 
     private void animateDisplaySelection(bool expand)
     {
-        var startHeight = displaySelectionPanel.ActualHeight;
-        displaySelectionPanel.Height = expand ? double.NaN : 0;
-        displaySelectionPanel.UpdateLayout();
-
-        var targetHeight = 0.0;
-        if (expand)
+        var naturalHeight = displaySelectionContent.ActualHeight;
+        var currentMaxHeight = displaySelectionPanel.MaxHeight;
+        if (double.IsPositiveInfinity(currentMaxHeight))
         {
-            targetHeight = displaySelectionPanel.ActualHeight;
+            currentMaxHeight = naturalHeight;
         }
 
-        var animation = new DoubleAnimation(startHeight, targetHeight, TimeSpan.FromMilliseconds(expand ? 260 : 200))
+        displaySelectionPanel.MaxHeight = expand ? double.PositiveInfinity : 0;
+
+        var animation = new DoubleAnimation(currentMaxHeight, expand ? naturalHeight + 8 : 0, TimeSpan.FromMilliseconds(expand ? 260 : 200))
         {
             EasingFunction = new CubicEase { EasingMode = expand ? EasingMode.EaseOut : EasingMode.EaseIn },
             FillBehavior = FillBehavior.Stop
         };
-        displaySelectionPanel.BeginAnimation(FrameworkElement.HeightProperty, animation);
+        displaySelectionPanel.BeginAnimation(FrameworkElement.MaxHeightProperty, animation);
     }
 
     private void onHyperlinkRequestNavigate(object sender, RequestNavigateEventArgs e)
