@@ -140,7 +140,7 @@
                                                 <BeginStoryboard>
                                                     <Storyboard>
                                                         <DoubleAnimation Storyboard.TargetProperty="MaxHeight"
-                                                                         To="240"
+                                                                         To="280"
                                                                          Duration="0:0:0.25">
                                                             <DoubleAnimation.EasingFunction>
                                                                 <CubicEase EasingMode="EaseOut"/>
@@ -177,8 +177,21 @@
                                           IsChecked="{Binding customRequireAcPower}"
                                           Style="{StaticResource FluentToggleSwitch}"
                                           FontWeight="Medium"/>
-                                <TextBlock Text="When enabled, clamshell mode is active only while the laptop is plugged in. The battery threshold in Safety &amp; Delay applies when this is off."
+                                <TextBlock Text="When enabled, clamshell mode is active only while the laptop is plugged in. The battery threshold below applies when this is off."
                                            FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,48,0" TextWrapping="Wrap"/>
+                                <StackPanel IsEnabled="{Binding isCustomThresholdEnabled}" Margin="0,16,0,0">
+                                    <DockPanel Margin="0,0,0,8">
+                                        <TextBlock Text="Minimum Battery Threshold for Clamshell" FontWeight="Medium" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                        <TextBlock Text="{Binding minimumBatteryThreshold, StringFormat='{}{0}%'}"
+                                                   FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}"
+                                                   DockPanel.Dock="Right" TextAlignment="Right"/>
+                                    </DockPanel>
+                                    <Slider Minimum="5" Maximum="50" SmallChange="1" LargeChange="5"
+                                            Value="{Binding minimumBatteryThreshold}"
+                                            Foreground="{DynamicResource AccentBrush}"/>
+                                    <TextBlock Text="{Binding batteryThresholdNote}"
+                                               FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                                </StackPanel>
                             </StackPanel>
                         </Border>
                     </StackPanel>
@@ -238,7 +251,7 @@
                                 <Slider Minimum="5" Maximum="50" SmallChange="1" LargeChange="5"
                                         Value="{Binding minimumBatteryThreshold}"
                                         Foreground="{DynamicResource AccentBrush}"/>
-                                <TextBlock Text="{Binding batteryThresholdNote}"
+                                <TextBlock Text="{Binding safetyBatteryThresholdNote}"
                                            FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,8,0,0" TextWrapping="Wrap"/>
                             </StackPanel>
                         </Border>

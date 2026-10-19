@@ -154,7 +154,7 @@ public class settingsViewModel : baseViewModel
             {
                 settings.customRequireAcPower = value;
                 onPropertyChanged();
-                onPropertyChanged(nameof(isBatteryThresholdEnabled));
+                onPropertyChanged(nameof(isCustomThresholdEnabled));
                 onPropertyChanged(nameof(batteryThresholdNote));
                 notifySettingsChanged();
             }
@@ -175,14 +175,15 @@ public class settingsViewModel : baseViewModel
                 onPropertyChanged(nameof(isProfileAlwaysClamshell));
                 onPropertyChanged(nameof(isBatteryThresholdEnabled));
                 onPropertyChanged(nameof(batteryThresholdNote));
+                onPropertyChanged(nameof(safetyBatteryThresholdNote));
                 notifySettingsChanged();
             }
         }
     }
 
-    public bool isBatteryThresholdEnabled =>
-        settings.activeProfile == operationalProfileType.smartDocked ||
-        (settings.activeProfile == operationalProfileType.custom && !settings.customRequireAcPower);
+    public bool isBatteryThresholdEnabled => settings.activeProfile == operationalProfileType.smartDocked;
+
+    public bool isCustomThresholdEnabled => !settings.customRequireAcPower;
 
     public string batteryThresholdNote => settings.activeProfile switch
     {
@@ -192,6 +193,10 @@ public class settingsViewModel : baseViewModel
             "Not applicable: Custom profile requires AC power. The threshold applies only when AC power is optional.",
         _ => "Clamshell mode will disengage when battery drops below this threshold while undocked from AC power."
     };
+
+    public string safetyBatteryThresholdNote => settings.activeProfile == operationalProfileType.custom
+        ? "Set in the Profiles tab for the Custom profile."
+        : batteryThresholdNote;
 
     public bool isProfileSmartDocked
     {
@@ -207,6 +212,7 @@ public class settingsViewModel : baseViewModel
                 onPropertyChanged(nameof(isProfileCustom));
                 onPropertyChanged(nameof(isBatteryThresholdEnabled));
                 onPropertyChanged(nameof(batteryThresholdNote));
+                onPropertyChanged(nameof(safetyBatteryThresholdNote));
                 notifySettingsChanged();
             }
         }
@@ -226,6 +232,7 @@ public class settingsViewModel : baseViewModel
                 onPropertyChanged(nameof(isProfileCustom));
                 onPropertyChanged(nameof(isBatteryThresholdEnabled));
                 onPropertyChanged(nameof(batteryThresholdNote));
+                onPropertyChanged(nameof(safetyBatteryThresholdNote));
                 notifySettingsChanged();
             }
         }
@@ -245,6 +252,7 @@ public class settingsViewModel : baseViewModel
                 onPropertyChanged(nameof(isProfileCustom));
                 onPropertyChanged(nameof(isBatteryThresholdEnabled));
                 onPropertyChanged(nameof(batteryThresholdNote));
+                onPropertyChanged(nameof(safetyBatteryThresholdNote));
                 notifySettingsChanged();
             }
         }
