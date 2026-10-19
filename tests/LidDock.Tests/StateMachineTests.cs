@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Xunit;
 using LidDock.Core.Contracts;
 using LidDock.Core.Models;
+using LidDock.Core.Services;
 using LidDock.Core.StateMachine;
 
 namespace LidDock.Tests;
@@ -379,5 +380,34 @@ public class stateMachineTests
         await Task.Delay(2300);
 
         Assert.Equal(0, machine.getGraceRemainingSeconds());
+    }
+
+    [Fact]
+    public void shouldBlockPowerSchemeWritesWhenUsingReadOnlyManager()
+    {
+        var fakePower = new fakePowerSchemeManager();
+        var readOnlyPower = new readOnlyPowerSchemeManager(fakePower);
+        using var machine = new clamshellStateMachine(readOnlyPower);
+
+        machine.updateSettings(new appSettings
+        {
+            activeProfile = operationalProfileType.smartDocked,
+            sleepOnDisconnectWithLidClosed = false
+        });
+
+        var externalDisplay = new physicalDisplayInfo("Dell Monitor", displayTechnology.displayPortExternal, false, false, "path1");
+        machine.updateDisplays(new List<physicalDisplayInfo> { externalDisplay });
+        machine.updateLidState(lidState.closed);
+
+        Assert.Equal(clamshellState.clamshellActive, machine.getCurrentState());
+        Assert.False(fakePower.isClamshellActive);
+
+        machine.updateDisplays(new List<physicalDisplayInfo>());
+
+        Assert.Equal(clamshellState.enteringSleep, machine.getCurrentState());
+        Assert.Equal(0, fakePower.restoreCallCount);
+        Assert.False(fakePower.isSleepTriggered);
+        Assert.Equal(1u, readOnlyPower.getOriginalAcLidAction());
+        Assert.Equal(1u, readOnlyPower.getCurrentAcLidAction());
     }
 }

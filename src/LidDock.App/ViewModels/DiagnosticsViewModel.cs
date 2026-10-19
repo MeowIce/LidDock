@@ -233,6 +233,7 @@ public class diagnosticsViewModel : baseViewModel
     {
         Application.Current?.Dispatcher.InvokeAsync(() =>
         {
+            stateMachine.updateSettings(settingsManager.loadSettings());
             var acAction = powerSchemeManager.getCurrentAcLidAction();
             powerPlanSummary = acAction == 0 ? "Do Nothing (Clamshell Active)" : "Sleep (Windows Default)";
             clamshellState = stateMachine.getCurrentState();

@@ -8,6 +8,7 @@ using LidDock.App.Helpers;
 using LidDock.App.ViewModels;
 using LidDock.App.Views;
 using LidDock.Core.Models;
+using LidDock.Core.Services;
 using LidDock.Core.StateMachine;
 using LidDock.Windows.Power;
 using LidDock.Windows.Watchers;
@@ -178,7 +179,7 @@ public partial class App : Application
         if (powerManager == null)
         {
             powerManager = new powerSchemeManager();
-            stateMachine = new clamshellStateMachine(powerManager);
+            stateMachine = new clamshellStateMachine(new readOnlyPowerSchemeManager(powerManager));
             displayWatcher = new displayWatcher();
             lidWatcher = new lidWatcher();
             powerWatcher = new powerWatcher();
@@ -186,6 +187,8 @@ public partial class App : Application
             displayWatcher.onDisplaysChanged += d => stateMachine.updateDisplays(d);
             powerWatcher.onPowerStatusChanged += p => stateMachine.updatePowerInfo(p);
             lidWatcher.onLidStateChanged += l => stateMachine.updateLidState(l);
+
+            stateMachine.updateSettings(appSettings);
 
             displayWatcher.notifyDisplayConfigurationChanged();
             powerWatcher.notifyPowerStatusChanged();
