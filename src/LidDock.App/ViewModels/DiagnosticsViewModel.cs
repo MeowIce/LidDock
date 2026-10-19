@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Windows;
 using LidDock.Core.Contracts;
 using LidDock.Core.Models;
@@ -128,7 +129,7 @@ public class diagnosticsViewModel : baseViewModel
         displaysSummary = $"{displays.Count} Display Output(s)";
 
         var acAction = powerSchemeManager.getCurrentAcLidAction();
-        powerPlanSummary = acAction == 0 ? "Do Nothing (Clamshell Active)" : "Sleep (Windows Default)";
+        powerPlanSummary = formatLidActionSummary(acAction);
         updateGracePeriodCountdown();
 
         logEntries.Clear();
@@ -152,6 +153,11 @@ public class diagnosticsViewModel : baseViewModel
         };
 
         var targetFolder = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+        if (string.IsNullOrEmpty(targetFolder))
+        {
+            targetFolder = Path.Combine(Path.GetTempPath(), "LidDock");
+        }
+
         return diagnosticsExporter.exportToFile(snapshot, targetFolder);
     }
 
@@ -165,17 +171,19 @@ public class diagnosticsViewModel : baseViewModel
 
     private void handleStateChanged(clamshellState state)
     {
+        diagnosticsLogger.instance.logInfo($"UI Event: State changed to {displayFormatters.formatClamshellState(state)}");
         Application.Current?.Dispatcher.InvokeAsync(() =>
         {
             clamshellState = state;
             var acAction = powerSchemeManager.getCurrentAcLidAction();
-            powerPlanSummary = acAction == 0 ? "Do Nothing (Clamshell Active)" : "Sleep (Windows Default)";
+            powerPlanSummary = formatLidActionSummary(acAction);
             updateGracePeriodCountdown();
         });
     }
 
     private void handleDisplaysChanged(System.Collections.Generic.IReadOnlyList<physicalDisplayInfo> displays)
     {
+        diagnosticsLogger.instance.logInfo($"UI Event: Display topology changed ({displays.Count} output(s))");
         Application.Current?.Dispatcher.InvokeAsync(() =>
         {
             displaysList.Clear();
@@ -190,6 +198,7 @@ public class diagnosticsViewModel : baseViewModel
 
     private void handleLidChanged(lidState state)
     {
+        diagnosticsLogger.instance.logInfo($"UI Event: Lid {displayFormatters.formatLidState(state)}");
         Application.Current?.Dispatcher.InvokeAsync(() =>
         {
             lidState = state;
@@ -199,6 +208,7 @@ public class diagnosticsViewModel : baseViewModel
 
     private void handlePowerChanged(systemPowerInfo power)
     {
+        diagnosticsLogger.instance.logInfo($"UI Event: Power {displayFormatters.formatPowerSource(power)}");
         Application.Current?.Dispatcher.InvokeAsync(() =>
         {
             currentPowerInfo = power;
@@ -235,7 +245,7 @@ public class diagnosticsViewModel : baseViewModel
         {
             stateMachine.updateSettings(settingsManager.loadSettings());
             var acAction = powerSchemeManager.getCurrentAcLidAction();
-            powerPlanSummary = acAction == 0 ? "Do Nothing (Clamshell Active)" : "Sleep (Windows Default)";
+            powerPlanSummary = formatLidActionSummary(acAction);
             clamshellState = stateMachine.getCurrentState();
         });
     }
@@ -256,7 +266,7 @@ public class diagnosticsViewModel : baseViewModel
             }
 
             var acAction = powerSchemeManager.getCurrentAcLidAction();
-            var expectedPlanSummary = acAction == 0 ? "Do Nothing (Clamshell Active)" : "Sleep (Windows Default)";
+            var expectedPlanSummary = formatLidActionSummary(acAction);
             if (powerPlanSummary != expectedPlanSummary)
             {
                 powerPlanSummary = expectedPlanSummary;
@@ -270,6 +280,16 @@ public class diagnosticsViewModel : baseViewModel
 
             updateGracePeriodCountdown();
         });
+    }
+
+    private static string formatLidActionSummary(uint? acAction)
+    {
+        if (!acAction.HasValue)
+        {
+            return "Unknown";
+        }
+
+        return acAction.Value == 0 ? "Do Nothing (Clamshell Active)" : "Sleep (Windows Default)";
     }
 
     private void updateGracePeriodCountdown()

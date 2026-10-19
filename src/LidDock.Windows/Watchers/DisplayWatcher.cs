@@ -11,76 +11,98 @@ public class displayWatcher : iDisplayWatcher
 {
     public event Action<IReadOnlyList<physicalDisplayInfo>>? onDisplaysChanged;
 
+    private IReadOnlyList<physicalDisplayInfo> lastKnownDisplays = Array.Empty<physicalDisplayInfo>();
+
     public IReadOnlyList<physicalDisplayInfo> queryConnectedDisplays()
     {
         var displayList = new List<physicalDisplayInfo>();
         try
         {
-            var sizeResult = nativeMethods.getDisplayConfigBufferSizes(
-                nativeConstants.qdcOnlyActivePaths,
-                out var pathCount,
-                out var modeCount);
-
-            if (sizeResult != nativeConstants.errorSuccess || pathCount == 0)
+            for (var attempt = 0; attempt < 3; attempt++)
             {
-                return displayList;
-            }
+                var sizeResult = nativeMethods.getDisplayConfigBufferSizes(
+                    nativeConstants.qdcOnlyActivePaths,
+                    out var pathCount,
+                    out var modeCount);
 
-            var paths = new displayConfigPathInfo[pathCount];
-            var modes = new displayConfigModeInfo[modeCount];
-
-            var queryResult = nativeMethods.queryDisplayConfig(
-                nativeConstants.qdcOnlyActivePaths,
-                ref pathCount,
-                paths,
-                ref modeCount,
-                modes,
-                IntPtr.Zero);
-
-            if (queryResult != nativeConstants.errorSuccess)
-            {
-                return displayList;
-            }
-
-            for (var i = 0; i < pathCount; i++)
-            {
-                var target = paths[i].targetInfo;
-                var deviceName = new displayConfigTargetDeviceName
+                if (sizeResult != nativeConstants.errorSuccess)
                 {
-                    type = displayConfigDeviceInfoType.getTargetName,
-                    size = (uint)Marshal.SizeOf<displayConfigTargetDeviceName>(),
-                    adapterId = target.adapterId,
-                    id = target.id
-                };
+                    if (sizeResult == nativeConstants.errorInsufficientBuffer)
+                    {
+                        continue;
+                    }
 
-                var nameResult = nativeMethods.displayConfigGetDeviceInfo(ref deviceName);
-                var monitorName = nameResult == nativeConstants.errorSuccess && !string.IsNullOrWhiteSpace(deviceName.monitorFriendlyDeviceName)
-                    ? deviceName.monitorFriendlyDeviceName
-                    : "External Monitor";
+                    return lastKnownDisplays;
+                }
 
-                var pathStr = deviceName.monitorDevicePath ?? string.Empty;
+                if (pathCount == 0)
+                {
+                    lastKnownDisplays = Array.Empty<physicalDisplayInfo>();
+                    return lastKnownDisplays;
+                }
 
-                var isInternal = target.outputTechnology == displayTechnology.internalDisplay ||
-                                 target.outputTechnology == displayTechnology.displayPortEmbedded ||
-                                 target.outputTechnology == displayTechnology.udiEmbedded;
+                var paths = new displayConfigPathInfo[pathCount];
+                var modes = new displayConfigModeInfo[modeCount];
 
-                var isVirtual = target.outputTechnology == displayTechnology.indirectVirtual ||
-                                pathStr.Contains("ROOT#RDP", StringComparison.OrdinalIgnoreCase) ||
-                                pathStr.Contains("IddCx", StringComparison.OrdinalIgnoreCase);
+                var queryResult = nativeMethods.queryDisplayConfig(
+                    nativeConstants.qdcOnlyActivePaths,
+                    ref pathCount,
+                    paths,
+                    ref modeCount,
+                    modes,
+                    IntPtr.Zero);
 
-                displayList.Add(new physicalDisplayInfo(
-                    monitorName,
-                    target.outputTechnology,
-                    isInternal,
-                    isVirtual,
-                    pathStr));
+                if (queryResult == nativeConstants.errorSuccess)
+                {
+                    for (var i = 0; i < pathCount; i++)
+                    {
+                        var target = paths[i].targetInfo;
+                        var deviceName = new displayConfigTargetDeviceName
+                        {
+                            type = displayConfigDeviceInfoType.getTargetName,
+                            size = (uint)Marshal.SizeOf<displayConfigTargetDeviceName>(),
+                            adapterId = target.adapterId,
+                            id = target.id
+                        };
+
+                        var nameResult = nativeMethods.displayConfigGetDeviceInfo(ref deviceName);
+                        var monitorName = nameResult == nativeConstants.errorSuccess && !string.IsNullOrWhiteSpace(deviceName.monitorFriendlyDeviceName)
+                            ? deviceName.monitorFriendlyDeviceName
+                            : "External Monitor";
+
+                        var pathStr = deviceName.monitorDevicePath ?? string.Empty;
+
+                        var isInternal = target.outputTechnology == displayTechnology.internalDisplay ||
+                                         target.outputTechnology == displayTechnology.displayPortEmbedded ||
+                                         target.outputTechnology == displayTechnology.udiEmbedded;
+
+                        var isVirtual = target.outputTechnology == displayTechnology.indirectVirtual ||
+                                        pathStr.Contains("ROOT#RDP", StringComparison.OrdinalIgnoreCase) ||
+                                        pathStr.Contains("IddCx", StringComparison.OrdinalIgnoreCase);
+
+                        displayList.Add(new physicalDisplayInfo(
+                            monitorName,
+                            target.outputTechnology,
+                            isInternal,
+                            isVirtual,
+                            pathStr));
+                    }
+
+                    lastKnownDisplays = displayList;
+                    return displayList;
+                }
+
+                if (queryResult != nativeConstants.errorInsufficientBuffer)
+                {
+                    return lastKnownDisplays;
+                }
             }
         }
         catch
         {
         }
 
-        return displayList;
+        return lastKnownDisplays;
     }
 
     public void notifyDisplayConfigurationChanged()

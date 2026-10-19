@@ -52,28 +52,28 @@ public class updateChecker : iUpdateChecker, IDisposable
             using var response = await httpClient.SendAsync(request, cancellationToken);
             if (!response.IsSuccessStatusCode)
             {
-                return new appUpdateResult(false, null, string.Empty, string.Empty, $"Server responded with {(int)response.StatusCode}");
+                return new appUpdateResult(false, null, string.Empty, $"Server responded with {(int)response.StatusCode}");
             }
 
             var json = await response.Content.ReadAsStringAsync(cancellationToken);
             var release = JsonSerializer.Deserialize(json, appSettingsJsonContext.Default.gitHubReleaseInfo);
             if (release == null || string.IsNullOrEmpty(release.tagName))
             {
-                return new appUpdateResult(false, null, string.Empty, string.Empty, "No release data found");
+                return new appUpdateResult(false, null, string.Empty, "No release data found");
             }
 
             var cleanTag = release.tagName.TrimStart('v', 'V').Split('-')[0];
             if (Version.TryParse(cleanTag, out var remoteVersion))
             {
                 var isAvailable = remoteVersion > currentVersion;
-                return new appUpdateResult(isAvailable, remoteVersion, release.htmlUrl, release.body);
+                return new appUpdateResult(isAvailable, remoteVersion, release.htmlUrl);
             }
 
-            return new appUpdateResult(false, null, release.htmlUrl, release.body, "Unable to parse remote version tag");
+            return new appUpdateResult(false, null, release.htmlUrl, "Unable to parse remote version tag");
         }
         catch (Exception ex)
         {
-            return new appUpdateResult(false, null, string.Empty, string.Empty, ex.Message);
+            return new appUpdateResult(false, null, string.Empty, ex.Message);
         }
     }
 }

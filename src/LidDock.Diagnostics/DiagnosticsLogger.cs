@@ -31,11 +31,6 @@ public class diagnosticsLogger
         appendEntry("WARN", message);
     }
 
-    public void logError(string message)
-    {
-        appendEntry("ERROR", message);
-    }
-
     private void appendEntry(string level, string message)
     {
         var entry = new logEntry(DateTime.Now, level, message);

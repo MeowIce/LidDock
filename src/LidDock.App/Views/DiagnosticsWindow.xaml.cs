@@ -82,24 +82,10 @@ public partial class DiagnosticsWindow : Window
         const int wmSettingChange = 0x001A;
         const int wmThemeChanged = 0x031A;
         const int wmDwmColorizationColorChanged = 0x0320;
-        const int wmEnterSizeMove = 0x0231;
-        const int wmExitSizeMove = 0x0232;
 
         if (msg == wmSettingChange || msg == wmThemeChanged || msg == wmDwmColorizationColorChanged)
         {
             Dispatcher.InvokeAsync(() => themeManager.applySystemTheme(true));
-            return IntPtr.Zero;
-        }
-
-        if (msg == wmEnterSizeMove)
-        {
-            windowBackdropHelper.handleSizeMove(hwnd, true);
-            return IntPtr.Zero;
-        }
-
-        if (msg == wmExitSizeMove)
-        {
-            windowBackdropHelper.handleSizeMove(hwnd, false);
             return IntPtr.Zero;
         }
 
@@ -152,8 +138,15 @@ public partial class DiagnosticsWindow : Window
 
     private void onExportClicked(object sender, RoutedEventArgs e)
     {
-        var exportedFile = viewModel.exportReport();
-        MessageBox.Show($"Diagnostics report saved to:\n{exportedFile}", "Report Exported", MessageBoxButton.OK, MessageBoxImage.Information);
+        try
+        {
+            var exportedFile = viewModel.exportReport();
+            MessageBox.Show($"Diagnostics report saved to:\n{exportedFile}", "Report Exported", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"The diagnostics report could not be saved.\n{ex.Message}", "Export Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 
     private void onCloseClicked(object sender, RoutedEventArgs e)

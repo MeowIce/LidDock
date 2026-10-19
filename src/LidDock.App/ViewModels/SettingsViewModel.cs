@@ -11,14 +11,12 @@ namespace LidDock.App.ViewModels;
 public class settingsViewModel : baseViewModel
 {
     private readonly appSettings settings;
-    private readonly iClamshellStateMachine? stateMachine;
     private readonly iUpdateChecker updateCheckerInstance;
     private readonly displayWatcher settingsDisplayWatcher = new displayWatcher();
 
-    public settingsViewModel(appSettings settings, iClamshellStateMachine? stateMachine = null, iUpdateChecker? updateChecker = null)
+    public settingsViewModel(appSettings settings, iUpdateChecker? updateChecker = null)
     {
         this.settings = settings;
-        this.stateMachine = stateMachine;
         this.updateCheckerInstance = updateChecker ?? new updateChecker();
         settings.allowedDisplayPaths ??= new List<string>();
     }
@@ -257,6 +255,12 @@ public class settingsViewModel : baseViewModel
         ? $"Active until {settings.amphetawinUntilUtc!.Value.ToLocalTime():HH:mm}. The system will not sleep automatically; safety sleep is postponed but never beyond the emergency fallback."
         : "Disables automatic sleep for the chosen duration so the system stays awake. Safety sleep on disconnect is postponed, but never beyond the emergency fallback.";
 
+    public void refreshAmphetawinState()
+    {
+        onPropertyChanged(nameof(amphetawinEnabled));
+        onPropertyChanged(nameof(amphetawinNote));
+    }
+
     public int emergencyFallbackMinutes
     {
         get => Math.Max(1, settings.emergencyFallbackSeconds / 60);
@@ -484,7 +488,6 @@ public class settingsViewModel : baseViewModel
 
     private void notifySettingsChanged()
     {
-        stateMachine?.updateSettings(settings);
         settingsManager.saveSettings(settings);
     }
 }

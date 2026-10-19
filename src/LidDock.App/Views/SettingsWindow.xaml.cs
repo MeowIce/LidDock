@@ -42,20 +42,10 @@ public partial class SettingsWindow : Window
         const int wmSettingChange = 0x001A;
         const int wmThemeChanged = 0x031A;
         const int wmDwmColorizationColorChanged = 0x0320;
-        const int wmEnterSizeMove = 0x0231;
-        const int wmExitSizeMove = 0x0232;
 
         if (msg == wmSettingChange || msg == wmThemeChanged || msg == wmDwmColorizationColorChanged)
         {
             Dispatcher.InvokeAsync(() => themeManager.applySystemTheme(true));
-        }
-        else if (msg == wmEnterSizeMove)
-        {
-            windowBackdropHelper.handleSizeMove(hwnd, true);
-        }
-        else if (msg == wmExitSizeMove)
-        {
-            windowBackdropHelper.handleSizeMove(hwnd, false);
         }
         return IntPtr.Zero;
     }
@@ -100,7 +90,11 @@ public partial class SettingsWindow : Window
 
     private void onActivated(object? sender, EventArgs e)
     {
-        (DataContext as settingsViewModel)?.refreshDisplayList();
+        if (DataContext is settingsViewModel vm)
+        {
+            vm.refreshDisplayList();
+            vm.refreshAmphetawinState();
+        }
     }
 
     private void onViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)

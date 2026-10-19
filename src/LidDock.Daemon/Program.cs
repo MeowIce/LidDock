@@ -236,23 +236,24 @@ internal static class Program
 
     private static void updateTrayDisplay()
     {
+        if (trayManager == null || stateMachine == null || displayWatcher == null || lidWatcher == null || powerWatcher == null)
+        {
+            return;
+        }
+
+        var state = stateMachine.getCurrentState();
+        var displays = displayWatcher.queryConnectedDisplays();
+        var extDisplay = displays.FirstOrDefault(d => !d.isInternal && !d.isVirtual);
+        var monitorName = extDisplay != null ? $"{extDisplay.friendlyName} ({extDisplay.formattedTechnology})" : "None Detected";
+        var lid = lidWatcher.queryLidState();
+        var power = powerWatcher.queryPowerStatus();
+
         lock (syncRoot)
         {
-            if (trayManager == null || stateMachine == null || displayWatcher == null || lidWatcher == null || powerWatcher == null)
-            {
-                return;
-            }
-
-            var state = stateMachine.getCurrentState();
-            var displays = displayWatcher.queryConnectedDisplays();
-            var extDisplay = displays.FirstOrDefault(d => !d.isInternal && !d.isVirtual);
-            var monitorName = extDisplay != null ? $"{extDisplay.friendlyName} ({extDisplay.formattedTechnology})" : "None Detected";
-            var lid = lidWatcher.queryLidState();
-            var power = powerWatcher.queryPowerStatus();
-
             trayManager.updateStatus(state, monitorName, lid, power, keepAwake?.isActive == true);
-            scheduleWorkingSetTrim(3000);
         }
+
+        scheduleWorkingSetTrim(3000);
     }
 
     private static void startSettingsWatcher()
@@ -285,19 +286,21 @@ internal static class Program
 
     private static void onSettingsFileChanged()
     {
-        lock (syncRoot)
+        try
         {
-            try
+            var newSettings = settingsManager.loadSettings();
+            lock (syncRoot)
             {
-                appSettings = settingsManager.loadSettings();
-                stateMachine?.updateSettings(appSettings);
-                refreshKeepAwake();
-                updateTrayDisplay();
-                scheduleWorkingSetTrim(1000);
+                appSettings = newSettings;
             }
-            catch
-            {
-            }
+
+            stateMachine?.updateSettings(newSettings);
+            refreshKeepAwake();
+            updateTrayDisplay();
+            scheduleWorkingSetTrim(1000);
+        }
+        catch
+        {
         }
     }
 

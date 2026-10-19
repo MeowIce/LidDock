@@ -260,8 +260,7 @@ public class daemonTrayManager : IDisposable
             szTip = "LidDock"
         };
 
-        shellNotifyIcon(nimAdd, ref data);
-        isIconAdded = true;
+        isIconAdded = shellNotifyIcon(nimAdd, ref data);
     }
 
     private IntPtr generateStateIcon(clamshellState state)
@@ -272,7 +271,6 @@ public class daemonTrayManager : IDisposable
             clamshellState.dockedLidOpen => 0x00D08000,
             clamshellState.disconnectPending => 0x0000A5FF,
             clamshellState.enteringSleep => 0x00800080,
-            clamshellState.errorFallback => 0x000000FF,
             _ => 0x00808080
         };
 

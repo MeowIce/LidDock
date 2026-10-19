@@ -120,10 +120,6 @@ public static class windowBackdropHelper
         }
     }
 
-    public static void handleSizeMove(IntPtr handle, bool isMoving)
-    {
-    }
-
     private static void setWindows10Blur(IntPtr handle)
     {
         var policy = new accentPolicy

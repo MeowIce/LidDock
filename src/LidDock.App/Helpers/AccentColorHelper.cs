@@ -72,15 +72,15 @@ public static class accentColorHelper
         return (fallbackBase, fallbackHover, fallbackSubtle);
     }
 
-    public static void applySystemAccentColor(bool animate = false)
+    public static void applySystemAccentColor()
     {
         var (baseColor, hoverColor, subtleColor) = getSystemAccentColors();
-        updateBrush("AccentBrush", baseColor, animate);
-        updateBrush("AccentHoverBrush", hoverColor, animate);
-        updateBrush("AccentSubtleBrush", subtleColor, animate);
+        updateBrush("AccentBrush", baseColor);
+        updateBrush("AccentHoverBrush", hoverColor);
+        updateBrush("AccentSubtleBrush", subtleColor);
     }
 
-    private static void updateBrush(string resourceKey, Color targetColor, bool animate)
+    private static void updateBrush(string resourceKey, Color targetColor)
     {
         var app = Application.Current;
         if (app == null)
@@ -90,26 +90,8 @@ public static class accentColorHelper
 
         if (app.Resources[resourceKey] is SolidColorBrush brush && !brush.IsFrozen)
         {
-            if (animate)
-            {
-                var anim = new System.Windows.Media.Animation.ColorAnimation
-                {
-                    To = targetColor,
-                    Duration = TimeSpan.FromMilliseconds(250),
-                    EasingFunction = new System.Windows.Media.Animation.QuadraticEase { EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut }
-                };
-                anim.Completed += (s, e) =>
-                {
-                    brush.BeginAnimation(SolidColorBrush.ColorProperty, null);
-                    brush.Color = targetColor;
-                };
-                brush.BeginAnimation(SolidColorBrush.ColorProperty, anim);
-            }
-            else
-            {
-                brush.BeginAnimation(SolidColorBrush.ColorProperty, null);
-                brush.Color = targetColor;
-            }
+            brush.BeginAnimation(SolidColorBrush.ColorProperty, null);
+            brush.Color = targetColor;
         }
         else
         {

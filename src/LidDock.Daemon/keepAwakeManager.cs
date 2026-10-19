@@ -79,6 +79,8 @@ public class keepAwakeManager : IDisposable
                             activeUntilUtc = DateTime.MinValue;
                         }
                     }
+
+                    newCts.Dispose();
                 }
             })
             {

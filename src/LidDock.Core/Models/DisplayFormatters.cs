@@ -11,8 +11,6 @@ public static class displayFormatters
             clamshellState.clamshellActive => "Clamshell Active",
             clamshellState.disconnectPending => "Disconnect Grace Period",
             clamshellState.enteringSleep => "Entering Sleep Mode",
-            clamshellState.suspended => "Suspended",
-            clamshellState.errorFallback => "Safe Mode (Error Fallback)",
             _ => "Unknown"
         };
     }

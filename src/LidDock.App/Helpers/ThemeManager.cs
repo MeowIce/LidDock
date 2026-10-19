@@ -64,16 +64,19 @@ public static class themeManager
         }
     }
 
+    private static DateTime lastThemeTransitionUtc = DateTime.MinValue;
+
     private static void performThemeTransition(bool isDark)
     {
         var app = Application.Current;
-        if (app == null)
+        if (app == null || (DateTime.UtcNow - lastThemeTransitionUtc).TotalMilliseconds < 300)
         {
             applyTheme(isDark);
             accentColorHelper.applySystemAccentColor();
             return;
         }
 
+        lastThemeTransitionUtc = DateTime.UtcNow;
         var transitions = new List<(Window window, object originalContent, Grid container, Image overlay)>();
 
         foreach (Window window in app.Windows)

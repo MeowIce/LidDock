@@ -60,7 +60,6 @@ public class nativeMessageWindow : IDisposable
 
     private const string windowClassName = "LidDockNativeMessageListenerClass";
     private const uint csDblClks = 0x0008;
-    private readonly IntPtr hwndMessageParent = new IntPtr(-3);
 
     private IntPtr windowHandle = IntPtr.Zero;
     private IntPtr moduleHandle = IntPtr.Zero;

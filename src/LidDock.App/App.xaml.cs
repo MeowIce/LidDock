@@ -10,6 +10,7 @@ using LidDock.App.Views;
 using LidDock.Core.Models;
 using LidDock.Core.Services;
 using LidDock.Core.StateMachine;
+using LidDock.Windows.Native;
 using LidDock.Windows.Power;
 using LidDock.Windows.Watchers;
 
@@ -27,6 +28,9 @@ public partial class App : Application
     private settingsViewModel? settingsVm;
     private SettingsWindow? settingsWindowInstance;
     private DiagnosticsWindow? diagnosticsWindowInstance;
+    private nativeMessageWindow? activationListener;
+    private uint activationMessageId;
+    private const uint hwndBroadcast = 0xffff;
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -35,7 +39,7 @@ public partial class App : Application
             singleInstanceMutex = new Mutex(true, "LidDock_UI_Mutex", out var createdNew);
             if (!createdNew)
             {
-                Shutdown();
+                requestRunningInstance(e.Args.Contains("--diagnostics") ? 2 : 1);
                 Environment.Exit(0);
                 return;
             }
@@ -63,6 +67,7 @@ public partial class App : Application
 
             appSettings = settingsManager.loadSettings();
             settingsVm = new settingsViewModel(appSettings);
+            startActivationListener();
 
             if (e.Args.Contains("--diagnostics"))
             {
@@ -71,6 +76,53 @@ public partial class App : Application
             else
             {
                 openSettings();
+            }
+        }
+        catch
+        {
+            Environment.Exit(1);
+        }
+    }
+
+    private void startActivationListener()
+    {
+        try
+        {
+            activationMessageId = nativeMethods.registerWindowMessage("LidDock_UI_Activate");
+            activationListener = new nativeMessageWindow();
+            activationListener.onGenericMessage += (msg, wParam, lParam) =>
+            {
+                if (activationMessageId != 0 && (uint)msg == activationMessageId)
+                {
+                    var target = wParam.ToInt32();
+                    Dispatcher.InvokeAsync(() =>
+                    {
+                        if (target == 2)
+                        {
+                            openDiagnostics();
+                        }
+                        else
+                        {
+                            openSettings();
+                        }
+                    });
+                }
+            };
+            activationListener.initialize();
+        }
+        catch
+        {
+        }
+    }
+
+    private static void requestRunningInstance(int target)
+    {
+        try
+        {
+            var messageId = nativeMethods.registerWindowMessage("LidDock_UI_Activate");
+            if (messageId != 0)
+            {
+                nativeMethods.postMessage((IntPtr)hwndBroadcast, messageId, (IntPtr)target, IntPtr.Zero);
             }
         }
         catch
@@ -230,11 +282,5 @@ public partial class App : Application
         {
             diagnosticsWindowInstance.Activate();
         }
-    }
-
-    protected override void OnExit(ExitEventArgs e)
-    {
-        settingsManager.saveSettings(appSettings);
-        base.OnExit(e);
     }
 }

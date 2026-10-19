@@ -6,7 +6,5 @@ public enum clamshellState
     dockedLidOpen,
     clamshellActive,
     disconnectPending,
-    enteringSleep,
-    suspended,
-    errorFallback
+    enteringSleep
 }

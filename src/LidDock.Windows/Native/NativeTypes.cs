@@ -8,6 +8,7 @@ public static class nativeConstants
 {
     public const int qdcOnlyActivePaths = 0x00000002;
     public const int errorSuccess = 0;
+    public const int errorInsufficientBuffer = 122;
     public const int wmDisplayChange = 0x007E;
     public const int wmPowerBroadcast = 0x0218;
     public const int pbtPowerSettingChange = 0x8013;
@@ -15,7 +16,6 @@ public static class nativeConstants
     public const int pbtApmResumeSuspend = 0x0007;
     public const int pbtApmResumeAutomatic = 0x0012;
     public const int deviceNotifyWindowHandle = 0x00000000;
-    public const int hwndBroadcast = 0xffff;
     public const uint esContinuous = 0x80000000;
     public const uint esSystemRequired = 0x00000001;
 

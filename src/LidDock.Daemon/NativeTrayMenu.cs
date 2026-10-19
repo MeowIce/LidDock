@@ -11,7 +11,6 @@ namespace LidDock.Daemon;
 public static class nativeTrayMenu
 {
     private const uint mfString = 0x00000000;
-    private const uint mfGrayed = 0x00000001;
     private const uint mfDisabled = 0x00000002;
     private const uint mfChecked = 0x00000008;
     private const uint mfPopup = 0x00000010;
@@ -120,7 +119,7 @@ public static class nativeTrayMenu
             setForegroundWindow(hWnd);
 
             var cmd = trackPopupMenuEx(hMenu, tpmRightButton | tpmReturnCmd, pt.x, pt.y, hWnd, IntPtr.Zero);
-            handleCommand(cmd, settings, stateMachine, onExitRequested);
+            handleCommand(cmd, stateMachine, onExitRequested);
         }
         finally
         {
@@ -130,40 +129,29 @@ public static class nativeTrayMenu
 
     private static void handleCommand(
         int cmd,
-        appSettings settings,
         clamshellStateMachine stateMachine,
         Action onExitRequested)
     {
         switch (cmd)
         {
             case cmdToggleClamshell:
-                settings.enableClamshell = !settings.enableClamshell;
-                stateMachine.updateSettings(settings);
-                settingsManager.saveSettings(settings);
+                changeSettings(stateMachine, s => s.enableClamshell = !s.enableClamshell);
                 break;
 
             case cmdProfileSmartDocked:
-                settings.activeProfile = operationalProfileType.smartDocked;
-                stateMachine.updateSettings(settings);
-                settingsManager.saveSettings(settings);
+                changeSettings(stateMachine, s => s.activeProfile = operationalProfileType.smartDocked);
                 break;
 
             case cmdProfileAcOnly:
-                settings.activeProfile = operationalProfileType.acOnly;
-                stateMachine.updateSettings(settings);
-                settingsManager.saveSettings(settings);
+                changeSettings(stateMachine, s => s.activeProfile = operationalProfileType.acOnly);
                 break;
 
             case cmdProfileAlwaysClamshell:
-                settings.activeProfile = operationalProfileType.alwaysClamshell;
-                stateMachine.updateSettings(settings);
-                settingsManager.saveSettings(settings);
+                changeSettings(stateMachine, s => s.activeProfile = operationalProfileType.alwaysClamshell);
                 break;
 
             case cmdProfileCustom:
-                settings.activeProfile = operationalProfileType.custom;
-                stateMachine.updateSettings(settings);
-                settingsManager.saveSettings(settings);
+                changeSettings(stateMachine, s => s.activeProfile = operationalProfileType.custom);
                 break;
 
             case cmdOpenSettings:
@@ -182,6 +170,14 @@ public static class nativeTrayMenu
                 onExitRequested();
                 break;
         }
+    }
+
+    private static void changeSettings(clamshellStateMachine stateMachine, Action<appSettings> mutate)
+    {
+        var settings = settingsManager.loadSettings();
+        mutate(settings);
+        stateMachine.updateSettings(settings);
+        settingsManager.saveSettings(settings);
     }
 
     private static string getVersionString()
@@ -289,7 +285,8 @@ public static class nativeTrayMenu
     {
         try
         {
-            var existingWindow = nativeMethods.findWindow(null, "LidDock Settings");
+            var windowTitle = argument == "--diagnostics" ? "LidDock Diagnostics" : "LidDock Settings";
+            var existingWindow = nativeMethods.findWindow(null, windowTitle);
             if (existingWindow != IntPtr.Zero)
             {
                 nativeMethods.showWindow(existingWindow, 9);

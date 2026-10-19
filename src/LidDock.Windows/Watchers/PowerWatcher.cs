@@ -24,7 +24,7 @@ public class powerWatcher : iPowerWatcher
         };
 
         var isCharging = (status.batteryFlag & 8) != 0;
-        var percent = status.batteryLifePercent > 100 ? (byte)100 : status.batteryLifePercent;
+        var percent = status.batteryLifePercent > 100 ? (byte)0 : status.batteryLifePercent;
 
         return new systemPowerInfo(source, percent, isCharging);
     }
