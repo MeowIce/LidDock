@@ -28,6 +28,10 @@ public static class nativeTrayMenu
     private const int cmdOpenDiagnostics = 1007;
     private const int cmdExit = 1008;
     private const int cmdAbout = 1009;
+    private const int cmdAmphetawin15Minutes = 1010;
+    private const int cmdAmphetawin30Minutes = 1011;
+    private const int cmdAmphetawin1Hour = 1012;
+    private const int cmdAmphetawinInfinite = 1013;
 
     [StructLayout(LayoutKind.Sequential)]
     private struct point
@@ -107,6 +111,16 @@ public static class nativeTrayMenu
             appendMenu(hProfileSub, customFlags, (IntPtr)cmdProfileCustom, "Custom");
 
             appendMenu(hMenu, mfPopup, hProfileSub, "Profiles");
+
+            var hAmphetawinSub = createPopupMenu();
+            var hNewSessionSub = createPopupMenu();
+            appendMenu(hNewSessionSub, mfString, (IntPtr)cmdAmphetawin15Minutes, "15 minutes");
+            appendMenu(hNewSessionSub, mfString, (IntPtr)cmdAmphetawin30Minutes, "30 minutes");
+            appendMenu(hNewSessionSub, mfString, (IntPtr)cmdAmphetawin1Hour, "1 hour");
+            appendMenu(hNewSessionSub, mfString, (IntPtr)cmdAmphetawinInfinite, "Infinite");
+            appendMenu(hAmphetawinSub, mfPopup, hNewSessionSub, "New Session");
+            appendMenu(hMenu, mfPopup, hAmphetawinSub, "Amphetawin");
+
             appendMenu(hMenu, mfSeparator, IntPtr.Zero, string.Empty);
 
             appendMenu(hMenu, mfString, (IntPtr)cmdOpenSettings, "Settings...");
@@ -154,6 +168,22 @@ public static class nativeTrayMenu
                 changeSettings(stateMachine, s => s.activeProfile = operationalProfileType.custom);
                 break;
 
+            case cmdAmphetawin15Minutes:
+                startAmphetawinSession(stateMachine, 15);
+                break;
+
+            case cmdAmphetawin30Minutes:
+                startAmphetawinSession(stateMachine, 30);
+                break;
+
+            case cmdAmphetawin1Hour:
+                startAmphetawinSession(stateMachine, 60);
+                break;
+
+            case cmdAmphetawinInfinite:
+                startAmphetawinSession(stateMachine, null);
+                break;
+
             case cmdOpenSettings:
                 launchUi(string.Empty);
                 break;
@@ -178,6 +208,18 @@ public static class nativeTrayMenu
         mutate(settings);
         stateMachine.updateSettings(settings);
         settingsManager.saveSettings(settings);
+    }
+
+    private static void startAmphetawinSession(clamshellStateMachine stateMachine, int? minutes)
+    {
+        changeSettings(stateMachine, s =>
+        {
+            s.amphetawinInfinite = !minutes.HasValue;
+            s.amphetawinUntilUtc = minutes.HasValue
+                ? DateTime.UtcNow.AddMinutes(minutes.Value)
+                : DateTime.MaxValue;
+            s.autoAmphetawinOwned = false;
+        });
     }
 
     private static string getVersionString()
