@@ -228,7 +228,6 @@
                         </Border>
                         <Border Style="{StaticResource FluentCard}">
                             <StackPanel>
-                                <TextBlock Text="Displays That Trigger Clamshell Mode" FontWeight="Medium" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,8"/>
                                 <CheckBox Content="Only trigger on selected displays"
                                           IsChecked="{Binding onlySelectedDisplaysTrigger}"
                                           Style="{StaticResource FluentToggleSwitch}"/>
