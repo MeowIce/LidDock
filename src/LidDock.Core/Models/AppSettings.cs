@@ -27,6 +27,8 @@ public class appSettings
     public DateTime? lastUpdateCheckUtc { get; set; } = null;
     public DateTime? amphetawinUntilUtc { get; set; } = null;
     public int amphetawinMinutes { get; set; } = 15;
+    public bool amphetawinInfinite { get; set; } = false;
+    public bool amphetawinDurationInHours { get; set; } = false;
     public bool autoAmphetawinEnabled { get; set; } = false;
     public string? autoAmphetawinExecutablePath { get; set; } = null;
     public string? autoAmphetawinProcessName { get; set; } = null;

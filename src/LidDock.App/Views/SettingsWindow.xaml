@@ -316,15 +316,25 @@
                                 <CheckBox Content="Amphetawin"
                                           IsChecked="{Binding amphetawinEnabled}"
                                           Style="{StaticResource FluentToggleSwitch}"/>
-                                <DockPanel Margin="0,12,0,8">
-                                    <TextBlock Text="Amphetawin Duration" FontWeight="Medium" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                    <TextBlock Text="{Binding amphetawinMinutes, StringFormat='{}{0} minutes'}"
-                                               FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}"
-                                               DockPanel.Dock="Right" TextAlignment="Right"/>
-                                </DockPanel>
-                                <Slider Minimum="5" Maximum="120" SmallChange="5" LargeChange="15"
-                                        Value="{Binding amphetawinMinutes}"
-                                        Foreground="{DynamicResource AccentBrush}"/>
+                                <TextBlock Text="Amphetawin Duration" FontWeight="Medium" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,12,0,8"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBox Text="{Binding amphetawinDurationValue, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource FluentTextBox}"
+                                             Width="76"
+                                             IsEnabled="{Binding amphetawinTimed}"
+                                             VerticalAlignment="Center"/>
+                                    <ComboBox ItemsSource="{Binding durationUnitOptions}"
+                                              SelectedItem="{Binding amphetawinDurationUnit, Mode=TwoWay}"
+                                              Style="{StaticResource FluentComboBox}"
+                                              Width="120"
+                                              IsEnabled="{Binding amphetawinTimed}"
+                                              Margin="8,0,0,0"/>
+                                    <CheckBox Content="Infinite"
+                                              IsChecked="{Binding amphetawinInfinite}"
+                                              Style="{StaticResource FluentCheckBox}"
+                                              Margin="16,0,0,0"
+                                              VerticalAlignment="Center"/>
+                                </StackPanel>
                                 <TextBlock Text="{Binding amphetawinNote}"
                                            FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,8,0,0" TextWrapping="Wrap"/>
                             </StackPanel>
@@ -384,16 +394,11 @@
                                                  Style="{StaticResource FluentTextBox}"
                                                  Width="76"
                                                  VerticalAlignment="Center"/>
-                                        <RadioButton Content="Minutes"
-                                                     GroupName="AutoDurationUnit"
-                                                     IsChecked="{Binding autoAmphetawinDurationInMinutes}"
-                                                     Style="{StaticResource FluentSegmentedRadio}"
-                                                     Margin="12,0,0,0"/>
-                                        <RadioButton Content="Hours"
-                                                     GroupName="AutoDurationUnit"
-                                                     IsChecked="{Binding autoAmphetawinDurationInHours}"
-                                                     Style="{StaticResource FluentSegmentedRadio}"
-                                                     Margin="8,0,0,0"/>
+                                        <ComboBox ItemsSource="{Binding durationUnitOptions}"
+                                                  SelectedItem="{Binding autoAmphetawinDurationUnit, Mode=TwoWay}"
+                                                  Style="{StaticResource FluentComboBox}"
+                                                  Width="120"
+                                                  Margin="8,0,0,0"/>
                                     </StackPanel>
 
                                     <TextBlock Text="{Binding autoAmphetawinBehaviorNote}"

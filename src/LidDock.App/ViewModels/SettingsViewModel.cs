@@ -38,6 +38,7 @@ public class settingsViewModel : baseViewModel
     public string appVersion => "1.0.4";
     public string author => "MeowIce";
     public string githubUrl => "https://github.com/MeowIce/LidDock";
+    public string[] durationUnitOptions { get; } = { "Minutes", "Hours" };
 
     public bool enableClamshell
     {
@@ -242,7 +243,9 @@ public class settingsViewModel : baseViewModel
             var wasEnabled = settings.amphetawinUntilUtc.HasValue && settings.amphetawinUntilUtc.Value > DateTime.UtcNow;
             if (wasEnabled != value)
             {
-                settings.amphetawinUntilUtc = value ? DateTime.UtcNow.AddMinutes(Math.Max(1, settings.amphetawinMinutes)) : null;
+                settings.amphetawinUntilUtc = value
+                    ? (settings.amphetawinInfinite ? DateTime.MaxValue : DateTime.UtcNow.AddMinutes(Math.Max(1, settings.amphetawinMinutes)))
+                    : null;
                 settings.autoAmphetawinOwned = false;
                 amphetawinPendingSave = true;
                 onPropertyChanged();
@@ -252,24 +255,99 @@ public class settingsViewModel : baseViewModel
         }
     }
 
-    public int amphetawinMinutes
+    public bool amphetawinInfinite
     {
-        get => settings.amphetawinMinutes;
+        get => settings.amphetawinInfinite;
         set
         {
-            if (settings.amphetawinMinutes != value)
+            if (settings.amphetawinInfinite == value)
             {
-                settings.amphetawinMinutes = value;
-                onPropertyChanged();
-                onPropertyChanged(nameof(amphetawinNote));
-                notifySettingsChanged();
+                return;
             }
+
+            settings.amphetawinInfinite = value;
+            if (amphetawinEnabled)
+            {
+                settings.amphetawinUntilUtc = value
+                    ? DateTime.MaxValue
+                    : DateTime.UtcNow.AddMinutes(Math.Max(1, settings.amphetawinMinutes));
+                settings.autoAmphetawinOwned = false;
+                amphetawinPendingSave = true;
+            }
+
+            onPropertyChanged();
+            onPropertyChanged(nameof(amphetawinTimed));
+            onPropertyChanged(nameof(amphetawinNote));
+            notifySettingsChanged();
+        }
+    }
+
+    public bool amphetawinTimed => !settings.amphetawinInfinite;
+
+    public bool amphetawinDurationInHours
+    {
+        get => settings.amphetawinDurationInHours;
+        set
+        {
+            if (settings.amphetawinDurationInHours == value)
+            {
+                return;
+            }
+
+            var minutes = Math.Clamp(settings.amphetawinMinutes, 1, 1440);
+            settings.amphetawinDurationInHours = value;
+            settings.amphetawinMinutes = value
+                ? Math.Clamp((int)Math.Round(minutes / 60.0, MidpointRounding.AwayFromZero), 1, 24) * 60
+                : Math.Clamp(minutes, 1, 1440);
+            onPropertyChanged();
+            onPropertyChanged(nameof(amphetawinDurationUnit));
+            onPropertyChanged(nameof(amphetawinDurationValue));
+            onPropertyChanged(nameof(amphetawinNote));
+            notifySettingsChanged();
+        }
+    }
+
+    public string amphetawinDurationUnit
+    {
+        get => settings.amphetawinDurationInHours ? "Hours" : "Minutes";
+        set
+        {
+            if (value != "Minutes" && value != "Hours")
+            {
+                return;
+            }
+
+            amphetawinDurationInHours = value == "Hours";
+            onPropertyChanged();
+        }
+    }
+
+    public int amphetawinDurationValue
+    {
+        get => settings.amphetawinDurationInHours
+            ? Math.Clamp((int)Math.Round(settings.amphetawinMinutes / 60.0, MidpointRounding.AwayFromZero), 1, 24)
+            : Math.Clamp(settings.amphetawinMinutes, 1, 1440);
+        set
+        {
+            var clamped = settings.amphetawinDurationInHours ? Math.Clamp(value, 1, 24) : Math.Clamp(value, 1, 1440);
+            var minutes = settings.amphetawinDurationInHours ? clamped * 60 : clamped;
+            if (settings.amphetawinMinutes == minutes)
+            {
+                return;
+            }
+
+            settings.amphetawinMinutes = minutes;
+            onPropertyChanged();
+            onPropertyChanged(nameof(amphetawinNote));
+            notifySettingsChanged();
         }
     }
 
     public string amphetawinNote => amphetawinEnabled
         ? (settings.amphetawinUntilUtc == DateTime.MaxValue
-            ? "Active indefinitely while the selected app is running. The system will not sleep automatically; safety sleep on disconnect is postponed but never beyond the emergency fallback."
+            ? (settings.autoAmphetawinOwned
+                ? $"Active indefinitely while {autoAmphetawinAppDisplayName} is running. The system will not sleep automatically; safety sleep on disconnect is postponed but never beyond the emergency fallback."
+                : "Active indefinitely. The system will not sleep automatically; safety sleep on disconnect is postponed but never beyond the emergency fallback.")
             : $"Active until {settings.amphetawinUntilUtc!.Value.ToLocalTime():HH:mm}. The system will not sleep automatically; safety sleep is postponed but never beyond the emergency fallback.")
         : "Disables automatic sleep for the chosen duration so the system stays awake. Safety sleep on disconnect is postponed, but never beyond the emergency fallback.";
 
@@ -351,7 +429,7 @@ public class settingsViewModel : baseViewModel
                 ? Math.Clamp((int)Math.Round(minutes / 60.0, MidpointRounding.AwayFromZero), 1, 24) * 60
                 : Math.Clamp(minutes, 1, 1440);
             onPropertyChanged();
-            onPropertyChanged(nameof(autoAmphetawinDurationInMinutes));
+            onPropertyChanged(nameof(autoAmphetawinDurationUnit));
             onPropertyChanged(nameof(autoAmphetawinDurationValue));
             onPropertyChanged(nameof(autoAmphetawinDurationUnitLabel));
             onPropertyChanged(nameof(autoAmphetawinNote));
@@ -359,15 +437,18 @@ public class settingsViewModel : baseViewModel
         }
     }
 
-    public bool autoAmphetawinDurationInMinutes
+    public string autoAmphetawinDurationUnit
     {
-        get => !settings.autoAmphetawinDurationInHours;
+        get => settings.autoAmphetawinDurationInHours ? "Hours" : "Minutes";
         set
         {
-            if (value)
+            if (value != "Minutes" && value != "Hours")
             {
-                autoAmphetawinDurationInHours = false;
+                return;
             }
+
+            autoAmphetawinDurationInHours = value == "Hours";
+            onPropertyChanged();
         }
     }
 
@@ -432,6 +513,7 @@ public class settingsViewModel : baseViewModel
         onPropertyChanged(nameof(autoAmphetawinAppPath));
         onPropertyChanged(nameof(autoAmphetawinHasApp));
         onPropertyChanged(nameof(autoAmphetawinNote));
+        onPropertyChanged(nameof(amphetawinNote));
         notifySettingsChanged();
     }
 

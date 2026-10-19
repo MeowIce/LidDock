@@ -227,11 +227,25 @@ internal static class Program
             var activeUntilUtc = keepAwake.getActiveUntilUtc();
             if (activeUntilUtc == DateTime.MaxValue)
             {
-                diagnosticsLogger.instance.logInfo("Daemon Event: Amphetawin active indefinitely");
-                trayManager?.showToastNotification(
-                    "Amphetawin",
-                    "Automatic sleep is disabled while the selected app is running.",
-                    false);
+                if (appSettings.autoAmphetawinOwned)
+                {
+                    var appName = string.IsNullOrEmpty(appSettings.autoAmphetawinExecutablePath)
+                        ? "the selected app"
+                        : Path.GetFileName(appSettings.autoAmphetawinExecutablePath);
+                    diagnosticsLogger.instance.logInfo($"Daemon Event: Amphetawin active indefinitely for {appName}");
+                    trayManager?.showToastNotification(
+                        "Amphetawin",
+                        $"Automatic sleep stays disabled indefinitely while {appName} is running.",
+                        false);
+                }
+                else
+                {
+                    diagnosticsLogger.instance.logInfo("Daemon Event: Amphetawin active indefinitely");
+                    trayManager?.showToastNotification(
+                        "Amphetawin",
+                        "Automatic sleep is disabled indefinitely. Turn off Amphetawin to allow sleep.",
+                        false);
+                }
             }
             else
             {
