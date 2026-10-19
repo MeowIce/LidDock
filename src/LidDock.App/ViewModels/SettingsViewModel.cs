@@ -1,8 +1,10 @@
 using System;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using LidDock.Core.Contracts;
 using LidDock.Core.Models;
 using LidDock.Core.Services;
+using LidDock.Windows.Watchers;
 
 namespace LidDock.App.ViewModels;
 
@@ -11,12 +13,14 @@ public class settingsViewModel : baseViewModel
     private readonly appSettings settings;
     private readonly iClamshellStateMachine? stateMachine;
     private readonly iUpdateChecker updateCheckerInstance;
+    private readonly displayWatcher settingsDisplayWatcher = new displayWatcher();
 
     public settingsViewModel(appSettings settings, iClamshellStateMachine? stateMachine = null, iUpdateChecker? updateChecker = null)
     {
         this.settings = settings;
         this.stateMachine = stateMachine;
         this.updateCheckerInstance = updateChecker ?? new updateChecker();
+        settings.allowedDisplayPaths ??= new List<string>();
     }
 
     public string appVersion => "1.0.3";
@@ -127,6 +131,57 @@ public class settingsViewModel : baseViewModel
             }
         }
     }
+
+    public ObservableCollection<selectableDisplay> detectedDisplays { get; } = new ObservableCollection<selectableDisplay>();
+
+    public void refreshDisplayList()
+    {
+        var displays = settingsDisplayWatcher.queryConnectedDisplays();
+        detectedDisplays.Clear();
+        foreach (var display in displays)
+        {
+            if (display.isInternal || string.IsNullOrEmpty(display.devicePath))
+            {
+                continue;
+            }
+
+            var label = $"{display.friendlyName} ({display.formattedTechnology})";
+            if (display.isVirtual)
+            {
+                label += " [virtual]";
+            }
+
+            detectedDisplays.Add(new selectableDisplay(
+                display.devicePath,
+                label,
+                settings.allowedDisplayPaths.Contains(display.devicePath),
+                onDisplaySelectionToggled));
+        }
+
+        onPropertyChanged(nameof(displaySelectionNote));
+    }
+
+    private void onDisplaySelectionToggled(string devicePath, bool isChecked)
+    {
+        if (isChecked)
+        {
+            if (!settings.allowedDisplayPaths.Contains(devicePath))
+            {
+                settings.allowedDisplayPaths.Add(devicePath);
+            }
+        }
+        else
+        {
+            settings.allowedDisplayPaths.Remove(devicePath);
+        }
+
+        onPropertyChanged(nameof(displaySelectionNote));
+        notifySettingsChanged();
+    }
+
+    public string displaySelectionNote => settings.allowedDisplayPaths.Count == 0
+        ? "No display selected: every external display triggers Clamshell Mode. Check a display to restrict triggering to your selection."
+        : "Only checked displays trigger Clamshell Mode. Uncheck all to allow every external display again. Selections are remembered per display device path.";
 
     public bool sleepOnDisconnectWithLidClosed
     {

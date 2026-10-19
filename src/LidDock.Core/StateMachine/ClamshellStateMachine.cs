@@ -109,6 +109,10 @@ public class clamshellStateMachine : iClamshellStateMachine
             {
                 return false;
             }
+            if (settings.allowedDisplayPaths is { Count: > 0 } && !settings.allowedDisplayPaths.Contains(d.devicePath))
+            {
+                return false;
+            }
             return true;
         });
     }

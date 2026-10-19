@@ -43,6 +43,7 @@ If an abrupt disconnect occurs while the lid remains closed (for example, kickin
 - Extreme Efficiency: Consumes under 500KB (yes, Kilobyes, KB) in physical RAM.
 - Fail-Safe Grace Period: Actively triggers system suspension if a dock or display is disconnected while the lid is closed.
 - Amphetawin: Temporarily disables automatic sleep for a chosen duration, with an emergency fallback hard cutoff when the laptop stays closed without clamshell permission.
+- Per-Display Trigger Selection: Choose exactly which external monitors engage Clamshell Mode; other displays are ignored.
 - Profiles:
   - Smart Docked (Recommended): Automatic clamshell activation when docked to an external physical display, switching back to sleep when undocked.
   - AC Power Only: Clamshell mode restricted strictly to wall power connection to preserve battery health.

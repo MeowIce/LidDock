@@ -536,4 +536,30 @@ public class stateMachineTests
         Assert.True(fakePower.isSleepTriggered);
         Assert.Equal(clamshellState.enteringSleep, machine.getCurrentState());
     }
+
+    [Fact]
+    public void shouldOnlyEngageForSelectedDisplaysWhenAllowListIsSet()
+    {
+        var fakePower = new fakePowerSchemeManager();
+        using var machine = new clamshellStateMachine(fakePower);
+
+        machine.updateSettings(new appSettings
+        {
+            activeProfile = operationalProfileType.smartDocked,
+            allowedDisplayPaths = new List<string> { "path1" }
+        });
+
+        var otherDisplay = new physicalDisplayInfo("Other Monitor", displayTechnology.hdmi, false, false, "path2");
+        machine.updateDisplays(new List<physicalDisplayInfo> { otherDisplay });
+        machine.updateLidState(lidState.closed);
+
+        Assert.Equal(clamshellState.normalMode, machine.getCurrentState());
+        Assert.False(fakePower.isClamshellActive);
+
+        var selectedDisplay = new physicalDisplayInfo("Dell Monitor", displayTechnology.displayPortExternal, false, false, "path1");
+        machine.updateDisplays(new List<physicalDisplayInfo> { selectedDisplay });
+
+        Assert.Equal(clamshellState.clamshellActive, machine.getCurrentState());
+        Assert.True(fakePower.isClamshellActive);
+    }
 }

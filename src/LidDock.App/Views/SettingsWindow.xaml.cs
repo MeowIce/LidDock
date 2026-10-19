@@ -14,6 +14,7 @@ public partial class SettingsWindow : Window
     {
         InitializeComponent();
         DataContext = viewModel;
+        viewModel.refreshDisplayList();
         SourceInitialized += onSourceInitialized;
         ContentRendered += onContentRendered;
         StateChanged += onStateChanged;
@@ -88,6 +89,11 @@ public partial class SettingsWindow : Window
         {
             await vm.checkForUpdatesAsync();
         }
+    }
+
+    private void onRefreshDisplaysClicked(object sender, RoutedEventArgs e)
+    {
+        (DataContext as settingsViewModel)?.refreshDisplayList();
     }
 
     private void onHyperlinkRequestNavigate(object sender, RequestNavigateEventArgs e)

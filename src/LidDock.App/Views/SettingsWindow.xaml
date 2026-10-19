@@ -220,6 +220,23 @@
                                       IsChecked="{Binding ignoreWirelessDisplays}"
                                       Style="{StaticResource FluentToggleSwitch}"/>
                         </Border>
+                        <Border Style="{StaticResource FluentCard}">
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,8">
+                                    <TextBlock Text="Clamshell Trigger Displays" FontWeight="Medium" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                    <Button Content="Refresh" MinWidth="90" DockPanel.Dock="Right" Click="onRefreshDisplaysClicked" Style="{StaticResource FluentSecondaryButton}"/>
+                                </DockPanel>
+                                <ItemsControl ItemsSource="{Binding detectedDisplays}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <CheckBox Content="{Binding label}" IsChecked="{Binding isChecked}" Margin="0,4,0,0"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <TextBlock Text="{Binding displaySelectionNote}"
+                                           FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>

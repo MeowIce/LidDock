@@ -17,6 +17,7 @@ public class appSettings
     public int disconnectDelaySeconds { get; set; } = 5;
     public bool ignoreVirtualDisplays { get; set; } = true;
     public bool ignoreWirelessDisplays { get; set; } = true;
+    public List<string> allowedDisplayPaths { get; set; } = new List<string>();
     public bool requireExternalDisplay { get; set; } = true;
     public bool sleepOnDisconnectWithLidClosed { get; set; } = true;
     public byte minimumBatteryThreshold { get; set; } = 15;
