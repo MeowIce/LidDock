@@ -228,8 +228,7 @@
                                           Style="{StaticResource FluentToggleSwitch}"/>
                                 <TextBlock Text="{Binding displaySelectionNote}"
                                            FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,48,0" TextWrapping="Wrap"/>
-                                <StackPanel Margin="0,8,0,0"
-                                            Visibility="{Binding onlySelectedDisplaysTrigger, Converter={StaticResource BoolToVisConverter}}">
+                                <StackPanel x:Name="displaySelectionPanel" Height="0" ClipToBounds="True" Margin="0,8,0,0">
                                     <ItemsControl ItemsSource="{Binding detectedDisplays}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>

@@ -1,7 +1,9 @@
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Interop;
+using System.Windows.Media.Animation;
 using System.Windows.Navigation;
 using LidDock.App.Helpers;
 using LidDock.App.ViewModels;
@@ -14,6 +16,11 @@ public partial class SettingsWindow : Window
     {
         InitializeComponent();
         DataContext = viewModel;
+        viewModel.PropertyChanged += onViewModelPropertyChanged;
+        if (viewModel.onlySelectedDisplaysTrigger)
+        {
+            displaySelectionPanel.Height = double.NaN;
+        }
         SourceInitialized += onSourceInitialized;
         ContentRendered += onContentRendered;
         StateChanged += onStateChanged;
@@ -94,6 +101,49 @@ public partial class SettingsWindow : Window
     private void onActivated(object? sender, EventArgs e)
     {
         (DataContext as settingsViewModel)?.refreshDisplayList();
+    }
+
+    private DoubleAnimation? displaySelectionAnimation;
+
+    private void onViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(settingsViewModel.onlySelectedDisplaysTrigger))
+        {
+            animateDisplaySelection((DataContext as settingsViewModel)?.onlySelectedDisplaysTrigger == true);
+        }
+    }
+
+    private void animateDisplaySelection(bool expand)
+    {
+        var startHeight = displaySelectionPanel.ActualHeight;
+        displaySelectionPanel.Height = expand ? double.NaN : 0;
+
+        var targetHeight = 0.0;
+        if (expand)
+        {
+            displaySelectionPanel.Measure(new Size(displaySelectionPanel.ActualWidth, double.PositiveInfinity));
+            targetHeight = displaySelectionPanel.DesiredSize.Height + displaySelectionPanel.Margin.Top + displaySelectionPanel.Margin.Bottom;
+        }
+
+        var animation = new DoubleAnimation(startHeight, targetHeight, TimeSpan.FromMilliseconds(expand ? 260 : 200))
+        {
+            EasingFunction = new CubicEase { EasingMode = expand ? EasingMode.EaseOut : EasingMode.EaseIn }
+        };
+        animation.Completed += onDisplaySelectionAnimationCompleted;
+        displaySelectionAnimation = animation;
+        displaySelectionPanel.BeginAnimation(FrameworkElement.HeightProperty, animation);
+    }
+
+    private void onDisplaySelectionAnimationCompleted(object? sender, EventArgs e)
+    {
+        if (!ReferenceEquals(sender, displaySelectionAnimation))
+        {
+            return;
+        }
+
+        displaySelectionAnimation = null;
+        displaySelectionPanel.BeginAnimation(FrameworkElement.HeightProperty, null);
+        displaySelectionPanel.Height = (DataContext as settingsViewModel)?.onlySelectedDisplaysTrigger == true ? double.NaN : 0;
     }
 
     private void onHyperlinkRequestNavigate(object sender, RequestNavigateEventArgs e)
