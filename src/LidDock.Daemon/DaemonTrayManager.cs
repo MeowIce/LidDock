@@ -22,7 +22,6 @@ public class daemonTrayManager : IDisposable
     private const uint nifInfo = 0x00000010;
     private const uint niifInfo = 0x00000001;
     private const uint niifWarning = 0x00000002;
-    private const uint niifUser = 0x00000004;
     private const uint niifLargeIcon = 0x00000020;
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
@@ -70,9 +69,6 @@ public class daemonTrayManager : IDisposable
     [DllImport("shell32.dll", EntryPoint = "Shell_NotifyIconW")]
     private static extern bool shellNotifyIcon(int dwMessage, ref notifyIconData lpData);
 
-    [DllImport("shell32.dll", CharSet = CharSet.Unicode, EntryPoint = "ExtractIconExW")]
-    private static extern uint extractIconEx(string lpszFile, int nIconIndex, out IntPtr phiconLarge, out IntPtr phiconSmall, uint nIcons);
-
     [DllImport("user32.dll", EntryPoint = "CreateIconIndirect")]
     private static extern IntPtr createIconIndirect(ref iconInfo pIconInfo);
 
@@ -108,7 +104,6 @@ public class daemonTrayManager : IDisposable
 
     private IntPtr windowHandle;
     private IntPtr currentIconHandle;
-    private IntPtr toastIconHandle;
     private bool isIconAdded;
     private clamshellState lastState = clamshellState.normalMode;
     private string lastMonitor = "None";
@@ -120,7 +115,6 @@ public class daemonTrayManager : IDisposable
     {
         windowHandle = hWnd;
         currentIconHandle = getOrCreateStateIcon(clamshellState.normalMode);
-        loadToastIcon();
 
         var data = new notifyIconData
         {
@@ -233,7 +227,6 @@ public class daemonTrayManager : IDisposable
 
         var safeTitle = title.Length > 63 ? title.Substring(0, 63) : title;
         var safeMessage = message.Length > 255 ? message.Substring(0, 255) : message;
-        var balloonIcon = toastIconHandle != IntPtr.Zero ? toastIconHandle : currentIconHandle;
 
         var data = new notifyIconData
         {
@@ -243,32 +236,10 @@ public class daemonTrayManager : IDisposable
             uFlags = nifInfo,
             szInfoTitle = safeTitle,
             szInfo = safeMessage,
-            dwInfoFlags = (isWarning ? (niifWarning | niifLargeIcon) : (niifInfo | niifLargeIcon)) | (balloonIcon != IntPtr.Zero ? niifUser : 0),
-            hBalloonIcon = balloonIcon
+            dwInfoFlags = isWarning ? (niifWarning | niifLargeIcon) : (niifInfo | niifLargeIcon)
         };
 
         shellNotifyIcon(nimModify, ref data);
-    }
-
-    private void loadToastIcon()
-    {
-        var processPath = Environment.ProcessPath;
-        if (string.IsNullOrEmpty(processPath))
-        {
-            return;
-        }
-
-        if (extractIconEx(processPath, 0, out var largeIcon, out var smallIcon, 1) == 0)
-        {
-            return;
-        }
-
-        if (smallIcon != IntPtr.Zero)
-        {
-            destroyIcon(smallIcon);
-        }
-
-        toastIconHandle = largeIcon;
     }
 
     public void recreateIcon()
@@ -377,11 +348,5 @@ public class daemonTrayManager : IDisposable
         }
         iconCache.Clear();
         currentIconHandle = IntPtr.Zero;
-
-        if (toastIconHandle != IntPtr.Zero)
-        {
-            destroyIcon(toastIconHandle);
-            toastIconHandle = IntPtr.Zero;
-        }
     }
 }
