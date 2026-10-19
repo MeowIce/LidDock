@@ -35,7 +35,7 @@ public class settingsViewModel : baseViewModel
         };
     }
 
-    public string appVersion => "1.0.4";
+    public string appVersion { get; } = getAppVersion();
     public string author => "MeowIce";
     public string githubUrl => "https://github.com/MeowIce/LidDock";
     public string[] durationUnitOptions { get; } = { "Minutes", "Hours" };
@@ -761,6 +761,12 @@ public class settingsViewModel : baseViewModel
         saveTimer.Stop();
         refreshAmphetawinFromDisk();
         flushSettings();
+    }
+
+    private static string getAppVersion()
+    {
+        var version = typeof(settingsViewModel).Assembly.GetName().Version;
+        return version == null ? "?" : $"{version.Major}.{version.Minor}.{version.Build}";
     }
 
     private void notifySettingsChanged()

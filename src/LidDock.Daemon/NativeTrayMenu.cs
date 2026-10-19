@@ -97,7 +97,7 @@ public static class nativeTrayMenu
             appendMenu(hMenu, mfSeparator, IntPtr.Zero, string.Empty);
 
             var enableFlags = mfString | (settings.enableClamshell ? mfChecked : 0);
-            appendMenu(hMenu, enableFlags, (IntPtr)cmdToggleClamshell, "Enable Smart Clamshell Mode");
+            appendMenu(hMenu, enableFlags, (IntPtr)cmdToggleClamshell, "Use LidDock");
 
             var hProfileSub = createPopupMenu();
             var smartFlags = mfString | (settings.activeProfile == operationalProfileType.smartDocked ? mfChecked : 0);
