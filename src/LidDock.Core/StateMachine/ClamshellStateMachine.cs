@@ -151,7 +151,7 @@ public class clamshellStateMachine : iClamshellStateMachine
                             : "Laptop is entering sleep mode.";
                         onNotificationRequested?.Invoke(
                             "LidDock - AC Power Disconnected",
-                            $"AC power disconnected in Clamshell mode (AC Only). {delayText}");
+                            $"AC power is required in Clamshell mode but is not available. {delayText}");
                     }
 
                     if (settings.sleepOnDisconnectWithLidClosed)

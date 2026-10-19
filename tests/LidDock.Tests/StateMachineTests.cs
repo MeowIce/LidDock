@@ -251,12 +251,18 @@ public class stateMachineTests
         Assert.Equal(clamshellState.clamshellActive, machine.getCurrentState());
 
         string? notificationTitle = null;
-        machine.onNotificationRequested += (title, _) => notificationTitle = title;
+        string? notificationMessage = null;
+        machine.onNotificationRequested += (title, msg) =>
+        {
+            notificationTitle = title;
+            notificationMessage = msg;
+        };
 
         machine.updatePowerInfo(new systemPowerInfo(powerSourceType.battery, 95, false));
         Assert.Equal(clamshellState.disconnectPending, machine.getCurrentState());
         Assert.NotNull(notificationTitle);
         Assert.Contains("AC Power", notificationTitle);
+        Assert.DoesNotContain("AC Only", notificationMessage);
 
         await Task.Delay(1300);
 
