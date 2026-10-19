@@ -204,7 +204,7 @@ public class daemonTrayManager : IDisposable
                 onExitRequested);
             onInteractionCompleted?.Invoke();
         }
-        else if (eventType == wmLbuttonDblClk)
+        else if (eventType == wmLbuttonUp || eventType == wmLbuttonDblClk)
         {
             nativeTrayMenu.launchUi(string.Empty);
             onInteractionCompleted?.Invoke();
