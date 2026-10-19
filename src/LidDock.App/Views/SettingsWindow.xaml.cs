@@ -120,7 +120,7 @@ public partial class SettingsWindow : Window
         var targetHeight = 0.0;
         if (expand)
         {
-            targetHeight = displaySelectionPanel.ActualHeight + displaySelectionPanel.Margin.Top + displaySelectionPanel.Margin.Bottom;
+            targetHeight = displaySelectionPanel.ActualHeight;
         }
 
         var animation = new DoubleAnimation(startHeight, targetHeight, TimeSpan.FromMilliseconds(expand ? 260 : 200))
