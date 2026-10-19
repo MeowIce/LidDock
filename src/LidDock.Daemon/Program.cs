@@ -26,6 +26,7 @@ internal static class Program
     private static nativeMessageWindow? nativeWindow;
     private static daemonTrayManager? trayManager;
     private static keepAwakeManager? keepAwake;
+    private static autoAmphetawinManager? autoAmphetawin;
     private static appSettings appSettings = new appSettings();
     private static FileSystemWatcher? settingsWatcher;
     private static CancellationTokenSource? workingSetTrimCts;
@@ -76,6 +77,7 @@ internal static class Program
         nativeWindow = new nativeMessageWindow();
         trayManager = new daemonTrayManager();
         keepAwake = new keepAwakeManager();
+        autoAmphetawin = new autoAmphetawinManager(applyAutoAmphetawin);
 
         nativeWindow.initialize();
         trayManager.initialize(nativeWindow.handle);
@@ -92,6 +94,7 @@ internal static class Program
 
         refreshKeepAwake();
         refreshSystemState();
+        autoAmphetawin.update(appSettings);
 
         var isMinimized = args.Contains("--minimized");
         if (!isMinimized)
@@ -221,12 +224,24 @@ internal static class Program
 
         if (!wasActive && isActive)
         {
-            var untilText = keepAwake.getActiveUntilUtc().ToLocalTime().ToString("HH:mm");
-            diagnosticsLogger.instance.logInfo($"Daemon Event: Amphetawin active until {untilText}");
-            trayManager?.showToastNotification(
-                "Amphetawin",
-                $"Automatic sleep is disabled. The system will stay awake until {untilText}.",
-                false);
+            var activeUntilUtc = keepAwake.getActiveUntilUtc();
+            if (activeUntilUtc == DateTime.MaxValue)
+            {
+                diagnosticsLogger.instance.logInfo("Daemon Event: Amphetawin active indefinitely");
+                trayManager?.showToastNotification(
+                    "Amphetawin",
+                    "Automatic sleep is disabled while the selected app is running.",
+                    false);
+            }
+            else
+            {
+                var untilText = activeUntilUtc.ToLocalTime().ToString("HH:mm");
+                diagnosticsLogger.instance.logInfo($"Daemon Event: Amphetawin active until {untilText}");
+                trayManager?.showToastNotification(
+                    "Amphetawin",
+                    $"Automatic sleep is disabled. The system will stay awake until {untilText}.",
+                    false);
+            }
         }
     }
 
@@ -306,6 +321,7 @@ internal static class Program
             }
 
             stateMachine?.updateSettings(newSettings);
+            autoAmphetawin?.update(newSettings);
             refreshKeepAwake();
             updateTrayDisplay();
             scheduleWorkingSetTrim(1000);
@@ -313,6 +329,23 @@ internal static class Program
         catch
         {
         }
+    }
+
+    private static void applyAutoAmphetawin(DateTime? untilUtc)
+    {
+        var current = settingsManager.loadSettings();
+        current.amphetawinUntilUtc = untilUtc;
+        current.autoAmphetawinOwned = untilUtc.HasValue;
+        lock (syncRoot)
+        {
+            appSettings = current;
+        }
+
+        stateMachine?.updateSettings(current);
+        refreshKeepAwake();
+        updateTrayDisplay();
+        settingsManager.saveSettings(current);
+        autoAmphetawin?.update(current);
     }
 
     private static void scheduleWorkingSetTrim(int delayMs)
@@ -410,6 +443,7 @@ internal static class Program
         settingsWatcher?.Dispose();
         workingSetTrimCts?.Cancel();
         workingSetTrimCts?.Dispose();
+        autoAmphetawin?.dispose();
         keepAwake?.dispose();
         trayManager?.dispose();
         nativeWindow?.dispose();

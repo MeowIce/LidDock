@@ -40,6 +40,8 @@
             <TabItem Header="General">
                 <ScrollViewer Style="{StaticResource FluentTabScrollViewer}">
                     <StackPanel>
+                        <TextBlock Style="{StaticResource FluentTabDescription}"
+                                   Text="Core controls: turn LidDock on and decide whether it starts with Windows."/>
                         <Border Style="{StaticResource FluentCard}">
                             <CheckBox Content="Enable Smart Clamshell Mode"
                                       IsChecked="{Binding enableClamshell}"
@@ -63,6 +65,8 @@
             <TabItem Header="Profiles">
                 <ScrollViewer Style="{StaticResource FluentTabScrollViewer}">
                     <StackPanel>
+                        <TextBlock Style="{StaticResource FluentTabDescription}"
+                                   Text="Pick when clamshell mode should apply. Presets cover common setups; Custom exposes the rules."/>
                         <RadioButton GroupName="Profiles"
                                      IsChecked="{Binding isProfileSmartDocked}"
                                      Style="{StaticResource FluentRadioCard}">
@@ -201,6 +205,8 @@
             <TabItem Header="Display Detection">
                 <ScrollViewer Style="{StaticResource FluentTabScrollViewer}">
                     <StackPanel>
+                        <TextBlock Style="{StaticResource FluentTabDescription}"
+                                   Text="Choose which connected displays count as a dock and can trigger clamshell mode."/>
                         <Border Style="{StaticResource FluentCard}">
                             <StackPanel>
                                 <CheckBox Content="Require External Display"
@@ -256,6 +262,8 @@
             <TabItem Header="Safety &amp; Delay">
                 <ScrollViewer Style="{StaticResource FluentTabScrollViewer}">
                     <StackPanel>
+                        <TextBlock Style="{StaticResource FluentTabDescription}"
+                                   Text="Set the grace period and battery protection used before the laptop is allowed to sleep."/>
                         <Border Style="{StaticResource FluentCard}">
                             <CheckBox Content="Sleep laptop if display or charger disconnects while lid is closed"
                                       IsChecked="{Binding sleepOnDisconnectWithLidClosed}"
@@ -293,6 +301,15 @@
                                            FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,8,0,0" TextWrapping="Wrap"/>
                             </StackPanel>
                         </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem Header="Amphetawin">
+                <ScrollViewer Style="{StaticResource FluentTabScrollViewer}">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource FluentTabDescription}"
+                                   Text="Keep the laptop awake on demand, or automatically while a chosen app is running."/>
 
                         <Border Style="{StaticResource FluentCard}">
                             <StackPanel>
@@ -310,6 +327,78 @@
                                         Foreground="{DynamicResource AccentBrush}"/>
                                 <TextBlock Text="{Binding amphetawinNote}"
                                            FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource FluentCard}">
+                            <StackPanel>
+                                <CheckBox Content="Start Amphetawin automatically with an app"
+                                          IsChecked="{Binding autoAmphetawinEnabled}"
+                                          Style="{StaticResource FluentToggleSwitch}"
+                                          FontWeight="Medium"/>
+                                <TextBlock Text="{Binding autoAmphetawinNote}"
+                                           FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,48,0" TextWrapping="Wrap"/>
+
+                                <StackPanel Visibility="{Binding autoAmphetawinEnabled, Converter={StaticResource BoolToVisConverter}}"
+                                            Margin="0,16,0,0">
+                                    <TextBlock Text="Application" FontWeight="Medium" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                    <DockPanel Margin="0,8,0,0">
+                                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" VerticalAlignment="Center">
+                                            <Button Content="Choose App..."
+                                                    Click="onChooseAutoAppClicked"
+                                                    Style="{StaticResource FluentSecondaryButton}"
+                                                    Padding="12,4"/>
+                                            <Button Content="Clear"
+                                                    Click="onClearAutoAppClicked"
+                                                    Style="{StaticResource FluentSecondaryButton}"
+                                                    Padding="12,4"
+                                                    Margin="8,0,0,0"
+                                                    Visibility="{Binding autoAmphetawinHasApp, Converter={StaticResource BoolToVisConverter}}"/>
+                                        </StackPanel>
+                                        <TextBlock Text="{Binding autoAmphetawinAppDisplayName}"
+                                                   ToolTip="{Binding autoAmphetawinAppPath}"
+                                                   FontWeight="Medium"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,0,12,0"/>
+                                    </DockPanel>
+
+                                    <TextBlock Text="Duration" FontWeight="Medium" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,18,0,8"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <RadioButton Content="Timed"
+                                                     GroupName="AutoDurationMode"
+                                                     IsChecked="{Binding autoAmphetawinTimed}"
+                                                     Style="{StaticResource FluentSegmentedRadio}"/>
+                                        <RadioButton Content="Infinite"
+                                                     GroupName="AutoDurationMode"
+                                                     IsChecked="{Binding autoAmphetawinInfinite}"
+                                                     Style="{StaticResource FluentSegmentedRadio}"
+                                                     Margin="8,0,0,0"/>
+                                    </StackPanel>
+
+                                    <StackPanel Orientation="Horizontal"
+                                                Margin="0,12,0,0"
+                                                Visibility="{Binding autoAmphetawinTimed, Converter={StaticResource BoolToVisConverter}}">
+                                        <TextBox Text="{Binding autoAmphetawinDurationValue, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource FluentTextBox}"
+                                                 Width="76"
+                                                 VerticalAlignment="Center"/>
+                                        <RadioButton Content="Minutes"
+                                                     GroupName="AutoDurationUnit"
+                                                     IsChecked="{Binding autoAmphetawinDurationInMinutes}"
+                                                     Style="{StaticResource FluentSegmentedRadio}"
+                                                     Margin="12,0,0,0"/>
+                                        <RadioButton Content="Hours"
+                                                     GroupName="AutoDurationUnit"
+                                                     IsChecked="{Binding autoAmphetawinDurationInHours}"
+                                                     Style="{StaticResource FluentSegmentedRadio}"
+                                                     Margin="8,0,0,0"/>
+                                    </StackPanel>
+
+                                    <TextBlock Text="{Binding autoAmphetawinBehaviorNote}"
+                                               FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,10,0,0" TextWrapping="Wrap"/>
+                                </StackPanel>
                             </StackPanel>
                         </Border>
 
@@ -335,6 +424,8 @@
             <TabItem Header="About">
                 <ScrollViewer Style="{StaticResource FluentTabScrollViewer}">
                     <StackPanel>
+                        <TextBlock Style="{StaticResource FluentTabDescription}"
+                                   Text="App details, version information and update controls."/>
                         <Border Style="{StaticResource FluentCard}">
                             <DockPanel>
                                 <Image Source="pack://application:,,,/Assets/LidDock.png" Width="56" Height="56" Margin="0,0,16,0" VerticalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality"/>

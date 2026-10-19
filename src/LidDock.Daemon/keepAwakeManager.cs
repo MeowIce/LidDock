@@ -53,16 +53,24 @@ public class keepAwakeManager : IDisposable
             var newCts = new CancellationTokenSource();
             cts = newCts;
             var deadlineUtc = target.Value;
+            var infinite = deadlineUtc == DateTime.MaxValue;
 
             var thread = new Thread(() =>
             {
                 try
                 {
                     nativeMethods.setThreadExecutionState(nativeConstants.esContinuous | nativeConstants.esSystemRequired);
-                    var remaining = deadlineUtc - DateTime.UtcNow;
-                    if (remaining > TimeSpan.Zero)
+                    if (infinite)
                     {
-                        newCts.Token.WaitHandle.WaitOne(remaining);
+                        newCts.Token.WaitHandle.WaitOne(Timeout.InfiniteTimeSpan);
+                    }
+                    else
+                    {
+                        var remaining = deadlineUtc - DateTime.UtcNow;
+                        if (remaining > TimeSpan.Zero)
+                        {
+                            newCts.Token.WaitHandle.WaitOne(remaining);
+                        }
                     }
                 }
                 catch

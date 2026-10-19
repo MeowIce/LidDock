@@ -8,11 +8,15 @@ using System.Windows.Media.Animation;
 using System.Windows.Navigation;
 using LidDock.App.Helpers;
 using LidDock.App.ViewModels;
+using LidDock.Windows.Native;
+using Microsoft.Win32;
 
 namespace LidDock.App.Views;
 
 public partial class SettingsWindow : Window
 {
+    private uint settingsChangedMessage;
+
     public SettingsWindow(settingsViewModel viewModel)
     {
         InitializeComponent();
@@ -36,6 +40,7 @@ public partial class SettingsWindow : Window
         var helper = new WindowInteropHelper(this);
         var source = HwndSource.FromHwnd(helper.Handle);
         source?.AddHook(wndProc);
+        settingsChangedMessage = nativeMethods.registerWindowMessage("LidDock_SettingsChanged_Event");
     }
 
     private IntPtr wndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
@@ -47,6 +52,11 @@ public partial class SettingsWindow : Window
         if (msg == wmSettingChange || msg == wmThemeChanged || msg == wmDwmColorizationColorChanged)
         {
             Dispatcher.InvokeAsync(() => themeManager.applySystemTheme(true));
+        }
+
+        if (settingsChangedMessage != 0 && msg == (int)settingsChangedMessage)
+        {
+            (DataContext as settingsViewModel)?.refreshAmphetawinFromDisk();
         }
         return IntPtr.Zero;
     }
@@ -91,8 +101,30 @@ public partial class SettingsWindow : Window
         if (DataContext is settingsViewModel vm)
         {
             vm.refreshDisplayList();
+            vm.refreshAmphetawinFromDisk();
             vm.refreshAmphetawinState();
         }
+    }
+
+    private void onChooseAutoAppClicked(object sender, RoutedEventArgs e)
+    {
+        var dialog = new OpenFileDialog
+        {
+            Title = "Choose an application",
+            Filter = "Applications (*.exe)|*.exe",
+            CheckFileExists = true,
+            Multiselect = false
+        };
+
+        if (dialog.ShowDialog(this) == true)
+        {
+            (DataContext as settingsViewModel)?.setAutoAmphetawinApp(dialog.FileName);
+        }
+    }
+
+    private void onClearAutoAppClicked(object sender, RoutedEventArgs e)
+    {
+        (DataContext as settingsViewModel)?.setAutoAmphetawinApp(null);
     }
 
     private void onViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)

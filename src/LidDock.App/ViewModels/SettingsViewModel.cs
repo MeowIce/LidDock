@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 using LidDock.Core.Contracts;
@@ -16,6 +17,7 @@ public class settingsViewModel : baseViewModel
     private readonly displayWatcher settingsDisplayWatcher = new displayWatcher();
     private readonly DispatcherTimer saveTimer;
     private bool hasPendingSave;
+    private bool amphetawinPendingSave;
 
     public settingsViewModel(appSettings settings, iUpdateChecker? updateChecker = null)
     {
@@ -241,6 +243,8 @@ public class settingsViewModel : baseViewModel
             if (wasEnabled != value)
             {
                 settings.amphetawinUntilUtc = value ? DateTime.UtcNow.AddMinutes(Math.Max(1, settings.amphetawinMinutes)) : null;
+                settings.autoAmphetawinOwned = false;
+                amphetawinPendingSave = true;
                 onPropertyChanged();
                 onPropertyChanged(nameof(amphetawinNote));
                 notifySettingsChanged();
@@ -264,11 +268,188 @@ public class settingsViewModel : baseViewModel
     }
 
     public string amphetawinNote => amphetawinEnabled
-        ? $"Active until {settings.amphetawinUntilUtc!.Value.ToLocalTime():HH:mm}. The system will not sleep automatically; safety sleep is postponed but never beyond the emergency fallback."
+        ? (settings.amphetawinUntilUtc == DateTime.MaxValue
+            ? "Active indefinitely while the selected app is running. The system will not sleep automatically; safety sleep on disconnect is postponed but never beyond the emergency fallback."
+            : $"Active until {settings.amphetawinUntilUtc!.Value.ToLocalTime():HH:mm}. The system will not sleep automatically; safety sleep is postponed but never beyond the emergency fallback.")
         : "Disables automatic sleep for the chosen duration so the system stays awake. Safety sleep on disconnect is postponed, but never beyond the emergency fallback.";
 
     public void refreshAmphetawinState()
     {
+        onPropertyChanged(nameof(amphetawinEnabled));
+        onPropertyChanged(nameof(amphetawinNote));
+    }
+
+    public bool autoAmphetawinEnabled
+    {
+        get => settings.autoAmphetawinEnabled;
+        set
+        {
+            if (settings.autoAmphetawinEnabled == value)
+            {
+                return;
+            }
+
+            settings.autoAmphetawinEnabled = value;
+            onPropertyChanged();
+            onPropertyChanged(nameof(autoAmphetawinNote));
+            notifySettingsChanged();
+        }
+    }
+
+    public string autoAmphetawinAppDisplayName => autoAmphetawinHasApp
+        ? Path.GetFileName(settings.autoAmphetawinExecutablePath!)
+        : "No app selected";
+
+    public string autoAmphetawinAppPath => settings.autoAmphetawinExecutablePath ?? string.Empty;
+
+    public bool autoAmphetawinHasApp => !string.IsNullOrEmpty(settings.autoAmphetawinExecutablePath);
+
+    public bool autoAmphetawinInfinite
+    {
+        get => settings.autoAmphetawinInfinite;
+        set
+        {
+            if (settings.autoAmphetawinInfinite == value)
+            {
+                return;
+            }
+
+            settings.autoAmphetawinInfinite = value;
+            onPropertyChanged();
+            onPropertyChanged(nameof(autoAmphetawinTimed));
+            onPropertyChanged(nameof(autoAmphetawinNote));
+            onPropertyChanged(nameof(autoAmphetawinBehaviorNote));
+            notifySettingsChanged();
+        }
+    }
+
+    public bool autoAmphetawinTimed
+    {
+        get => !settings.autoAmphetawinInfinite;
+        set
+        {
+            if (value && settings.autoAmphetawinInfinite)
+            {
+                autoAmphetawinInfinite = false;
+            }
+        }
+    }
+
+    public bool autoAmphetawinDurationInHours
+    {
+        get => settings.autoAmphetawinDurationInHours;
+        set
+        {
+            if (settings.autoAmphetawinDurationInHours == value)
+            {
+                return;
+            }
+
+            var minutes = Math.Clamp(settings.autoAmphetawinDurationMinutes, 1, 1440);
+            settings.autoAmphetawinDurationInHours = value;
+            settings.autoAmphetawinDurationMinutes = value
+                ? Math.Clamp((int)Math.Round(minutes / 60.0, MidpointRounding.AwayFromZero), 1, 24) * 60
+                : Math.Clamp(minutes, 1, 1440);
+            onPropertyChanged();
+            onPropertyChanged(nameof(autoAmphetawinDurationInMinutes));
+            onPropertyChanged(nameof(autoAmphetawinDurationValue));
+            onPropertyChanged(nameof(autoAmphetawinDurationUnitLabel));
+            onPropertyChanged(nameof(autoAmphetawinNote));
+            notifySettingsChanged();
+        }
+    }
+
+    public bool autoAmphetawinDurationInMinutes
+    {
+        get => !settings.autoAmphetawinDurationInHours;
+        set
+        {
+            if (value)
+            {
+                autoAmphetawinDurationInHours = false;
+            }
+        }
+    }
+
+    public int autoAmphetawinDurationValue
+    {
+        get => settings.autoAmphetawinDurationInHours
+            ? Math.Clamp(settings.autoAmphetawinDurationMinutes / 60, 1, 24)
+            : Math.Clamp(settings.autoAmphetawinDurationMinutes, 1, 1440);
+        set
+        {
+            var clamped = settings.autoAmphetawinDurationInHours ? Math.Clamp(value, 1, 24) : Math.Clamp(value, 1, 1440);
+            var minutes = settings.autoAmphetawinDurationInHours ? clamped * 60 : clamped;
+            if (settings.autoAmphetawinDurationMinutes == minutes)
+            {
+                return;
+            }
+
+            settings.autoAmphetawinDurationMinutes = minutes;
+            onPropertyChanged();
+            onPropertyChanged(nameof(autoAmphetawinNote));
+            notifySettingsChanged();
+        }
+    }
+
+    public string autoAmphetawinDurationUnitLabel => settings.autoAmphetawinDurationInHours ? "hours" : "minutes";
+
+    public string autoAmphetawinNote
+    {
+        get
+        {
+            if (!settings.autoAmphetawinEnabled)
+            {
+                return "Start Amphetawin automatically when a chosen app is running, and stop it when the app closes.";
+            }
+
+            if (!autoAmphetawinHasApp)
+            {
+                return "Choose an app below. Amphetawin starts when it launches.";
+            }
+
+            return settings.autoAmphetawinInfinite
+                ? $"Active while {autoAmphetawinAppDisplayName} is running."
+                : $"Active for {autoAmphetawinDurationValue} {autoAmphetawinDurationUnitLabel} each time {autoAmphetawinAppDisplayName} launches.";
+        }
+    }
+
+    public string autoAmphetawinBehaviorNote => settings.autoAmphetawinInfinite
+        ? "Stays active for the whole app session. Disconnect safety sleep still respects the emergency fallback."
+        : "Stops after the chosen duration. It does not restart until the app is reopened.";
+
+    public void setAutoAmphetawinApp(string? path)
+    {
+        var normalized = string.IsNullOrWhiteSpace(path) ? null : path;
+        if (settings.autoAmphetawinExecutablePath == normalized)
+        {
+            return;
+        }
+
+        settings.autoAmphetawinExecutablePath = normalized;
+        settings.autoAmphetawinProcessName = normalized == null ? null : Path.GetFileNameWithoutExtension(normalized);
+        onPropertyChanged(nameof(autoAmphetawinAppDisplayName));
+        onPropertyChanged(nameof(autoAmphetawinAppPath));
+        onPropertyChanged(nameof(autoAmphetawinHasApp));
+        onPropertyChanged(nameof(autoAmphetawinNote));
+        notifySettingsChanged();
+    }
+
+    public void refreshAmphetawinFromDisk()
+    {
+        if (amphetawinPendingSave)
+        {
+            return;
+        }
+
+        var fresh = settingsManager.loadSettings();
+        if (settings.amphetawinUntilUtc == fresh.amphetawinUntilUtc && settings.autoAmphetawinOwned == fresh.autoAmphetawinOwned)
+        {
+            return;
+        }
+
+        settings.amphetawinUntilUtc = fresh.amphetawinUntilUtc;
+        settings.autoAmphetawinOwned = fresh.autoAmphetawinOwned;
         onPropertyChanged(nameof(amphetawinEnabled));
         onPropertyChanged(nameof(amphetawinNote));
     }
@@ -496,6 +677,7 @@ public class settingsViewModel : baseViewModel
     public void save()
     {
         saveTimer.Stop();
+        refreshAmphetawinFromDisk();
         flushSettings();
     }
 
@@ -514,6 +696,7 @@ public class settingsViewModel : baseViewModel
         }
 
         hasPendingSave = false;
+        amphetawinPendingSave = false;
         settingsManager.saveSettings(settings);
     }
 }
