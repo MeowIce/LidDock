@@ -109,7 +109,7 @@ public class clamshellStateMachine : iClamshellStateMachine
             {
                 return false;
             }
-            if (settings.allowedDisplayPaths is { Count: > 0 } && !settings.allowedDisplayPaths.Contains(d.devicePath))
+            if (settings.onlySelectedDisplaysTrigger && (settings.allowedDisplayPaths is null || !settings.allowedDisplayPaths.Contains(d.devicePath)))
             {
                 return false;
             }

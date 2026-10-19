@@ -538,7 +538,34 @@ public class stateMachineTests
     }
 
     [Fact]
-    public void shouldOnlyEngageForSelectedDisplaysWhenAllowListIsSet()
+    public void shouldOnlyEngageForSelectedDisplaysWhenSelectionModeIsEnabled()
+    {
+        var fakePower = new fakePowerSchemeManager();
+        using var machine = new clamshellStateMachine(fakePower);
+
+        machine.updateSettings(new appSettings
+        {
+            activeProfile = operationalProfileType.smartDocked,
+            onlySelectedDisplaysTrigger = true,
+            allowedDisplayPaths = new List<string> { "path1" }
+        });
+
+        var otherDisplay = new physicalDisplayInfo("Other Monitor", displayTechnology.hdmi, false, false, "path2");
+        machine.updateDisplays(new List<physicalDisplayInfo> { otherDisplay });
+        machine.updateLidState(lidState.closed);
+
+        Assert.Equal(clamshellState.normalMode, machine.getCurrentState());
+        Assert.False(fakePower.isClamshellActive);
+
+        var selectedDisplay = new physicalDisplayInfo("Dell Monitor", displayTechnology.displayPortExternal, false, false, "path1");
+        machine.updateDisplays(new List<physicalDisplayInfo> { selectedDisplay });
+
+        Assert.Equal(clamshellState.clamshellActive, machine.getCurrentState());
+        Assert.True(fakePower.isClamshellActive);
+    }
+
+    [Fact]
+    public void shouldIgnoreDisplaySelectionWhenSelectionModeIsDisabled()
     {
         var fakePower = new fakePowerSchemeManager();
         using var machine = new clamshellStateMachine(fakePower);
@@ -552,12 +579,6 @@ public class stateMachineTests
         var otherDisplay = new physicalDisplayInfo("Other Monitor", displayTechnology.hdmi, false, false, "path2");
         machine.updateDisplays(new List<physicalDisplayInfo> { otherDisplay });
         machine.updateLidState(lidState.closed);
-
-        Assert.Equal(clamshellState.normalMode, machine.getCurrentState());
-        Assert.False(fakePower.isClamshellActive);
-
-        var selectedDisplay = new physicalDisplayInfo("Dell Monitor", displayTechnology.displayPortExternal, false, false, "path1");
-        machine.updateDisplays(new List<physicalDisplayInfo> { selectedDisplay });
 
         Assert.Equal(clamshellState.clamshellActive, machine.getCurrentState());
         Assert.True(fakePower.isClamshellActive);

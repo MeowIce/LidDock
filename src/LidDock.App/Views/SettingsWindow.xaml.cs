@@ -14,10 +14,10 @@ public partial class SettingsWindow : Window
     {
         InitializeComponent();
         DataContext = viewModel;
-        viewModel.refreshDisplayList();
         SourceInitialized += onSourceInitialized;
         ContentRendered += onContentRendered;
         StateChanged += onStateChanged;
+        Activated += onActivated;
     }
 
     private void onSourceInitialized(object? sender, EventArgs e)
@@ -91,7 +91,7 @@ public partial class SettingsWindow : Window
         }
     }
 
-    private void onRefreshDisplaysClicked(object sender, RoutedEventArgs e)
+    private void onActivated(object? sender, EventArgs e)
     {
         (DataContext as settingsViewModel)?.refreshDisplayList();
     }

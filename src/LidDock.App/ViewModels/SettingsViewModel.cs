@@ -132,7 +132,24 @@ public class settingsViewModel : baseViewModel
         }
     }
 
+    public bool onlySelectedDisplaysTrigger
+    {
+        get => settings.onlySelectedDisplaysTrigger;
+        set
+        {
+            if (settings.onlySelectedDisplaysTrigger != value)
+            {
+                settings.onlySelectedDisplaysTrigger = value;
+                onPropertyChanged();
+                onPropertyChanged(nameof(displaySelectionNote));
+                notifySettingsChanged();
+            }
+        }
+    }
+
     public ObservableCollection<selectableDisplay> detectedDisplays { get; } = new ObservableCollection<selectableDisplay>();
+
+    public bool hasNoDetectedDisplays => detectedDisplays.Count == 0;
 
     public void refreshDisplayList()
     {
@@ -145,20 +162,21 @@ public class settingsViewModel : baseViewModel
                 continue;
             }
 
-            var label = $"{display.friendlyName} ({display.formattedTechnology})";
+            var subtitle = display.formattedTechnology;
             if (display.isVirtual)
             {
-                label += " [virtual]";
+                subtitle += " (virtual)";
             }
 
             detectedDisplays.Add(new selectableDisplay(
                 display.devicePath,
-                label,
+                display.friendlyName,
+                subtitle,
                 settings.allowedDisplayPaths.Contains(display.devicePath),
                 onDisplaySelectionToggled));
         }
 
-        onPropertyChanged(nameof(displaySelectionNote));
+        onPropertyChanged(nameof(hasNoDetectedDisplays));
     }
 
     private void onDisplaySelectionToggled(string devicePath, bool isChecked)
@@ -175,13 +193,12 @@ public class settingsViewModel : baseViewModel
             settings.allowedDisplayPaths.Remove(devicePath);
         }
 
-        onPropertyChanged(nameof(displaySelectionNote));
         notifySettingsChanged();
     }
 
-    public string displaySelectionNote => settings.allowedDisplayPaths.Count == 0
-        ? "No display selected: every external display triggers Clamshell Mode. Check a display to restrict triggering to your selection."
-        : "Only checked displays trigger Clamshell Mode. Uncheck all to allow every external display again. Selections are remembered per display device path.";
+    public string displaySelectionNote => settings.onlySelectedDisplaysTrigger
+        ? "Only displays turned on below trigger Clamshell Mode."
+        : "Every external display triggers Clamshell Mode.";
 
     public bool sleepOnDisconnectWithLidClosed
     {

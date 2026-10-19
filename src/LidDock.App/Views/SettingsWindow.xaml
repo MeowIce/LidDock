@@ -222,19 +222,30 @@
                         </Border>
                         <Border Style="{StaticResource FluentCard}">
                             <StackPanel>
-                                <DockPanel Margin="0,0,0,8">
-                                    <TextBlock Text="Clamshell Trigger Displays" FontWeight="Medium" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                    <Button Content="Refresh" MinWidth="90" DockPanel.Dock="Right" Click="onRefreshDisplaysClicked" Style="{StaticResource FluentSecondaryButton}"/>
-                                </DockPanel>
-                                <ItemsControl ItemsSource="{Binding detectedDisplays}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <CheckBox Content="{Binding label}" IsChecked="{Binding isChecked}" Margin="0,4,0,0"/>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
+                                <TextBlock Text="Displays That Trigger Clamshell Mode" FontWeight="Medium" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,8"/>
+                                <CheckBox Content="Only trigger on selected displays"
+                                          IsChecked="{Binding onlySelectedDisplaysTrigger}"
+                                          Style="{StaticResource FluentToggleSwitch}"/>
                                 <TextBlock Text="{Binding displaySelectionNote}"
-                                           FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                                           FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,48,0" TextWrapping="Wrap"/>
+                                <StackPanel Margin="0,8,0,0"
+                                            Visibility="{Binding onlySelectedDisplaysTrigger, Converter={StaticResource BoolToVisConverter}}">
+                                    <ItemsControl ItemsSource="{Binding detectedDisplays}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <CheckBox Style="{StaticResource FluentToggleSwitch}" IsChecked="{Binding isChecked}">
+                                                    <StackPanel Margin="0,4">
+                                                        <TextBlock Text="{Binding displayName}"/>
+                                                        <TextBlock Text="{Binding subtitle}" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                                    </StackPanel>
+                                                </CheckBox>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    <TextBlock Text="No external display connected."
+                                               FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}"
+                                               Visibility="{Binding hasNoDetectedDisplays, Converter={StaticResource BoolToVisConverter}}"/>
+                                </StackPanel>
                             </StackPanel>
                         </Border>
                     </StackPanel>

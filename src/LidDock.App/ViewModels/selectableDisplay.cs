@@ -8,12 +8,14 @@ public class selectableDisplay : baseViewModel
     private bool isCheckedVal;
 
     public string devicePath { get; }
-    public string label { get; }
+    public string displayName { get; }
+    public string subtitle { get; }
 
-    public selectableDisplay(string devicePath, string label, bool isChecked, Action<string, bool> onToggled)
+    public selectableDisplay(string devicePath, string displayName, string subtitle, bool isChecked, Action<string, bool> onToggled)
     {
         this.devicePath = devicePath;
-        this.label = label;
+        this.displayName = displayName;
+        this.subtitle = subtitle;
         isCheckedVal = isChecked;
         this.onToggled = onToggled;
     }
