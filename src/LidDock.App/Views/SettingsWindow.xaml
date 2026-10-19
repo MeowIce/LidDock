@@ -110,6 +110,33 @@
                                            TextWrapping="Wrap"/>
                             </StackPanel>
                         </RadioButton>
+
+                        <RadioButton GroupName="Profiles"
+                                     IsChecked="{Binding isProfileCustom}"
+                                     Style="{StaticResource FluentRadioCard}">
+                            <StackPanel>
+                                <TextBlock Text="Custom"
+                                           FontWeight="SemiBold"
+                                           FontSize="14"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                <TextBlock Text="Define your own rules: choose whether AC power is required and the battery level that disengages clamshell mode."
+                                           FontSize="12"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           Margin="0,4,0,0"
+                                           TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </RadioButton>
+
+                        <Border Style="{StaticResource FluentCard}" IsEnabled="{Binding isProfileCustom}">
+                            <StackPanel>
+                                <CheckBox Content="Require AC Power"
+                                          IsChecked="{Binding customRequireAcPower}"
+                                          Style="{StaticResource FluentToggleSwitch}"
+                                          FontWeight="Medium"/>
+                                <TextBlock Text="When enabled, clamshell mode is active only while the laptop is plugged in. The battery threshold in Safety &amp; Delay applies when this is off."
+                                           FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,48,0" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>

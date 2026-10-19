@@ -128,7 +128,7 @@ public class settingsViewModel : baseViewModel
     public bool isDisconnectDelayEnabled => settings.sleepOnDisconnectWithLidClosed;
 
     public string disconnectDelayNote => settings.sleepOnDisconnectWithLidClosed
-        ? "Grace delay before putting laptop to sleep when external display or charger (in AC Only mode) disconnects with lid closed."
+        ? "Grace delay before putting laptop to sleep when the external display or charger disconnects with lid closed."
         : "Not applicable: Sleep on disconnect is turned off.";
 
     public byte minimumBatteryThreshold
@@ -145,12 +145,51 @@ public class settingsViewModel : baseViewModel
         }
     }
 
-    public bool isBatteryThresholdEnabled => settings.activeProfile == operationalProfileType.smartDocked;
+    public bool customRequireAcPower
+    {
+        get => settings.customRequireAcPower;
+        set
+        {
+            if (settings.customRequireAcPower != value)
+            {
+                settings.customRequireAcPower = value;
+                onPropertyChanged();
+                onPropertyChanged(nameof(isBatteryThresholdEnabled));
+                onPropertyChanged(nameof(batteryThresholdNote));
+                notifySettingsChanged();
+            }
+        }
+    }
+
+    public bool isProfileCustom
+    {
+        get => settings.activeProfile == operationalProfileType.custom;
+        set
+        {
+            if (value)
+            {
+                settings.activeProfile = operationalProfileType.custom;
+                onPropertyChanged();
+                onPropertyChanged(nameof(isProfileSmartDocked));
+                onPropertyChanged(nameof(isProfileAcOnly));
+                onPropertyChanged(nameof(isProfileAlwaysClamshell));
+                onPropertyChanged(nameof(isBatteryThresholdEnabled));
+                onPropertyChanged(nameof(batteryThresholdNote));
+                notifySettingsChanged();
+            }
+        }
+    }
+
+    public bool isBatteryThresholdEnabled =>
+        settings.activeProfile == operationalProfileType.smartDocked ||
+        (settings.activeProfile == operationalProfileType.custom && !settings.customRequireAcPower);
 
     public string batteryThresholdNote => settings.activeProfile switch
     {
         operationalProfileType.acOnly => "Not applicable: AC Power Only profile strictly requires AC wall power and never operates on battery.",
         operationalProfileType.alwaysClamshell => "Not applicable: Always Clamshell profile keeps clamshell active regardless of battery level.",
+        operationalProfileType.custom when settings.customRequireAcPower =>
+            "Not applicable: Custom profile requires AC power. The threshold applies only when AC power is optional.",
         _ => "Clamshell mode will disengage when battery drops below this threshold while undocked from AC power."
     };
 
@@ -165,6 +204,7 @@ public class settingsViewModel : baseViewModel
                 onPropertyChanged();
                 onPropertyChanged(nameof(isProfileAcOnly));
                 onPropertyChanged(nameof(isProfileAlwaysClamshell));
+                onPropertyChanged(nameof(isProfileCustom));
                 onPropertyChanged(nameof(isBatteryThresholdEnabled));
                 onPropertyChanged(nameof(batteryThresholdNote));
                 notifySettingsChanged();
@@ -183,6 +223,7 @@ public class settingsViewModel : baseViewModel
                 onPropertyChanged();
                 onPropertyChanged(nameof(isProfileSmartDocked));
                 onPropertyChanged(nameof(isProfileAlwaysClamshell));
+                onPropertyChanged(nameof(isProfileCustom));
                 onPropertyChanged(nameof(isBatteryThresholdEnabled));
                 onPropertyChanged(nameof(batteryThresholdNote));
                 notifySettingsChanged();
@@ -201,6 +242,7 @@ public class settingsViewModel : baseViewModel
                 onPropertyChanged();
                 onPropertyChanged(nameof(isProfileSmartDocked));
                 onPropertyChanged(nameof(isProfileAcOnly));
+                onPropertyChanged(nameof(isProfileCustom));
                 onPropertyChanged(nameof(isBatteryThresholdEnabled));
                 onPropertyChanged(nameof(batteryThresholdNote));
                 notifySettingsChanged();
