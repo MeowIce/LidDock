@@ -28,6 +28,7 @@ public static class nativeTrayMenu
     private const int cmdOpenSettings = 1006;
     private const int cmdOpenDiagnostics = 1007;
     private const int cmdExit = 1008;
+    private const int cmdAbout = 1009;
 
     [StructLayout(LayoutKind.Sequential)]
     private struct point
@@ -111,6 +112,7 @@ public static class nativeTrayMenu
 
             appendMenu(hMenu, mfString, (IntPtr)cmdOpenSettings, "Settings...");
             appendMenu(hMenu, mfString, (IntPtr)cmdOpenDiagnostics, "Diagnostics...");
+            appendMenu(hMenu, mfString, (IntPtr)cmdAbout, $"About LidDock v{getVersionString()}");
             appendMenu(hMenu, mfSeparator, IntPtr.Zero, string.Empty);
             appendMenu(hMenu, mfString, (IntPtr)cmdExit, "Exit LidDock");
 
@@ -172,10 +174,29 @@ public static class nativeTrayMenu
                 launchUi("--diagnostics");
                 break;
 
+            case cmdAbout:
+                showAbout();
+                break;
+
             case cmdExit:
                 onExitRequested();
                 break;
         }
+    }
+
+    private static string getVersionString()
+    {
+        var version = typeof(nativeTrayMenu).Assembly.GetName().Version;
+        return version == null ? "?" : $"{version.Major}.{version.Minor}.{version.Build}";
+    }
+
+    private static void showAbout()
+    {
+        nativeMethods.messageBox(
+            IntPtr.Zero,
+            $"LidDock v{getVersionString()}\n\nSmart Clamshell Mode for Windows 11.\nhttps://github.com/MeowIce/LidDock",
+            "About LidDock",
+            0x00000040);
     }
 
     public static void launchUi(string argument)
