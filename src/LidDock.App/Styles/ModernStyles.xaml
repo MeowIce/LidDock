@@ -5,6 +5,7 @@
     <SolidColorBrush x:Key="SurfaceBrush" Color="#992E2E2E"/>
     <SolidColorBrush x:Key="SurfaceHoverBrush" Color="#B33E3E3E"/>
     <SolidColorBrush x:Key="CardBrush" Color="#99262626"/>
+    <SolidColorBrush x:Key="PopupBackgroundBrush" Color="#FF2B2B2B"/>
     <SolidColorBrush x:Key="CardBorderBrush" Color="#1FFFFFFF"/>
     <SolidColorBrush x:Key="AccentBrush" Color="#0078D4"/>
     <SolidColorBrush x:Key="AccentHoverBrush" Color="#1E88E5"/>
@@ -270,7 +271,7 @@
                                Focusable="False"
                                PopupAnimation="Fade"
                                StaysOpen="False">
-                            <Border Background="{DynamicResource CardBrush}"
+                            <Border Background="{DynamicResource PopupBackgroundBrush}"
                                     BorderBrush="{DynamicResource CardBorderBrush}"
                                     BorderThickness="1"
                                     CornerRadius="6"

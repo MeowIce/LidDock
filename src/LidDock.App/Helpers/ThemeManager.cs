@@ -184,6 +184,7 @@ public static class themeManager
             updateBrush("SurfaceBrush", Color.FromArgb(0x99, 0x2E, 0x2E, 0x2E));
             updateBrush("SurfaceHoverBrush", Color.FromArgb(0xB3, 0x3E, 0x3E, 0x3E));
             updateBrush("CardBrush", Color.FromArgb(0x99, 0x26, 0x26, 0x26));
+            updateBrush("PopupBackgroundBrush", Color.FromArgb(0xFF, 0x2B, 0x2B, 0x2B));
             updateBrush("CardBorderBrush", Color.FromArgb(0x1F, 0xFF, 0xFF, 0xFF));
             updateBrush("TextPrimaryBrush", Color.FromArgb(0xFF, 0xF3, 0xF3, 0xF3));
             updateBrush("TextSecondaryBrush", Color.FromArgb(0xFF, 0xA8, 0xA8, 0xA8));
@@ -201,6 +202,7 @@ public static class themeManager
             updateBrush("SurfaceBrush", Color.FromArgb(0x99, 0xEB, 0xEB, 0xEB));
             updateBrush("SurfaceHoverBrush", Color.FromArgb(0xB3, 0xDE, 0xDE, 0xDE));
             updateBrush("CardBrush", Color.FromArgb(0xB3, 0xFF, 0xFF, 0xFF));
+            updateBrush("PopupBackgroundBrush", Color.FromArgb(0xFF, 0xFF, 0xFF, 0xFF));
             updateBrush("CardBorderBrush", Color.FromArgb(0x18, 0x00, 0x00, 0x00));
             updateBrush("TextPrimaryBrush", Color.FromArgb(0xFF, 0x1A, 0x1A, 0x1A));
             updateBrush("TextSecondaryBrush", Color.FromArgb(0xFF, 0x5C, 0x5C, 0x5C));
