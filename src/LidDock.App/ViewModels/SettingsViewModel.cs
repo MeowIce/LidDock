@@ -150,6 +150,58 @@ public class settingsViewModel : baseViewModel
         ? "Grace delay before putting laptop to sleep when the external display or charger disconnects with lid closed."
         : "Not applicable: Sleep on disconnect is turned off.";
 
+    public bool amphetawinEnabled
+    {
+        get => settings.amphetawinUntilUtc.HasValue && settings.amphetawinUntilUtc.Value > DateTime.UtcNow;
+        set
+        {
+            var wasEnabled = settings.amphetawinUntilUtc.HasValue && settings.amphetawinUntilUtc.Value > DateTime.UtcNow;
+            if (wasEnabled != value)
+            {
+                settings.amphetawinUntilUtc = value ? DateTime.UtcNow.AddMinutes(Math.Max(1, settings.amphetawinMinutes)) : null;
+                onPropertyChanged();
+                onPropertyChanged(nameof(amphetawinNote));
+                notifySettingsChanged();
+            }
+        }
+    }
+
+    public int amphetawinMinutes
+    {
+        get => settings.amphetawinMinutes;
+        set
+        {
+            if (settings.amphetawinMinutes != value)
+            {
+                settings.amphetawinMinutes = value;
+                onPropertyChanged();
+                onPropertyChanged(nameof(amphetawinNote));
+                notifySettingsChanged();
+            }
+        }
+    }
+
+    public string amphetawinNote => amphetawinEnabled
+        ? $"Active until {settings.amphetawinUntilUtc!.Value.ToLocalTime():HH:mm}. The system will not sleep automatically; safety sleep is postponed but never beyond the emergency fallback."
+        : "Disables automatic sleep for the chosen duration so the system stays awake. Safety sleep on disconnect is postponed, but never beyond the emergency fallback.";
+
+    public int emergencyFallbackMinutes
+    {
+        get => Math.Max(1, settings.emergencyFallbackSeconds / 60);
+        set
+        {
+            var seconds = Math.Max(60, value * 60);
+            if (settings.emergencyFallbackSeconds != seconds)
+            {
+                settings.emergencyFallbackSeconds = seconds;
+                onPropertyChanged();
+                notifySettingsChanged();
+            }
+        }
+    }
+
+    public string emergencyFallbackNote => "Hard cutoff: even while Amphetawin is active, the laptop is put to sleep after this long when the lid is closed without clamshell permission.";
+
     public byte minimumBatteryThreshold
     {
         get => settings.minimumBatteryThreshold;

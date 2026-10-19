@@ -410,4 +410,130 @@ public class stateMachineTests
         Assert.Equal(1u, readOnlyPower.getOriginalAcLidAction());
         Assert.Equal(1u, readOnlyPower.getCurrentAcLidAction());
     }
+
+    [Fact]
+    public async Task shouldPostponeSafetySleepWhileAmphetawinActive()
+    {
+        var fakePower = new fakePowerSchemeManager();
+        using var machine = new clamshellStateMachine(fakePower);
+
+        machine.updateSettings(new appSettings
+        {
+            activeProfile = operationalProfileType.smartDocked,
+            disconnectDelaySeconds = 1,
+            amphetawinUntilUtc = DateTime.UtcNow.AddSeconds(5),
+            emergencyFallbackSeconds = 60
+        });
+
+        var externalDisplay = new physicalDisplayInfo("Dell Monitor", displayTechnology.displayPortExternal, false, false, "path1");
+        machine.updateDisplays(new List<physicalDisplayInfo> { externalDisplay });
+        machine.updateLidState(lidState.closed);
+        Assert.Equal(clamshellState.clamshellActive, machine.getCurrentState());
+
+        machine.updateDisplays(new List<physicalDisplayInfo>());
+        Assert.Equal(clamshellState.disconnectPending, machine.getCurrentState());
+
+        await Task.Delay(2200);
+        Assert.False(fakePower.isSleepTriggered);
+        Assert.Equal(clamshellState.disconnectPending, machine.getCurrentState());
+
+        await Task.Delay(3400);
+        Assert.True(fakePower.isSleepTriggered);
+        Assert.Equal(clamshellState.enteringSleep, machine.getCurrentState());
+    }
+
+    [Fact]
+    public async Task shouldCapAmphetawinPostponeWithEmergencyFallback()
+    {
+        var fakePower = new fakePowerSchemeManager();
+        using var machine = new clamshellStateMachine(fakePower);
+
+        machine.updateSettings(new appSettings
+        {
+            activeProfile = operationalProfileType.smartDocked,
+            disconnectDelaySeconds = 1,
+            amphetawinUntilUtc = DateTime.UtcNow.AddSeconds(30),
+            emergencyFallbackSeconds = 2
+        });
+
+        var externalDisplay = new physicalDisplayInfo("Dell Monitor", displayTechnology.displayPortExternal, false, false, "path1");
+        machine.updateDisplays(new List<physicalDisplayInfo> { externalDisplay });
+        machine.updateLidState(lidState.closed);
+
+        machine.updateDisplays(new List<physicalDisplayInfo>());
+        Assert.Equal(clamshellState.disconnectPending, machine.getCurrentState());
+
+        await Task.Delay(1200);
+        Assert.False(fakePower.isSleepTriggered);
+
+        await Task.Delay(1300);
+        Assert.True(fakePower.isSleepTriggered);
+        Assert.Equal(clamshellState.enteringSleep, machine.getCurrentState());
+    }
+
+    [Fact]
+    public async Task shouldPostponeImmediateSleepPathWhileAmphetawinActive()
+    {
+        var fakePower = new fakePowerSchemeManager();
+        using var machine = new clamshellStateMachine(fakePower);
+
+        machine.updateSettings(new appSettings
+        {
+            activeProfile = operationalProfileType.smartDocked,
+            disconnectDelaySeconds = 1,
+            sleepOnDisconnectWithLidClosed = false,
+            amphetawinUntilUtc = DateTime.UtcNow.AddSeconds(2),
+            emergencyFallbackSeconds = 60
+        });
+
+        var externalDisplay = new physicalDisplayInfo("Dell Monitor", displayTechnology.displayPortExternal, false, false, "path1");
+        machine.updateDisplays(new List<physicalDisplayInfo> { externalDisplay });
+        machine.updateLidState(lidState.closed);
+        Assert.Equal(clamshellState.clamshellActive, machine.getCurrentState());
+
+        machine.updateDisplays(new List<physicalDisplayInfo>());
+        Assert.False(fakePower.isSleepTriggered);
+        Assert.Equal(clamshellState.disconnectPending, machine.getCurrentState());
+
+        await Task.Delay(2500);
+        Assert.True(fakePower.isSleepTriggered);
+        Assert.Equal(clamshellState.enteringSleep, machine.getCurrentState());
+    }
+
+    [Fact]
+    public async Task shouldRearmPendingSleepTimerWhenSettingsChange()
+    {
+        var fakePower = new fakePowerSchemeManager();
+        using var machine = new clamshellStateMachine(fakePower);
+
+        machine.updateSettings(new appSettings
+        {
+            activeProfile = operationalProfileType.smartDocked,
+            disconnectDelaySeconds = 1,
+            amphetawinUntilUtc = DateTime.UtcNow.AddSeconds(30),
+            emergencyFallbackSeconds = 60
+        });
+
+        var externalDisplay = new physicalDisplayInfo("Dell Monitor", displayTechnology.displayPortExternal, false, false, "path1");
+        machine.updateDisplays(new List<physicalDisplayInfo> { externalDisplay });
+        machine.updateLidState(lidState.closed);
+
+        machine.updateDisplays(new List<physicalDisplayInfo>());
+        Assert.Equal(clamshellState.disconnectPending, machine.getCurrentState());
+
+        machine.updateSettings(new appSettings
+        {
+            activeProfile = operationalProfileType.smartDocked,
+            disconnectDelaySeconds = 1,
+            amphetawinUntilUtc = DateTime.UtcNow.AddSeconds(2),
+            emergencyFallbackSeconds = 60
+        });
+
+        await Task.Delay(1200);
+        Assert.False(fakePower.isSleepTriggered);
+
+        await Task.Delay(1500);
+        Assert.True(fakePower.isSleepTriggered);
+        Assert.Equal(clamshellState.enteringSleep, machine.getCurrentState());
+    }
 }

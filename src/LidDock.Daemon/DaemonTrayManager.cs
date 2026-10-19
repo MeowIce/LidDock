@@ -134,7 +134,8 @@ public class daemonTrayManager : IDisposable
         clamshellState state,
         string externalMonitorName,
         lidState lid,
-        systemPowerInfo power)
+        systemPowerInfo power,
+        bool amphetawinActive = false)
     {
         var stateChanged = lastState != state;
         lastState = state;
@@ -150,6 +151,10 @@ public class daemonTrayManager : IDisposable
         currentIconHandle = getOrCreateStateIcon(state);
 
         var stateStr = displayFormatters.formatClamshellState(state);
+        if (amphetawinActive)
+        {
+            stateStr += " | Amphetawin";
+        }
         var lidStr = displayFormatters.formatLidState(lid);
         var powerStr = displayFormatters.formatPowerSource(power);
         var tip = $"LidDock: {stateStr}\nLid: {lidStr} | Display: {externalMonitorName}\nPower: {powerStr}";

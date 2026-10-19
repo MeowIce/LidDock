@@ -23,4 +23,7 @@ public class appSettings
     public bool customRequireAcPower { get; set; } = false;
     public bool autoCheckForUpdates { get; set; } = true;
     public DateTime? lastUpdateCheckUtc { get; set; } = null;
+    public DateTime? amphetawinUntilUtc { get; set; } = null;
+    public int amphetawinMinutes { get; set; } = 15;
+    public int emergencyFallbackSeconds { get; set; } = 1800;
 }

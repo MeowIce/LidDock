@@ -25,6 +25,7 @@ internal static class Program
     private static powerWatcher? powerWatcher;
     private static nativeMessageWindow? nativeWindow;
     private static daemonTrayManager? trayManager;
+    private static keepAwakeManager? keepAwake;
     private static appSettings appSettings = new appSettings();
     private static FileSystemWatcher? settingsWatcher;
     private static CancellationTokenSource? workingSetTrimCts;
@@ -74,6 +75,7 @@ internal static class Program
         powerWatcher = new powerWatcher();
         nativeWindow = new nativeMessageWindow();
         trayManager = new daemonTrayManager();
+        keepAwake = new keepAwakeManager();
 
         nativeWindow.initialize();
         trayManager.initialize(nativeWindow.handle);
@@ -88,6 +90,7 @@ internal static class Program
         hookEvents();
         startSettingsWatcher();
 
+        refreshKeepAwake();
         refreshSystemState();
 
         var isMinimized = args.Contains("--minimized");
@@ -195,6 +198,28 @@ internal static class Program
         };
     }
 
+    private static void refreshKeepAwake()
+    {
+        if (keepAwake == null)
+        {
+            return;
+        }
+
+        var wasActive = keepAwake.isActive;
+        keepAwake.refresh(appSettings.amphetawinUntilUtc);
+        var isActive = keepAwake.isActive;
+
+        if (!wasActive && isActive)
+        {
+            var untilText = keepAwake.getActiveUntilUtc().ToLocalTime().ToString("HH:mm");
+            diagnosticsLogger.instance.logInfo($"Daemon Event: Amphetawin active until {untilText}");
+            trayManager?.showToastNotification(
+                "Amphetawin",
+                $"Automatic sleep is disabled. The system will stay awake until {untilText}.",
+                false);
+        }
+    }
+
     private static void refreshSystemState()
     {
         if (nativeWindow == null || displayWatcher == null || lidWatcher == null || powerWatcher == null || stateMachine == null)
@@ -225,7 +250,7 @@ internal static class Program
             var lid = lidWatcher.queryLidState();
             var power = powerWatcher.queryPowerStatus();
 
-            trayManager.updateStatus(state, monitorName, lid, power);
+            trayManager.updateStatus(state, monitorName, lid, power, keepAwake?.isActive == true);
             scheduleWorkingSetTrim(3000);
         }
     }
@@ -266,6 +291,7 @@ internal static class Program
             {
                 appSettings = settingsManager.loadSettings();
                 stateMachine?.updateSettings(appSettings);
+                refreshKeepAwake();
                 updateTrayDisplay();
                 scheduleWorkingSetTrim(1000);
             }
@@ -370,6 +396,7 @@ internal static class Program
         settingsWatcher?.Dispose();
         workingSetTrimCts?.Cancel();
         workingSetTrimCts?.Dispose();
+        keepAwake?.dispose();
         trayManager?.dispose();
         nativeWindow?.dispose();
         stateMachine?.dispose();

@@ -16,6 +16,7 @@ public class clamshellStateMachine : iClamshellStateMachine
     private clamshellState currentState = clamshellState.normalMode;
     private CancellationTokenSource? gracePeriodCts;
     private DateTime gracePeriodDeadlineUtc = DateTime.MinValue;
+    private CancellationTokenSource? emergencyWatchdogCts;
     private lidState currentLidState = lidState.open;
     private IReadOnlyList<physicalDisplayInfo> currentDisplays = Array.Empty<physicalDisplayInfo>();
     private systemPowerInfo currentPowerInfo = new systemPowerInfo(powerSourceType.unknown, 100, false);
@@ -55,8 +56,13 @@ public class clamshellStateMachine : iClamshellStateMachine
     {
         lock (syncLock)
         {
+            var wasPending = currentState == clamshellState.disconnectPending;
             settings = newSettings;
             evaluateState();
+            if (wasPending && currentState == clamshellState.disconnectPending)
+            {
+                startGracePeriod();
+            }
         }
     }
 
@@ -169,7 +175,7 @@ public class clamshellStateMachine : iClamshellStateMachine
                             $"AC power is required in Clamshell mode but is not available. {delayText}");
                     }
 
-                    if (settings.sleepOnDisconnectWithLidClosed)
+                    if (settings.sleepOnDisconnectWithLidClosed || isAmphetawinActive())
                     {
                         startGracePeriod();
                     }
@@ -189,13 +195,31 @@ public class clamshellStateMachine : iClamshellStateMachine
         }
     }
 
+    private bool isAmphetawinActive()
+    {
+        return settings.amphetawinUntilUtc.HasValue && settings.amphetawinUntilUtc.Value > DateTime.UtcNow;
+    }
+
+    private int getEffectiveSleepDelayMs()
+    {
+        var delayMs = Math.Max(1, settings.disconnectDelaySeconds) * 1000;
+        if (isAmphetawinActive())
+        {
+            var remainingMs = (settings.amphetawinUntilUtc!.Value - DateTime.UtcNow).TotalMilliseconds;
+            var emergencyMs = (double)Math.Max(1, settings.emergencyFallbackSeconds) * 1000;
+            delayMs = (int)Math.Max(delayMs, Math.Min(remainingMs, emergencyMs));
+        }
+
+        return delayMs;
+    }
+
     private void startGracePeriod()
     {
         cancelGracePeriod();
         transitionTo(clamshellState.disconnectPending);
         var cts = new CancellationTokenSource();
         gracePeriodCts = cts;
-        var delayMs = Math.Max(1, settings.disconnectDelaySeconds) * 1000;
+        var delayMs = getEffectiveSleepDelayMs();
         gracePeriodDeadlineUtc = DateTime.UtcNow.AddMilliseconds(delayMs);
 
         Task.Delay(delayMs, cts.Token).ContinueWith(task =>
@@ -233,6 +257,37 @@ public class clamshellStateMachine : iClamshellStateMachine
                 }
             }
         }, TaskScheduler.Default);
+
+        var emergencyCts = new CancellationTokenSource();
+        emergencyWatchdogCts = emergencyCts;
+        var emergencyMs = Math.Max(1, settings.emergencyFallbackSeconds) * 1000;
+
+        Task.Delay(emergencyMs, emergencyCts.Token).ContinueWith(task =>
+        {
+            if (task.IsCanceled || !task.IsCompletedSuccessfully)
+            {
+                return;
+            }
+
+            lock (syncLock)
+            {
+                if (emergencyWatchdogCts != emergencyCts || emergencyCts.IsCancellationRequested)
+                {
+                    return;
+                }
+
+                var hasExternal = hasEligibleExternalDisplay();
+                var isLidClosed = currentLidState == lidState.closed;
+                var isClamshellPermitted = profileEvaluator.shouldAllowClamshell(settings, currentPowerInfo, hasExternal);
+
+                if (currentState == clamshellState.disconnectPending && isLidClosed && !isClamshellPermitted)
+                {
+                    transitionTo(clamshellState.enteringSleep);
+                    powerManager.restoreOriginalSettings();
+                    powerManager.triggerImmediateSleep();
+                }
+            }
+        }, TaskScheduler.Default);
     }
 
     private void cancelGracePeriod()
@@ -248,6 +303,19 @@ public class clamshellStateMachine : iClamshellStateMachine
             {
             }
             gracePeriodCts = null;
+        }
+
+        if (emergencyWatchdogCts != null)
+        {
+            try
+            {
+                emergencyWatchdogCts.Cancel();
+                emergencyWatchdogCts.Dispose();
+            }
+            catch
+            {
+            }
+            emergencyWatchdogCts = null;
         }
     }
 

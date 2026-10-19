@@ -42,6 +42,7 @@ If an abrupt disconnect occurs while the lid remains closed (for example, kickin
 - Zero Polling Event-Driven Architecture: Uses native Win32 Connecting and Configuring Displays (CCD) APIs (`QueryDisplayConfig`) and Power Setting Notifications (`GUID_LIDSWITCH_STATE_CHANGE`). Zero CPU consumption when idle.
 - Extreme Efficiency: Consumes under 500KB (yes, Kilobyes, KB) in physical RAM.
 - Fail-Safe Grace Period: Actively triggers system suspension if a dock or display is disconnected while the lid is closed.
+- Amphetawin: Temporarily disables automatic sleep for a chosen duration, with an emergency fallback hard cutoff when the laptop stays closed without clamshell permission.
 - Profiles:
   - Smart Docked (Recommended): Automatic clamshell activation when docked to an external physical display, switching back to sleep when undocked.
   - AC Power Only: Clamshell mode restricted strictly to wall power connection to preserve battery health.

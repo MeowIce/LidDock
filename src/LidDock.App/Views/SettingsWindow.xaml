@@ -264,6 +264,41 @@
                                            FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,8,0,0" TextWrapping="Wrap"/>
                             </StackPanel>
                         </Border>
+
+                        <Border Style="{StaticResource FluentCard}">
+                            <StackPanel>
+                                <CheckBox Content="Amphetawin"
+                                          IsChecked="{Binding amphetawinEnabled}"
+                                          Style="{StaticResource FluentToggleSwitch}"/>
+                                <DockPanel Margin="0,12,0,8">
+                                    <TextBlock Text="Amphetawin Duration" FontWeight="Medium" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                    <TextBlock Text="{Binding amphetawinMinutes, StringFormat='{}{0} minutes'}"
+                                               FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}"
+                                               DockPanel.Dock="Right" TextAlignment="Right"/>
+                                </DockPanel>
+                                <Slider Minimum="5" Maximum="120" SmallChange="5" LargeChange="15"
+                                        Value="{Binding amphetawinMinutes}"
+                                        Foreground="{DynamicResource AccentBrush}"/>
+                                <TextBlock Text="{Binding amphetawinNote}"
+                                           FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource FluentCard}">
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,8">
+                                    <TextBlock Text="Emergency Fallback" FontWeight="Medium" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                    <TextBlock Text="{Binding emergencyFallbackMinutes, StringFormat='{}{0} minutes'}"
+                                               FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}"
+                                               DockPanel.Dock="Right" TextAlignment="Right"/>
+                                </DockPanel>
+                                <Slider Minimum="5" Maximum="120" SmallChange="5" LargeChange="15"
+                                        Value="{Binding emergencyFallbackMinutes}"
+                                        Foreground="{DynamicResource AccentBrush}"/>
+                                <TextBlock Text="{Binding emergencyFallbackNote}"
+                                           FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>

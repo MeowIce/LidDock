@@ -97,6 +97,10 @@ public static class nativeMethods
         bool forceCritical,
         bool disableWakeEvent);
 
+    [DllImport("kernel32.dll", EntryPoint = "SetThreadExecutionState")]
+    public static extern uint setThreadExecutionState(
+        uint esFlags);
+
     [DllImport("kernel32.dll", EntryPoint = "LocalFree")]
     public static extern IntPtr localFree(
         IntPtr hMem);

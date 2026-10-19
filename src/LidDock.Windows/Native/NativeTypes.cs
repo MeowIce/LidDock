@@ -16,6 +16,8 @@ public static class nativeConstants
     public const int pbtApmResumeAutomatic = 0x0012;
     public const int deviceNotifyWindowHandle = 0x00000000;
     public const int hwndBroadcast = 0xffff;
+    public const uint esContinuous = 0x80000000;
+    public const uint esSystemRequired = 0x00000001;
 
     public static readonly Guid guidSystemButtonSubgroup = new Guid("4f971e89-eebd-4455-a8de-9e59040e7347");
     public static readonly Guid guidLidCloseAction = new Guid("5ca83367-6e45-459f-a27b-476b1d01c936");
