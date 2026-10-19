@@ -202,6 +202,15 @@
                 <ScrollViewer Style="{StaticResource FluentTabScrollViewer}">
                     <StackPanel>
                         <Border Style="{StaticResource FluentCard}">
+                            <StackPanel>
+                                <CheckBox Content="Require External Display"
+                                          IsChecked="{Binding requireExternalDisplay}"
+                                          Style="{StaticResource FluentToggleSwitch}"/>
+                                <TextBlock Text="{Binding externalDisplayNote}"
+                                           FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,48,0" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource FluentCard}">
                             <CheckBox Content="Ignore Virtual Displays (RDP, Parsec, Virtual Drivers)"
                                       IsChecked="{Binding ignoreVirtualDisplays}"
                                       Style="{StaticResource FluentToggleSwitch}"/>

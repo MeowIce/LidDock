@@ -9,7 +9,7 @@ public static class profileEvaluator
         systemPowerInfo powerInfo,
         bool hasExternalDisplay)
     {
-        if (!settings.enableClamshell || !hasExternalDisplay)
+        if (!settings.enableClamshell || (settings.requireExternalDisplay && !hasExternalDisplay))
         {
             return false;
         }

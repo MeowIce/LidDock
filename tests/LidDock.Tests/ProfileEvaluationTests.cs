@@ -213,4 +213,35 @@ public class profileEvaluationTests
         Assert.True(profileEvaluator.requiresAcPower(customWithAc));
         Assert.False(profileEvaluator.requiresAcPower(customWithoutAc));
     }
+
+    [Fact]
+    public void shouldAllowClamshellWithoutExternalDisplayWhenDisplayNotRequired()
+    {
+        var settings = new appSettings
+        {
+            enableClamshell = true,
+            activeProfile = operationalProfileType.alwaysClamshell,
+            requireExternalDisplay = false
+        };
+
+        var power = new systemPowerInfo(powerSourceType.acPower, 100, true);
+        var result = profileEvaluator.shouldAllowClamshell(settings, power, false);
+
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void shouldKeepPowerRulesWhenDisplayNotRequired()
+    {
+        var settings = new appSettings
+        {
+            enableClamshell = true,
+            activeProfile = operationalProfileType.smartDocked,
+            minimumBatteryThreshold = 20,
+            requireExternalDisplay = false
+        };
+
+        Assert.True(profileEvaluator.shouldAllowClamshell(settings, new systemPowerInfo(powerSourceType.battery, 50, false), false));
+        Assert.False(profileEvaluator.shouldAllowClamshell(settings, new systemPowerInfo(powerSourceType.battery, 15, false), false));
+    }
 }

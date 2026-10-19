@@ -98,7 +98,7 @@ public class clamshellStateMachine : iClamshellStateMachine
         var isClamshellPermitted = profileEvaluator.shouldAllowClamshell(settings, currentPowerInfo, hasExternal);
         var isLidClosed = currentLidState == lidState.closed;
 
-        if (hasExternal && isClamshellPermitted)
+        if ((hasExternal || !settings.requireExternalDisplay) && isClamshellPermitted)
         {
             if (currentState == clamshellState.disconnectPending &&
                 profileEvaluator.requiresAcPower(settings))

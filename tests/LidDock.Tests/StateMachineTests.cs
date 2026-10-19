@@ -307,4 +307,47 @@ public class stateMachineTests
         Assert.False(fakePower.isClamshellActive);
         Assert.True(fakePower.isSleepTriggered);
     }
+
+    [Fact]
+    public void shouldEngageClamshellWithoutDisplayWhenDisplayNotRequired()
+    {
+        var fakePower = new fakePowerSchemeManager();
+        using var machine = new clamshellStateMachine(fakePower);
+
+        machine.updateSettings(new appSettings
+        {
+            activeProfile = operationalProfileType.smartDocked,
+            requireExternalDisplay = false
+        });
+
+        machine.updateDisplays(new List<physicalDisplayInfo>());
+        machine.updateLidState(lidState.closed);
+
+        Assert.Equal(clamshellState.clamshellActive, machine.getCurrentState());
+        Assert.True(fakePower.isClamshellActive);
+    }
+
+    [Fact]
+    public void shouldStayActiveWhenDisplayDisconnectsIfDisplayNotRequired()
+    {
+        var fakePower = new fakePowerSchemeManager();
+        using var machine = new clamshellStateMachine(fakePower);
+
+        machine.updateSettings(new appSettings
+        {
+            activeProfile = operationalProfileType.smartDocked,
+            requireExternalDisplay = false
+        });
+
+        var externalDisplay = new physicalDisplayInfo("Dell Monitor", displayTechnology.displayPortExternal, false, false, "path1");
+        machine.updateDisplays(new List<physicalDisplayInfo> { externalDisplay });
+        machine.updateLidState(lidState.closed);
+
+        Assert.Equal(clamshellState.clamshellActive, machine.getCurrentState());
+
+        machine.updateDisplays(new List<physicalDisplayInfo>());
+
+        Assert.Equal(clamshellState.clamshellActive, machine.getCurrentState());
+        Assert.True(fakePower.isClamshellActive);
+    }
 }

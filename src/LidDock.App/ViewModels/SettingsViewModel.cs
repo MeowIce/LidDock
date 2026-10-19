@@ -81,6 +81,25 @@ public class settingsViewModel : baseViewModel
         }
     }
 
+    public bool requireExternalDisplay
+    {
+        get => settings.requireExternalDisplay;
+        set
+        {
+            if (settings.requireExternalDisplay != value)
+            {
+                settings.requireExternalDisplay = value;
+                onPropertyChanged();
+                onPropertyChanged(nameof(externalDisplayNote));
+                notifySettingsChanged();
+            }
+        }
+    }
+
+    public string externalDisplayNote => settings.requireExternalDisplay
+        ? "Clamshell mode engages only while an external display is connected."
+        : "Laptop keeps running with the lid closed even without an external display. Keep it in a ventilated place; battery and AC rules still apply.";
+
     public bool ignoreVirtualDisplays
     {
         get => settings.ignoreVirtualDisplays;
