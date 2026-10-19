@@ -16,6 +16,7 @@
     <EventSourceSupport>false</EventSourceSupport>
     <StackTraceSupport>false</StackTraceSupport>
     <AssemblyName>LidDock</AssemblyName>
+    <Version>1.0.3</Version>
     <UseSystemResourceKeys>true</UseSystemResourceKeys>
     <GarbageCollectionAdaptationMode>0</GarbageCollectionAdaptationMode>
     <AutoreleasePoolSupport>false</AutoreleasePoolSupport>

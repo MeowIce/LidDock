@@ -131,20 +131,6 @@ public class settingsViewModel : baseViewModel
         ? "Grace delay before putting laptop to sleep when external display or charger (in AC Only mode) disconnects with lid closed."
         : "Not applicable: Sleep on disconnect is turned off.";
 
-    public bool requireAcPower
-    {
-        get => settings.requireAcPower;
-        set
-        {
-            if (settings.requireAcPower != value)
-            {
-                settings.requireAcPower = value;
-                onPropertyChanged();
-                notifySettingsChanged();
-            }
-        }
-    }
-
     public byte minimumBatteryThreshold
     {
         get => settings.minimumBatteryThreshold;

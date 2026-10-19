@@ -323,7 +323,7 @@ internal static class Program
                 }
 
                 using var checker = new updateChecker();
-                var currentVer = new Version(1, 0, 1);
+                var currentVer = typeof(Program).Assembly.GetName().Version ?? new Version(1, 0, 0);
                 var result = await checker.checkForUpdatesAsync(currentVer);
 
                 appSettings.lastUpdateCheckUtc = now;

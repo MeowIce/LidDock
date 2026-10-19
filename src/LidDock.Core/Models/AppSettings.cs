@@ -17,9 +17,7 @@ public class appSettings
     public bool ignoreVirtualDisplays { get; set; } = true;
     public bool ignoreWirelessDisplays { get; set; } = true;
     public bool sleepOnDisconnectWithLidClosed { get; set; } = true;
-    public bool requireAcPower { get; set; } = false;
     public byte minimumBatteryThreshold { get; set; } = 15;
-    public bool restoreOnExit { get; set; } = true;
     public bool autoCheckForUpdates { get; set; } = true;
     public DateTime? lastUpdateCheckUtc { get; set; } = null;
 }
