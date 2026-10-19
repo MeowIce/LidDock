@@ -101,7 +101,7 @@ public class clamshellStateMachine : iClamshellStateMachine
         if (hasExternal && isClamshellPermitted)
         {
             if (currentState == clamshellState.disconnectPending &&
-                settings.activeProfile == operationalProfileType.acOnly)
+                profileEvaluator.requiresAcPower(settings))
             {
                 onNotificationRequested?.Invoke(
                     "LidDock - AC Power Restored",
@@ -115,6 +115,7 @@ public class clamshellStateMachine : iClamshellStateMachine
                 operationalProfileType.alwaysClamshell => true,
                 operationalProfileType.smartDocked => currentPowerInfo.batteryPercent >= settings.minimumBatteryThreshold,
                 operationalProfileType.acOnly => false,
+                operationalProfileType.custom => !settings.customRequireAcPower && currentPowerInfo.batteryPercent >= settings.minimumBatteryThreshold,
                 _ => false
             };
 
@@ -141,7 +142,7 @@ public class clamshellStateMachine : iClamshellStateMachine
             {
                 if (currentState == clamshellState.clamshellActive)
                 {
-                    if (settings.activeProfile == operationalProfileType.acOnly &&
+                    if (profileEvaluator.requiresAcPower(settings) &&
                         currentPowerInfo.powerSource != powerSourceType.acPower)
                     {
                         var delay = Math.Max(1, settings.disconnectDelaySeconds);
