@@ -197,6 +197,8 @@ public static class settingsManager
         }
     }
 
+    private static string? cachedAutoStartCommand;
+
     public static void updateAutoStartRegistry(bool enable)
     {
         try
@@ -207,16 +209,25 @@ public static class settingsManager
                 return;
             }
 
+            var currentValue = key.GetValue(appName) as string;
             if (enable)
             {
-                ensurePermanentInstallation();
-                var daemonPath = getPermanentDaemonPath();
-                if (!string.IsNullOrEmpty(daemonPath) && File.Exists(daemonPath))
+                if (cachedAutoStartCommand == null)
                 {
-                    key.SetValue(appName, $"\"{daemonPath}\" --minimized");
+                    ensurePermanentInstallation();
+                    var daemonPath = getPermanentDaemonPath();
+                    if (!string.IsNullOrEmpty(daemonPath) && File.Exists(daemonPath))
+                    {
+                        cachedAutoStartCommand = $"\"{daemonPath}\" --minimized";
+                    }
+                }
+
+                if (cachedAutoStartCommand != null && !string.Equals(currentValue, cachedAutoStartCommand, StringComparison.Ordinal))
+                {
+                    key.SetValue(appName, cachedAutoStartCommand);
                 }
             }
-            else
+            else if (currentValue != null)
             {
                 key.DeleteValue(appName, false);
             }

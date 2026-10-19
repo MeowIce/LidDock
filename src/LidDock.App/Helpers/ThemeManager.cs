@@ -53,6 +53,14 @@ public static class themeManager
     public static void applySystemTheme(bool animate = false)
     {
         var isDark = isSystemDarkMode();
+        var accent = accentColorHelper.getSystemAccentColors();
+        if (lastAppliedDarkMode == isDark && lastAppliedAccent.HasValue && lastAppliedAccent.Value == accent)
+        {
+            return;
+        }
+
+        lastAppliedDarkMode = isDark;
+        lastAppliedAccent = accent;
         if (animate)
         {
             performThemeTransition(isDark);
@@ -64,6 +72,8 @@ public static class themeManager
         }
     }
 
+    private static bool? lastAppliedDarkMode;
+    private static (Color baseColor, Color hoverColor, Color subtleColor)? lastAppliedAccent;
     private static DateTime lastThemeTransitionUtc = DateTime.MinValue;
 
     private static void performThemeTransition(bool isDark)

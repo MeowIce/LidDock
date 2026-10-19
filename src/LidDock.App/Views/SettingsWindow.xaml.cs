@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media.Animation;
@@ -53,17 +54,14 @@ public partial class SettingsWindow : Window
     private void onContentRendered(object? sender, EventArgs e)
     {
         ContentRendered -= onContentRendered;
-        Task.Delay(800).ContinueWith(_ =>
-        {
-            Dispatcher.InvokeAsync(memoryOptimizer.trimWorkingSet);
-        });
+        Task.Delay(800).ContinueWith(_ => memoryOptimizer.trimWorkingSet());
     }
 
     private void onStateChanged(object? sender, EventArgs e)
     {
         if (WindowState == WindowState.Minimized)
         {
-            memoryOptimizer.trimWorkingSet();
+            Task.Run(memoryOptimizer.trimWorkingSet);
         }
     }
 
@@ -138,7 +136,8 @@ public partial class SettingsWindow : Window
 
     protected override void OnClosed(EventArgs e)
     {
+        (DataContext as settingsViewModel)?.save();
+        Task.Run(memoryOptimizer.trimWorkingSet);
         base.OnClosed(e);
-        memoryOptimizer.trimWorkingSet();
     }
 }

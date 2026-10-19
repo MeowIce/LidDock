@@ -109,7 +109,7 @@ internal static class Program
         }
 
         scheduleWorkingSetTrim(2000);
-        maintenanceTimer = new Timer(_ => trimWorkingSet(), null, TimeSpan.FromMinutes(2), TimeSpan.FromMinutes(2));
+        maintenanceTimer = new Timer(_ => trimWorkingSet(), null, TimeSpan.FromMinutes(10), TimeSpan.FromMinutes(10));
 
         if (appSettings.autoCheckForUpdates)
         {
@@ -140,8 +140,10 @@ internal static class Program
 
         nativeWindow.onSettingsChangedMessage += () =>
         {
-            diagnosticsLogger.instance.logInfo("Daemon Event: Settings changed message received");
-            onSettingsFileChanged();
+            if (settingsWatcher == null)
+            {
+                onSettingsFileChanged();
+            }
         };
 
         nativeWindow.onDisplayChangedMessage += () =>
@@ -176,14 +178,22 @@ internal static class Program
 
         displayWatcher.onDisplaysChanged += displays =>
         {
+            var previousState = stateMachine.getCurrentState();
             stateMachine.updateDisplays(displays);
-            updateTrayDisplay();
+            if (stateMachine.getCurrentState() == previousState)
+            {
+                updateTrayDisplay();
+            }
         };
 
         powerWatcher.onPowerStatusChanged += power =>
         {
+            var previousState = stateMachine.getCurrentState();
             stateMachine.updatePowerInfo(power);
-            updateTrayDisplay();
+            if (stateMachine.getCurrentState() == previousState)
+            {
+                updateTrayDisplay();
+            }
         };
 
         stateMachine.onStateChanged += state =>
@@ -288,6 +298,7 @@ internal static class Program
     {
         try
         {
+            diagnosticsLogger.instance.logInfo("Daemon Event: Settings applied");
             var newSettings = settingsManager.loadSettings();
             lock (syncRoot)
             {

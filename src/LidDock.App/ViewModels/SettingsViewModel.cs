@@ -1,6 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 using LidDock.Core.Contracts;
 using LidDock.Core.Models;
 using LidDock.Core.Services;
@@ -13,12 +14,23 @@ public class settingsViewModel : baseViewModel
     private readonly appSettings settings;
     private readonly iUpdateChecker updateCheckerInstance;
     private readonly displayWatcher settingsDisplayWatcher = new displayWatcher();
+    private readonly DispatcherTimer saveTimer;
+    private bool hasPendingSave;
 
     public settingsViewModel(appSettings settings, iUpdateChecker? updateChecker = null)
     {
         this.settings = settings;
         this.updateCheckerInstance = updateChecker ?? new updateChecker();
         settings.allowedDisplayPaths ??= new List<string>();
+        saveTimer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromMilliseconds(400)
+        };
+        saveTimer.Tick += (s, e) =>
+        {
+            saveTimer.Stop();
+            flushSettings();
+        };
     }
 
     public string appVersion => "1.0.4";
@@ -483,11 +495,25 @@ public class settingsViewModel : baseViewModel
 
     public void save()
     {
-        notifySettingsChanged();
+        saveTimer.Stop();
+        flushSettings();
     }
 
     private void notifySettingsChanged()
     {
+        hasPendingSave = true;
+        saveTimer.Stop();
+        saveTimer.Start();
+    }
+
+    private void flushSettings()
+    {
+        if (!hasPendingSave)
+        {
+            return;
+        }
+
+        hasPendingSave = false;
         settingsManager.saveSettings(settings);
     }
 }

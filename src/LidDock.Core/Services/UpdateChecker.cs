@@ -26,8 +26,8 @@ public class updateChecker : iUpdateChecker, IDisposable
     {
         var handler = new SocketsHttpHandler
         {
-            PooledConnectionLifetime = TimeSpan.FromSeconds(5),
-            PooledConnectionIdleTimeout = TimeSpan.FromSeconds(2),
+            PooledConnectionLifetime = TimeSpan.FromMinutes(5),
+            PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1),
             EnableMultipleHttp2Connections = false
         };
         return new HttpClient(handler, disposeHandler: true);

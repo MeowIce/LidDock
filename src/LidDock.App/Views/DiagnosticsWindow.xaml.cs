@@ -31,10 +31,7 @@ public partial class DiagnosticsWindow : Window
     private void onContentRendered(object? sender, EventArgs e)
     {
         ContentRendered -= onContentRendered;
-        Task.Delay(800).ContinueWith(_ =>
-        {
-            Dispatcher.InvokeAsync(memoryOptimizer.trimWorkingSet);
-        });
+        Task.Delay(800).ContinueWith(_ => memoryOptimizer.trimWorkingSet());
     }
 
     private void onSourceInitialized(object? sender, EventArgs e)
@@ -73,7 +70,13 @@ public partial class DiagnosticsWindow : Window
         {
             Interval = TimeSpan.FromSeconds(1)
         };
-        dynamicMetricsTimer.Tick += (s, e) => viewModel.pollDynamicMetrics();
+        dynamicMetricsTimer.Tick += (s, e) =>
+        {
+            if (WindowState != WindowState.Minimized)
+            {
+                viewModel.pollDynamicMetrics();
+            }
+        };
         dynamicMetricsTimer.Start();
     }
 
