@@ -43,7 +43,7 @@
                         <TextBlock Style="{StaticResource FluentTabDescription}"
                                    Text="Core controls: turn LidDock on and decide whether it starts with Windows."/>
                         <Border Style="{StaticResource FluentCard}">
-                            <CheckBox Content="Enable Smart Clamshell Mode"
+                            <CheckBox Content="Use LidDock"
                                       IsChecked="{Binding enableClamshell}"
                                       Style="{StaticResource FluentToggleSwitch}"
                                       FontWeight="Medium"/>
