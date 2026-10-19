@@ -313,7 +313,7 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
-                            <Grid Width="20" Height="20" VerticalAlignment="Top" Margin="0,2,14,0">
+                            <Grid Width="20" Height="20" VerticalAlignment="Top" Margin="0,0,14,0">
                                 <Ellipse Name="outerCircle"
                                          Width="20" Height="20"
                                          Stroke="{DynamicResource ControlBorderBrush}"
@@ -334,7 +334,7 @@
 
                             <ContentPresenter Grid.Column="1"
                                               RecognizesAccessKey="True"
-                                              VerticalAlignment="Center"/>
+                                              VerticalAlignment="Top"/>
                         </Grid>
                     </Border>
 
