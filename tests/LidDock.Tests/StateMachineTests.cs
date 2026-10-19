@@ -350,4 +350,34 @@ public class stateMachineTests
         Assert.Equal(clamshellState.clamshellActive, machine.getCurrentState());
         Assert.True(fakePower.isClamshellActive);
     }
+
+    [Fact]
+    public async Task shouldReportGracePeriodCountdownWhileDisconnectPending()
+    {
+        var fakePower = new fakePowerSchemeManager();
+        using var machine = new clamshellStateMachine(fakePower);
+
+        var settings = new appSettings
+        {
+            activeProfile = operationalProfileType.acOnly,
+            disconnectDelaySeconds = 2,
+            sleepOnDisconnectWithLidClosed = true
+        };
+        machine.updateSettings(settings);
+
+        var externalDisplay = new physicalDisplayInfo("Dell Monitor", displayTechnology.displayPortExternal, false, false, "path1");
+        machine.updateDisplays(new List<physicalDisplayInfo> { externalDisplay });
+        machine.updatePowerInfo(new systemPowerInfo(powerSourceType.acPower, 100, false));
+        machine.updateLidState(lidState.closed);
+
+        Assert.Equal(0, machine.getGraceRemainingSeconds());
+
+        machine.updatePowerInfo(new systemPowerInfo(powerSourceType.battery, 95, false));
+        Assert.Equal(clamshellState.disconnectPending, machine.getCurrentState());
+        Assert.InRange(machine.getGraceRemainingSeconds(), 1, 2);
+
+        await Task.Delay(2300);
+
+        Assert.Equal(0, machine.getGraceRemainingSeconds());
+    }
 }

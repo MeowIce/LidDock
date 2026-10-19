@@ -20,6 +20,9 @@ public class diagnosticsViewModel : baseViewModel
     private systemPowerInfo currentPowerInfo = new systemPowerInfo(powerSourceType.unknown, 100, false);
     private string displaysSummaryVal = "0 Displays Detected";
     private string powerPlanSummaryVal = "Unknown";
+    private string gracePeriodCountdownVal = "Not running";
+    private string lastDisplayEventVal = "-";
+    private string lastLidEventVal = "-";
 
     public ObservableCollection<logEntry> logEntries { get; } = new ObservableCollection<logEntry>();
     public ObservableCollection<physicalDisplayInfo> displaysList { get; } = new ObservableCollection<physicalDisplayInfo>();
@@ -68,6 +71,24 @@ public class diagnosticsViewModel : baseViewModel
         set => setField(ref powerPlanSummaryVal, value);
     }
 
+    public string gracePeriodCountdown
+    {
+        get => gracePeriodCountdownVal;
+        set => setField(ref gracePeriodCountdownVal, value);
+    }
+
+    public string lastDisplayEvent
+    {
+        get => lastDisplayEventVal;
+        set => setField(ref lastDisplayEventVal, value);
+    }
+
+    public string lastLidEvent
+    {
+        get => lastLidEventVal;
+        set => setField(ref lastLidEventVal, value);
+    }
+
     public diagnosticsViewModel(
         iClamshellStateMachine stateMachine,
         iDisplayWatcher displayWatcher,
@@ -108,6 +129,7 @@ public class diagnosticsViewModel : baseViewModel
 
         var acAction = powerSchemeManager.getCurrentAcLidAction();
         powerPlanSummary = acAction == 0 ? "Do Nothing (Clamshell Active)" : "Sleep (Windows Default)";
+        updateGracePeriodCountdown();
 
         logEntries.Clear();
         foreach (var entry in diagnosticsLogger.instance.getEntries())
@@ -148,6 +170,7 @@ public class diagnosticsViewModel : baseViewModel
             clamshellState = state;
             var acAction = powerSchemeManager.getCurrentAcLidAction();
             powerPlanSummary = acAction == 0 ? "Do Nothing (Clamshell Active)" : "Sleep (Windows Default)";
+            updateGracePeriodCountdown();
         });
     }
 
@@ -161,6 +184,7 @@ public class diagnosticsViewModel : baseViewModel
                 displaysList.Add(d);
             }
             displaysSummary = $"{displays.Count} Display Output(s)";
+            lastDisplayEvent = DateTime.Now.ToString("HH:mm:ss");
         });
     }
 
@@ -169,6 +193,7 @@ public class diagnosticsViewModel : baseViewModel
         Application.Current?.Dispatcher.InvokeAsync(() =>
         {
             lidState = state;
+            lastLidEvent = DateTime.Now.ToString("HH:mm:ss");
         });
     }
 
@@ -241,7 +266,15 @@ public class diagnosticsViewModel : baseViewModel
             {
                 clamshellState = state;
             }
+
+            updateGracePeriodCountdown();
         });
+    }
+
+    private void updateGracePeriodCountdown()
+    {
+        var seconds = stateMachine.getGraceRemainingSeconds();
+        gracePeriodCountdown = seconds > 0 ? $"{seconds}s remaining" : "Not running";
     }
 
     public void unsubscribe()

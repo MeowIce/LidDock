@@ -9,6 +9,7 @@ public interface iClamshellStateMachine : IDisposable
     event Action<clamshellState>? onStateChanged;
     event Action<string, string>? onNotificationRequested;
     clamshellState getCurrentState();
+    int getGraceRemainingSeconds();
     void updateLidState(lidState state);
     void updateDisplays(IReadOnlyList<physicalDisplayInfo> displays);
     void updatePowerInfo(systemPowerInfo powerInfo);

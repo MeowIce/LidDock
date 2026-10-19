@@ -71,7 +71,7 @@ public partial class DiagnosticsWindow : Window
 
         dynamicMetricsTimer = new DispatcherTimer
         {
-            Interval = TimeSpan.FromSeconds(2)
+            Interval = TimeSpan.FromSeconds(1)
         };
         dynamicMetricsTimer.Tick += (s, e) => viewModel.pollDynamicMetrics();
         dynamicMetricsTimer.Start();

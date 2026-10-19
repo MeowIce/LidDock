@@ -15,6 +15,7 @@ public class clamshellStateMachine : iClamshellStateMachine
     private readonly object syncLock = new object();
     private clamshellState currentState = clamshellState.normalMode;
     private CancellationTokenSource? gracePeriodCts;
+    private DateTime gracePeriodDeadlineUtc = DateTime.MinValue;
     private lidState currentLidState = lidState.open;
     private IReadOnlyList<physicalDisplayInfo> currentDisplays = Array.Empty<physicalDisplayInfo>();
     private systemPowerInfo currentPowerInfo = new systemPowerInfo(powerSourceType.unknown, 100, false);
@@ -33,6 +34,20 @@ public class clamshellStateMachine : iClamshellStateMachine
         lock (syncLock)
         {
             return currentState;
+        }
+    }
+
+    public int getGraceRemainingSeconds()
+    {
+        lock (syncLock)
+        {
+            if (currentState != clamshellState.disconnectPending)
+            {
+                return 0;
+            }
+
+            var remaining = (gracePeriodDeadlineUtc - DateTime.UtcNow).TotalSeconds;
+            return remaining <= 0 ? 0 : (int)Math.Ceiling(remaining);
         }
     }
 
@@ -181,6 +196,7 @@ public class clamshellStateMachine : iClamshellStateMachine
         var cts = new CancellationTokenSource();
         gracePeriodCts = cts;
         var delayMs = Math.Max(1, settings.disconnectDelaySeconds) * 1000;
+        gracePeriodDeadlineUtc = DateTime.UtcNow.AddMilliseconds(delayMs);
 
         Task.Delay(delayMs, cts.Token).ContinueWith(task =>
         {

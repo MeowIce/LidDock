@@ -58,6 +58,18 @@
                     <TextBlock Text="Windows Lid Close Action" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}"/>
                     <TextBlock Text="{Binding powerPlanSummary}" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,4,0,0"/>
                 </StackPanel>
+                <StackPanel Margin="8">
+                    <TextBlock Text="Protection Timer" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                    <TextBlock Text="{Binding gracePeriodCountdown}" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,4,0,0"/>
+                </StackPanel>
+                <StackPanel Margin="8">
+                    <TextBlock Text="Last Display Event" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                    <TextBlock Text="{Binding lastDisplayEvent}" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,4,0,0"/>
+                </StackPanel>
+                <StackPanel Margin="8">
+                    <TextBlock Text="Last Lid Event" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                    <TextBlock Text="{Binding lastLidEvent}" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,4,0,0"/>
+                </StackPanel>
             </UniformGrid>
         </Border>
 
