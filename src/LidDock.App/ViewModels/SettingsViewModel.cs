@@ -23,7 +23,7 @@ public class settingsViewModel : baseViewModel
         settings.allowedDisplayPaths ??= new List<string>();
     }
 
-    public string appVersion => "1.0.3";
+    public string appVersion => "1.0.4";
     public string author => "MeowIce";
     public string githubUrl => "https://github.com/MeowIce/LidDock";
 
