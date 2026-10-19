@@ -1,5 +1,6 @@
 <Project>
   <PropertyGroup>
+    <NoWarn>$(NoWarn);CS8981</NoWarn>
     <Version>1.0.4</Version>
   </PropertyGroup>
 </Project>
