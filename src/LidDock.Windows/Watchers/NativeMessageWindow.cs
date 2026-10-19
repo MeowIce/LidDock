@@ -78,6 +78,7 @@ public class nativeMessageWindow : IDisposable
     public event Action? onTaskbarCreatedMessage;
     public event Action? onSettingsChangedMessage;
     public event Action<int, IntPtr, IntPtr>? onGenericMessage;
+    public event Action? onSystemResumedMessage;
 
     public void initialize()
     {
@@ -121,11 +122,7 @@ public class nativeMessageWindow : IDisposable
 
         if (windowHandle != IntPtr.Zero)
         {
-            var lidGuid = nativeConstants.guidLidSwitchStateChange;
-            lidNotificationHandle = nativeMethods.registerPowerSettingNotification(
-                windowHandle,
-                ref lidGuid,
-                nativeConstants.deviceNotifyWindowHandle);
+            refreshLidNotification();
 
             var powerGuid = nativeConstants.guidAcdcPowerSource;
             powerNotificationHandle = nativeMethods.registerPowerSettingNotification(
@@ -142,6 +139,26 @@ public class nativeMessageWindow : IDisposable
             taskbarCreatedMessage = nativeMethods.registerWindowMessage("TaskbarCreated");
             settingsChangedMessage = nativeMethods.registerWindowMessage("LidDock_SettingsChanged_Event");
         }
+    }
+
+    public void refreshLidNotification()
+    {
+        if (windowHandle == IntPtr.Zero)
+        {
+            return;
+        }
+
+        if (lidNotificationHandle != IntPtr.Zero)
+        {
+            nativeMethods.unregisterPowerSettingNotification(lidNotificationHandle);
+            lidNotificationHandle = IntPtr.Zero;
+        }
+
+        var lidGuid = nativeConstants.guidLidSwitchStateChange;
+        lidNotificationHandle = nativeMethods.registerPowerSettingNotification(
+            windowHandle,
+            ref lidGuid,
+            nativeConstants.deviceNotifyWindowHandle);
     }
 
     private IntPtr wndProc(IntPtr hwnd, uint msg, IntPtr wParam, IntPtr lParam)
@@ -174,6 +191,13 @@ public class nativeMessageWindow : IDisposable
                 if (wParamVal == nativeConstants.pbtApmPowerStatusChange)
                 {
                     onPowerSourceChangedMessage?.Invoke();
+                    return IntPtr.Zero;
+                }
+
+                if (wParamVal == nativeConstants.pbtApmResumeAutomatic ||
+                    wParamVal == nativeConstants.pbtApmResumeSuspend)
+                {
+                    onSystemResumedMessage?.Invoke();
                     return IntPtr.Zero;
                 }
 

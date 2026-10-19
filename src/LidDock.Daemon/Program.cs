@@ -88,10 +88,7 @@ internal static class Program
         hookEvents();
         startSettingsWatcher();
 
-        displayWatcher.notifyDisplayConfigurationChanged();
-        powerWatcher.notifyPowerStatusChanged();
-        stateMachine.updateLidState(lidWatcher.queryLidState());
-        updateTrayDisplay();
+        refreshSystemState();
 
         var isMinimized = args.Contains("--minimized");
         if (!isMinimized)
@@ -163,6 +160,12 @@ internal static class Program
             powerWatcher.notifyPowerStatusChanged();
         };
 
+        nativeWindow.onSystemResumedMessage += () =>
+        {
+            diagnosticsLogger.instance.logInfo("Daemon Event: System resumed");
+            refreshSystemState();
+        };
+
         nativeWindow.onTaskbarCreatedMessage += () =>
         {
             trayManager.recreateIcon();
@@ -190,6 +193,20 @@ internal static class Program
             diagnosticsLogger.instance.logWarning($"{title}: {message}");
             trayManager?.showToastNotification(title, message, true);
         };
+    }
+
+    private static void refreshSystemState()
+    {
+        if (nativeWindow == null || displayWatcher == null || lidWatcher == null || powerWatcher == null || stateMachine == null)
+        {
+            return;
+        }
+
+        nativeWindow.refreshLidNotification();
+        displayWatcher.notifyDisplayConfigurationChanged();
+        powerWatcher.notifyPowerStatusChanged();
+        stateMachine.updateLidState(lidWatcher.queryLidState());
+        updateTrayDisplay();
     }
 
     private static void updateTrayDisplay()

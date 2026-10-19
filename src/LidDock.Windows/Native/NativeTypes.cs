@@ -12,6 +12,8 @@ public static class nativeConstants
     public const int wmPowerBroadcast = 0x0218;
     public const int pbtPowerSettingChange = 0x8013;
     public const int pbtApmPowerStatusChange = 0x000A;
+    public const int pbtApmResumeSuspend = 0x0007;
+    public const int pbtApmResumeAutomatic = 0x0012;
     public const int deviceNotifyWindowHandle = 0x00000000;
     public const int hwndBroadcast = 0xffff;
 
